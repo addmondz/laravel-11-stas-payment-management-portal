@@ -1,0 +1,203 @@
+<script setup>
+import DangerButton from '@/Components/DangerButton.vue';
+import InputError from '@/Components/InputError.vue';
+import InputLabel from '@/Components/InputLabel.vue';
+import Modal from '@/Components/Modal.vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+import TextInput from '@/Components/TextInput.vue';
+import { useForm } from '@inertiajs/vue3';
+import { nextTick, ref } from 'vue';
+import { onMounted } from 'vue';
+import Swal from 'sweetalert2';
+
+const showingCreateClaimModal = ref(false);
+const emit = defineEmits();
+const currencyData = ref([]);
+const error = ref(null);
+const form = useForm({
+    payment_type: 'reimbursement',
+    payment_category: '',
+    currency: '',
+    amount: '',
+    gst: '0',
+    purpose: '',
+    receipt_date: '',
+    receipt: null,
+});
+
+const openCreateClaimModal = () => {
+    showingCreateClaimModal.value = true;
+};
+
+const closeModal = () => {
+    showingCreateClaimModal.value = false;
+};
+
+const submitClaim = async () => {
+    try {
+        // Create FormData to handle file uploads
+        const formData = new FormData();
+        formData.append('receipt', form.receipt);  // Attach file
+        // Append other form data fields as necessary
+        for (const [key, value] of Object.entries(form.data())) {
+            formData.append(key, value);
+        }
+
+        // Make the API request using axios with FormData
+        const response = await axios.post(route('claims.store'), formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'  // Important for file uploads
+            }
+        });
+
+        // Show success message with SweetAlert
+        Swal.fire({
+            title: 'Success!',
+            text: response.data.success, // Access success message from the response
+            icon: 'success',
+            confirmButtonText: 'OK',
+            customClass: {
+                confirmButton: 'w-32'
+            }
+        });
+
+        // Close modal and reset form after successful submission
+        closeModal();
+        form.reset();
+        emit('createComplete', true);
+    } catch (err) {
+        // Capture the API error and update form.errors
+        if (err.response && err.response.data.errors) {
+            form.errors = err.response.data.errors;  // Set the error response to form.errors
+        } else {
+            // Optionally handle other types of errors
+            Swal.fire({
+                title: 'Error!',
+                text: 'An unexpected error occurred.',
+                icon: 'error',
+                confirmButtonText: 'OK',
+            });
+        }
+    }
+};
+
+const fetchCurrencies = async () => {
+    try {
+        const { data } = await axios.get(route('currency.listShortCode'));
+        currencyData.value = data;
+    } catch (err) {
+        error.value = err;
+    }
+};
+
+// On component mount, load data
+onMounted(() => {
+    fetchCurrencies();
+});
+</script>
+
+<template>
+    <section class="space-y-6">
+        <PrimaryButton @click="openCreateClaimModal">Create Claim</PrimaryButton>
+
+        <Modal :show="showingCreateClaimModal" @close="closeModal">
+            <form @submit.prevent="submitClaim" class="p-6">
+                <h2 class="text-lg font-medium text-gray-900">Create a New Claim</h2>
+
+                <div class="grid grid-cols-1 gap-4 mt-4">
+                    <div>
+                        <InputLabel for="payment_type" value="Payment Type" />
+                        <select id="payment_type" v-model="form.payment_type"
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                            <option value="reimbursement">Reimbursement</option>
+                            <option value="external_payment">External Payment</option>
+                        </select>
+                        <InputError :message="form.errors.payment_type" class="mt-2" />
+                    </div>
+
+                    <div>
+                        <InputLabel for="payment_category" value="Payment Category" />
+                        <TextInput id="payment_category" v-model="form.payment_category"
+                            placeholder="e.g., Transportation" class="mt-1 block w-full" required />
+                        <InputError :message="form.errors.payment_category" class="mt-2" />
+                    </div>
+
+                    <div>
+                        <InputLabel for="currency" value="Currency" />
+                        <select id="currency" v-model="form.currency"
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                            <option v-for="(name, code) in currencyData" :key="code" :value="code">
+                                {{ name }}
+                            </option>
+                        </select>
+                        <InputError :message="form.errors.currency" class="mt-2" />
+                    </div>
+
+                    <div>
+                        <InputLabel for="amount" value="Amount (incl. GST if any)" />
+                        <TextInput id="amount" v-model="form.amount" type="number" step="0.01"
+                            placeholder="Enter amount" class="mt-1 block w-full" required />
+                        <InputError :message="form.errors.amount" class="mt-2" />
+                    </div>
+
+                    <div>
+                        <div class="col-span-2">
+                            <InputLabel value="GST" />
+                            <div class="flex items-center space-x-4 mt-1">
+                                <label class="inline-flex items-center">
+                                    <input type="radio" v-model="form.gst" value="1" class="form-radio" />
+                                    <span class="ml-2">Yes</span>
+                                </label>
+                                <label class="inline-flex items-center">
+                                    <input type="radio" v-model="form.gst" value="0" class="form-radio" />
+                                    <span class="ml-2">No</span>
+                                </label>
+                            </div>
+                            <InputError :message="form.errors.gst" class="mt-2" />
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="col-span-2">
+                            <InputLabel for="purpose" value="Purpose of Payment" />
+                            <textarea id="purpose" v-model="form.purpose" rows="4"
+                                placeholder="Enter purpose of payment"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required></textarea>
+                            <InputError :message="form.errors.purpose" class="mt-2" />
+                        </div>
+                    </div>
+
+                    <div>
+                        <InputLabel for="receipt_date" value="Date of Receipt / Invoice" />
+                        <TextInput id="receipt_date" v-model="form.receipt_date" type="date" class="mt-1 block w-full"
+                            required />
+                        <InputError :message="form.errors.receipt_date" class="mt-2" />
+                    </div>
+
+                    <div>
+                        <div class="col-span-2">
+                            <InputLabel for="receipt" value="Upload Receipt" />
+                            <input id="receipt" type="file" @change="(e) => (form.receipt = e.target.files[0])"
+                                accept=".jpeg,.jpg,.pdf,.png"
+                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 cursor-pointer"
+                                required />
+                            <InputError :message="form.errors.receipt" class="mt-2" />
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="text-right mt-6">
+                    <button type="button" @click="closeModal"
+                        class="bg-white hover:bg-gray-100 text-black inline-flex items-center px-4 py-2 border rounded font-semibold">
+                        Close
+                    </button>
+                    <PrimaryButton type="submit" class="ms-3" :class="{ 'opacity-25': form.processing }"
+                        :disabled="form.processing">
+                        Submit Claim
+                    </PrimaryButton>
+                </div>
+            </form>
+        </Modal>
+    </section>
+</template>
