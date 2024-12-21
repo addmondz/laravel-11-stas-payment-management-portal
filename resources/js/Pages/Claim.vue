@@ -14,7 +14,7 @@
         </div>
         <div v-else>
             <div class="py-12" v-if="apiResponse">
-                <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0">
                     <!-- to continue later -->
                     <div class="grid md:grid-cols-4 gap-4 mb-5 hidden">
                         <FilterDropdown class="w-full mr-5" label="a brand" v-model="brandFilter"
