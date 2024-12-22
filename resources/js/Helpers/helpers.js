@@ -1,4 +1,5 @@
 import axios from 'axios';
+import moment from 'moment';
 
 const fetchUserDetails = async () => {
     try {
@@ -38,6 +39,10 @@ const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
 const storedUserData = JSON.parse(sessionStorage.getItem('userData')) || {};
 
+const formatDate = (date) => {
+    return moment(date).format('DD-MM-YYYY');
+};
+
 const getPriceAfterDiscount = (price, returnFormat = 'string') => {
     price = Number(price);
     const discount = Number(storedUserData?.membership_type?.discount) || 0;
@@ -55,5 +60,7 @@ const getPriceAfterDiscount = (price, returnFormat = 'string') => {
     return formatPrice(discountedPrice);
 };
 
+const formatId = (id) => String(id).padStart(5, '0');
+
 // Exporting functions
-export { fetchUserDetails, formatPrice, apiBaseUrl, getPriceAfterDiscount, convertStringToNumber, formatNumberToTwoDecimals };
+export { fetchUserDetails, formatPrice, apiBaseUrl, getPriceAfterDiscount, convertStringToNumber, formatNumberToTwoDecimals, formatId, formatDate };

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Classes\ValueObjects\Constants\ApprovalStatus;
 use Illuminate\Http\Request;
 use App\Models\Claim;
 use Carbon\Carbon;
@@ -53,6 +54,7 @@ class ClaimController extends Controller
                 'gst_amount'            => $hasGst ? ($requestData['amount'] * 0.06) : 0,
                 'gst_percent'           => '6',
                 'bank_account_id'       => '1',
+                'status'                => ApprovalStatus::PENDING_APPROVAL,
             ]);
         } catch (\Exception $e) {
             Log::error('Error creating claim: ' . $e->getMessage());
@@ -73,6 +75,20 @@ class ClaimController extends Controller
             // Define the base query
             $query = Claim::query();
 
+            if ($request->input('paymentType')) {
+                $query->where('payment_type', $request->input('paymentType'));
+            }
+
+            if ($request->input('searchValue')) {
+                $queryParam = ['payment_category', 'purpose'];
+                $searchValue = $request->input('paymentType');
+                $query->where(function ($query) use ($queryParam, $searchValue) {
+                    foreach ($queryParam as $q) {
+                        $query->orWhere($q, 'like', '%' . $searchValue . '%');
+                    }
+                });
+            }
+
             // Apply sorting if provided
             $sortColumn = $request->input('sort.column', 'id');
             $sortDirection = $request->input('sort.direction', 'asc');
@@ -83,7 +99,8 @@ class ClaimController extends Controller
             $datas = $query->paginate($perPage);
 
             $datas->getCollection()->transform(function ($data) {
-                $data->currency = $data->getCurrencyObject->short_code;
+                $data->currency = $data->currencyObject->short_code;
+                $data->status = ApprovalStatus::APPROVAL_STATUS_ID[$data->status];
                 return $data;
             });
 
@@ -107,5 +124,26 @@ class ClaimController extends Controller
                 'message' => 'An error occurred while listing claims',
             ], 500);
         }
+    }
+
+    public function fetchData(Request $request, $id)
+    {
+        $data = Claim::with('currencyObject', 'createdUser', 'paymentToUser')->find($id);
+        $data->status = ApprovalStatus::APPROVAL_STATUS_ID[$data->status];
+
+        // Check if data exists
+        if (!$data) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data not found',
+            ], 404);
+        }
+
+        // Return the data as a JSON response
+        return response()->json([
+            'success' => true,
+            'data' => $data,
+            'message' => 'Claim fetched successfully',
+        ], 200);
     }
 }

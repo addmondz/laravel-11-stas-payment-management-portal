@@ -26,8 +26,18 @@ class Claim extends Model
         'status'
     ];
 
-    public function getCurrencyObject()
+    public function currencyObject()
     {
         return $this->belongsTo(Currency::class, 'currency', 'id');
+    }
+
+    public function createdUser()
+    {
+        return $this->belongsTo(User::class, 'created_by', 'id');
+    }
+
+    public function paymentToUser()
+    {
+        return $this->belongsTo(User::class, 'payment_to', 'id');
     }
 }

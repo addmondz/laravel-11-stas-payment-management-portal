@@ -1,6 +1,6 @@
 <template>
     <div
-        class="w-full flex flex-col justify-center order-last lg:order-none max-lg:mx-auto border p-5 rounded-xl overflow-hidden bg-white">
+        class="w-full flex flex-col justify-center order-last lg:order-none max-lg:mx-auto border p-5 rounded-xl overflow-hidden bg-white hover:border-violet-600 transition-all duration-500">
         <div class="flex">
             <div class="flex-1">
                 <div class="grid lg:grid-cols-6 grid-cols-2 gap-x-4 gap-y-4">
@@ -80,7 +80,7 @@
             </div>
             <div class="flex justify-center items-center">
                 <button class="cursor-pointer hover:text-violet-600 transition-all">
-                    <Eye />
+                    <AngleRight />
                 </button>
             </div>
         </div>
@@ -90,8 +90,8 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import moment from 'moment';
-import Eye from '@/Components/Icons/Eye.vue';
+import AngleRight from '@/Components/Icons/AngleRight.vue';
+import { formatDate } from '@/Helpers/helpers.js';
 
 const props = defineProps({
     data: {
@@ -101,10 +101,6 @@ const props = defineProps({
 });
 
 const showDetails = ref(false);
-
-const formatDate = (date) => {
-    return moment(date).format('DD-MM-YYYY');
-};
 
 const formatToSevenDigits = (num) => {
     return num.toString().padStart(7, '0');

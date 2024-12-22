@@ -22,6 +22,10 @@ Route::get('/claims', function () {
     return Inertia::render('Claim');
 })->middleware(['auth', 'verified'])->name('claims');
 
+Route::get('/claim/{id}', function ($id) {
+    return Inertia::render('ClaimDetails', ['id' => $id]);
+})->middleware(['auth', 'verified'])->name('claim.details');
+
 Route::get('/users', function () {
     return Inertia::render('User');
 })->middleware(['auth', 'verified'])->name('users');
