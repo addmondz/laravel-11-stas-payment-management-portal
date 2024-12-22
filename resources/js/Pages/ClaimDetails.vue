@@ -144,13 +144,13 @@
                         </div>
                     </div>
                 </div>
-                <!-- <div class="bg-white max-w-7xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5">
+                <div class="bg-white max-w-7xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5">
                     <div class="px-5 py-3 border-b border-gray-300 flex justify-between items-center">
                         <div>
                             <h2>Bank Account Details</h2>
                         </div>
                     </div>
-                </div> -->
+                </div>
             </div>
             <div v-else>
                 <NotFound />
