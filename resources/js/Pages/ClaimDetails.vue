@@ -128,7 +128,7 @@
                                             <div class="text-right">
                                                 <CloseOutlined class="pb-2" @click="closeModal" />
                                             </div>
-                                            <img :src="`/storage/${fetchedData.receipt_file}`" alt="Receipt Image"
+                                            <img :src="`/${fetchedData.receipt_file}`" alt="Receipt Image"
                                                 class="max-w-full max-h-screen" />
                                         </div>
                                     </div>

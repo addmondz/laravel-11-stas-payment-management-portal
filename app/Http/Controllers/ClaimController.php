@@ -28,10 +28,25 @@ class ClaimController extends Controller
             'receipt' => 'required|mimes:jpeg,pdf,jpg,png|max:2048',
         ]);
 
-        // Handle the file upload if it exists
+        // // Handle the file upload if it exists
+        // if ($request->hasFile('receipt')) {
+        //     $path = $request->file('receipt')->store('receipts', 'public');
+        // }
+
+        // store at public folder
         if ($request->hasFile('receipt')) {
-            $path = $request->file('receipt')->store('receipts', 'public');
+            $file = $request->file('receipt');
+
+            // Generate a unique name for the file to avoid conflicts
+            $filename = uniqid() . '.' . $file->getClientOriginalExtension();
+
+            // Store the file directly in the public folder
+            $file->move(public_path('receipts'), $filename);
+
+            // Save the file path to the database or return the filename
+            $path = 'receipts/' . $filename;
         }
+
 
         $requestData = $request->all();
 
