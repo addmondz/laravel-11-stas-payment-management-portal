@@ -2,7 +2,8 @@ import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
 import vue from '@vitejs/plugin-vue';
 
-const baseUrl = 'http://deeppink-mule-517335.hostingersite.com/public/build';
+const baseUrl = process.env.VITE_BASE_URL_PUBLIC;
+console.log(process.env.VITE_BASE_URL_PUBLIC);
 
 export default defineConfig({
     base: baseUrl,
