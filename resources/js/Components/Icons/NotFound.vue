@@ -21,8 +21,7 @@ export default {
     name: "NotFound",
     data() {
         return {
-            // imageUrl: `${import.meta.env.VITE_BASE_URL}/public/images/not-found-illustration.png`
-            imageUrl: `${import.meta.env.VITE_BASE_URL}/public/images/not-found-illustration.jpg`
+            imageUrl: `${import.meta.env.VITE_BASE_URL}/public/images/not-found-illustration.png`
         };
     }
 };
