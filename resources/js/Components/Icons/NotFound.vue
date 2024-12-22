@@ -3,8 +3,8 @@
         <div class="w-full max-w-2xl">
             <div class="flex items-center justify-center mb-8">
                 <div class="w-1/3">
-                    <!-- Reference the image directly from the public folder -->
-                    <img src="/images/not-found-illustration.png" class="w-full" />
+                    <!-- Reference the image dynamically using the VITE_BASE_URL -->
+                    <img :src="imageUrl" class="w-full" />
                 </div>
             </div>
             <div class="text-center">
@@ -19,5 +19,10 @@
 <script>
 export default {
     name: "NotFound",
+    data() {
+        return {
+            imageUrl: `${import.meta.env.VITE_BASE_URL}/public/images/not-found-illustration.png`
+        };
+    }
 };
 </script>
