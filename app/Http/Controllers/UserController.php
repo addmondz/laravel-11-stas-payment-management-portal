@@ -116,6 +116,8 @@ class UserController extends Controller
                 ['user_id' => $user->id],
                 ['privilege_id' => $request->input('approvalRole')]
             );
+        } else {
+            UserPrivilege::where('user_id', $user->id)->delete();
         }
 
         // Return a success response

@@ -28,7 +28,7 @@
                             @click="applyFilters">Search</button>
                     </div>
                     <div class="grid md:grid-cols gap-4 mb-5">
-                        <PaymentCategoryListTemplate v-for="product in listData" :key="product.id" :data="product" />
+                        <PaymentCategoryListTemplate @createComplete="handleCreateComplete"  v-for="product in listData" :key="product.id" :data="product" />
                     </div>
                     <div v-if="listData.length === 0 || listData == []">
                         <NotFound />

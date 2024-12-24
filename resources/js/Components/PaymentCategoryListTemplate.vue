@@ -45,7 +45,7 @@
             <div class="flex justify-center items-center">
                 <button class="cursor-pointer hover:text-violet-600 transition-all">
                     <!-- <AngleRight /> -->
-                     <PaymmentCategoryForm :userData="data" />
+                     <PaymmentCategoryForm :userData="data" @createComplete="handleCreateComplete" />
                 </button>
             </div>
         </div>
@@ -58,6 +58,7 @@ import { ref, computed } from 'vue';
 import AngleRight from '@/Components/Icons/AngleRight.vue';
 import { formatDate } from '@/Helpers/helpers.js';
 import PaymmentCategoryForm from '@/Components/PaymmentCategoryForm.vue';
+const emit = defineEmits();
 
 const props = defineProps({
     data: {
@@ -75,4 +76,8 @@ const itemTotalQuantity = computed(() => {
 
     return 0;
 });
+
+const handleCreateComplete = () => {
+    emit('createComplete', true);
+};
 </script>

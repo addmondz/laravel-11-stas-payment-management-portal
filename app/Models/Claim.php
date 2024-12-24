@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Classes\ValueObjects\Constants\ApprovalStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -47,7 +48,18 @@ class Claim extends Model
         return $this->belongsTo(User::class, 'payment_to', 'id');
     }
 
-    public function paymentCategory() {
+    public function paymentCategory()
+    {
         return $this->belongsTo(PaymentCategory::class, 'payment_category_id', 'id');
+    }
+
+    public function approvalLogs()
+    {
+        return $this->hasMany(ApprovalLog::class);
+    }
+
+    public function statusLogs()
+    {
+        return $this->hasMany(ClaimStatusLog::class);
     }
 }

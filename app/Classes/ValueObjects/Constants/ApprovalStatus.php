@@ -12,6 +12,12 @@ final class ApprovalStatus
     public const CANCELLED                = 5;
     public const PAYMENT_FAILED           = 6;
 
+    // start 3 layer approval status
+    public const L1_APPROVAL           = 7;
+    public const L2_APPROVAL           = 8;
+    public const L3_APPROVAL           = 9;
+    // emd 3 layer approval status
+
     public const APPROVAL_STATUS_ID = [
         self::PENDING_SUBMISSION          => "Pending Submission",
         self::PENDING_APPROVAL            => "Pending Approval",
@@ -20,5 +26,9 @@ final class ApprovalStatus
         self::REJECTED                    => "Rejected",
         self::CANCELLED                   => "Cancelled",
         self::PAYMENT_FAILED              => "Payment Failed",
+        
+        self::L1_APPROVAL                 => "L1 Approval",
+        self::L2_APPROVAL                 => "L2 Approval",
+        self::L3_APPROVAL                 => "L3 Approval",
     ];
 }

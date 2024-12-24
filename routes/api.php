@@ -17,6 +17,7 @@ Route::prefix('api')->middleware('auth')->group(function () {
         Route::get('/list', [ClaimController::class, 'list'])->name('claims.list');
         Route::post('/store', [ClaimController::class, 'store'])->name('claims.store');
         Route::get('/{id}/fetch', [ClaimController::class, 'fetchData'])->name('claims.fetchData');
+        Route::post('/{id}/approve', [ClaimController::class, 'approveClaim'])->name('claims.approveClaim');
     });
 
     Route::prefix('currency')->group(function () {

@@ -81,7 +81,7 @@
             <div class="flex justify-center items-center">
                 <button class="cursor-pointer hover:text-violet-600 transition-all">
                     <!-- <EditOutlined /> -->
-                    <UserForm :userData="data" />
+                    <UserForm :userData="data" @createComplete="handleCreateComplete" />
                 </button>
             </div>
         </div>
@@ -91,25 +91,17 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import AngleRight from '@/Components/Icons/AngleRight.vue';
 import { formatDate } from '@/Helpers/helpers.js';
-import { EditOutlined } from '@ant-design/icons-vue';
 import UserForm from '@/Components/UserForm.vue';
 
+const emit = defineEmits();
 const props = defineProps({
     data: {
         type: Object,
         required: true,
     },
 });
-
-const showDetails = ref(false);
-
-const itemTotalQuantity = computed(() => {
-    return props.order.items.reduce((total, item) => {
-        return total + item.quantity;
-    }, 0);
-
-    return 0;
-});
+const handleCreateComplete = () => {
+    emit('createComplete', true);
+};
 </script>

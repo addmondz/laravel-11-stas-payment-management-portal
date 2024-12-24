@@ -44,27 +44,7 @@ const toggleModal = () => {
     showingCreateUserModal.value = !showingCreateUserModal.value;
 };
 
-const validatePassword = () => {
-    if (form.password !== form.password_confirmation) {
-        form.errors.password_confirmation = 'Passwords do not match';
-        return false;
-    } else {
-        form.errors.password_confirmation = '';
-    }
-    return true;
-};
-
 const submitUser = async () => {
-    if (!validatePassword()) {
-        Swal.fire({
-            title: 'Error!',
-            text: 'Passwords do not match.',
-            icon: 'error',
-            confirmButtonText: 'OK',
-        });
-        return;
-    }
-
     try {
         const formData = new FormData();
         for (const [key, value] of Object.entries(form.data())) {
@@ -105,19 +85,6 @@ const submitUser = async () => {
         }
     }
 };
-
-const fetchApprovalRoles = async () => {
-    try {
-        const { data } = await axios.get(route('approvalRoles.list'));
-        approvalRolesData.value = data;
-    } catch (err) {
-        error.value = err;
-    }
-};
-
-onMounted(() => {
-    fetchApprovalRoles();
-});
 </script>
 
 <template>

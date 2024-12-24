@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Classes\ValueObjects\Constants\ApprovalRoles;
 use App\Classes\ValueObjects\Constants\ApprovalStatus;
+use App\Models\ApprovalLog;
 use Illuminate\Http\Request;
 use App\Models\Claim;
+use App\Models\ClaimStatusLog;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
@@ -78,6 +81,12 @@ class ClaimController extends Controller
             ], 500);
         }
 
+        ClaimStatusLog::create([
+            'claim_id'      => $claim->id,
+            'status'        => $claim->status,
+            'causer_id'     => $user->id,
+        ]);
+
         // Return success in JSON
         return response()->json([
             'success' => 'Claim created successfully!',
@@ -124,7 +133,7 @@ class ClaimController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => $datas,
-                'message' => 'Claims fetched successfully',
+                'message' => 'Claims listed successfully',
             ]);
         } catch (\Exception $e) {
             // Log the error with detailed information
@@ -144,8 +153,8 @@ class ClaimController extends Controller
 
     public function fetchData(Request $request, $id)
     {
-        $data = Claim::with('currencyObject', 'createdUser', 'paymentToUser')->find($id);
-        $data->status = ApprovalStatus::APPROVAL_STATUS_ID[$data->status];
+        // Fetch the claim data with the relationships
+        $data = Claim::with('currencyObject', 'createdUser', 'paymentToUser', 'statusLogs')->find($id);
 
         // Check if data exists
         if (!$data) {
@@ -155,11 +164,90 @@ class ClaimController extends Controller
             ], 404);
         }
 
+        // Format the status field (assuming ApprovalStatus::APPROVAL_STATUS_ID holds the status names)
+        $data->status = ApprovalStatus::APPROVAL_STATUS_ID[$data->status] ?? 'Unknown Status';
+
+        $data->status_log = $data->statusLogs->map(function ($log) {
+            $logStatus = ApprovalStatus::APPROVAL_STATUS_ID[$log->status] ?? 'Unknown Status';
+            return [
+                'id' => $log->id,
+                'status' => $logStatus,  // Human-readable status name
+                'created_at' => $log->created_at,
+                'name' => $log->causer->name ?? 'Unknown User',  // Causer's name
+            ];
+        });
+
         // Return the data as a JSON response
         return response()->json([
             'success' => true,
             'data' => $data,
             'message' => 'Claim fetched successfully',
         ], 200);
+    }
+
+    public function approveClaim(Request $request, $id)
+    {
+        $claim = Claim::find($id);
+
+        if (!$claim) {
+            return response()->json(['error' => 'Claim not found.'], 404);
+        }
+
+        $currentApprovalLevel = $claim->approvalLogs->max('approval_level') ?? 0;
+        $nextApprovalLevel = $currentApprovalLevel < ApprovalRoles::L3_APPROVAL_MEMBERS
+            ? $currentApprovalLevel + 1
+            : null;
+
+        if ($claim->status === ApprovalStatus::APPROVED || is_null($nextApprovalLevel)) {
+            if ($claim->status !== ApprovalStatus::APPROVED) {
+                $claim->update(['status' => ApprovalStatus::APPROVED]);
+            }
+            return response()->json(['message' => 'Claim fully approved.'], 200);
+        }
+
+        $userRole = auth()->user()->privileges->first()->privilege_id ?? null;
+
+        if ($userRole !== $nextApprovalLevel) {
+            return response()->json(['error' => 'Insufficient privileges for this approval level.'], 403);
+        }
+
+        ApprovalLog::create([
+            'claim_id' => $claim->id,
+            'approval_level' => $nextApprovalLevel,
+            'user_id' => auth()->id(),
+        ]);
+
+        $claimLogStatus = null;
+        switch ($nextApprovalLevel) {
+            case 1:
+                $claimLogStatus = ApprovalStatus::L1_APPROVAL;
+                break;
+            case 2:
+                $claimLogStatus = ApprovalStatus::L2_APPROVAL;
+                break;
+            case 3:
+                $claimLogStatus = ApprovalStatus::L3_APPROVAL;
+                break;
+        }
+
+        if ($claimLogStatus) {
+            ClaimStatusLog::create([
+                'claim_id'      => $claim->id,
+                'status'        => $claimLogStatus,
+                'causer_id'     => auth()->id(),
+            ]);
+        }
+
+        if ($nextApprovalLevel >= ApprovalRoles::L3_APPROVAL_MEMBERS) {
+            $claim->update(['status' => ApprovalStatus::APPROVED]);
+            ClaimStatusLog::create([
+                'claim_id'      => $claim->id,
+                'status'        => ApprovalStatus::APPROVED,
+                'causer_id'     => auth()->id(),
+            ]);
+            return response()->json(['message' => 'Claim approved at all levels.'], 200);
+        }
+
+        return response()->json(['message' => 'Claim approved at this level. Awaiting further approvals.'], 200);
     }
 }
