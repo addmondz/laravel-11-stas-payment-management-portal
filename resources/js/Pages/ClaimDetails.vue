@@ -16,11 +16,13 @@
             <div class="py-12 m-5 mt-0 pt-5" v-if="apiResponse">
                 <div class="bg-white max-w-7xl mx-auto sm:px-6 lg:px-8 mb-5">
                     <div class="px-5 py-3 border-b border-gray-300 flex justify-between items-center">
-                        <div>
+                        <div class="flex justify-between content-center w-full">
                             <h2>Details</h2>
+                            <AngleUp class="cursor-pointer" v-if="showSection.details" @click="toggleShowSection('details')" />
+                            <AngleDown class="cursor-pointer" v-if="!showSection.details" @click="toggleShowSection('details')" />
                         </div>
                     </div>
-                    <div class="grid md:grid-cols-3 gap-9 p-6 border-gray-300 col-span-2">
+                    <div class="grid md:grid-cols-3 gap-9 p-6 border-gray-300 col-span-2" v-if="showSection.details">
                         <div class="mb-4">
                             <div class="flex justify-between">
                                 <p class="mb-1 text-sm text-gray-500">Created By</p>
@@ -71,11 +73,13 @@
                 </div>
                 <div class="bg-white max-w-7xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5">
                     <div class="px-5 py-3 border-b border-gray-300 flex justify-between items-center">
-                        <div>
+                        <div class="flex justify-between content-center w-full">
                             <h2>Amount</h2>
+                            <AngleUp class="cursor-pointer" v-if="showSection.amount" @click="toggleShowSection('amount')" />
+                            <AngleDown class="cursor-pointer" v-if="!showSection.amount" @click="toggleShowSection('amount')" />
                         </div>
                     </div>
-                    <div class="grid md:grid-cols-3 gap-9 p-6 border-gray-300 col-span-2">
+                    <div class="grid md:grid-cols-3 gap-9 p-6 border-gray-300 col-span-2" v-if="showSection.amount">
                         <div class="mb-4">
                             <div class="flex justify-between">
                                 <p class="mb-1 text-sm text-gray-500">Total Amount</p>
@@ -109,18 +113,22 @@
                 </div>
                 <div class="bg-white max-w-7xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5">
                     <div class="px-5 py-3 border-b border-gray-300 flex justify-between items-center">
-                        <div>
+                        <div class="flex justify-between content-center w-full">
                             <h2>Receipt</h2>
+                            <AngleUp class="cursor-pointer" v-if="showSection.receipt" @click="toggleShowSection('receipt')" />
+                            <AngleDown class="cursor-pointer" v-if="!showSection.receipt" @click="toggleShowSection('receipt')" />
                         </div>
                     </div>
-                    <div class="grid md:grid-cols-3 gap-9 p-6 border-gray-300 col-span-2">
+                    <div class="grid md:grid-cols-3 gap-9 p-6 border-gray-300 col-span-2" v-if="showSection.receipt">
                         <div class="mb-4">
                             <div class="flex justify-between">
                                 <p class="mb-1 text-sm text-gray-500">Receipt Document</p>
                                 <InfoCircleOutlined class="text-gray-400" />
                             </div>
                             <div>
-                                <div class="text-base cursor-pointer inline text-violet-700 font-bold" @click="openModal">Open</div>
+                                <div class="text-base cursor-pointer inline text-violet-700 font-bold"
+                                    @click="openModal">Open
+                                </div>
                                 <div v-if="isModalOpen"
                                     class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
                                     <div class="bg-white p-4 pt-2 rounded-lg max-w-lg">
@@ -144,13 +152,13 @@
                         </div>
                     </div>
                 </div>
-                <div class="bg-white max-w-7xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5">
+                <!-- <div class="bg-white max-w-7xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5">
                     <div class="px-5 py-3 border-b border-gray-300 flex justify-between items-center">
                         <div>
                             <h2>Bank Account Details</h2>
                         </div>
                     </div>
-                </div>
+                </div> -->
             </div>
             <div v-else>
                 <NotFound />
@@ -171,6 +179,8 @@ import BreadcrumbComponent from '@/Components/BreadcrumbComponent.vue';
 import { formatId } from '@/Helpers/helpers.js';
 import { InfoCircleOutlined, CloseOutlined } from '@ant-design/icons-vue';
 import { formatPrice, formatDate } from '@/Helpers/helpers.js';
+import AngleUp from '@/Components/Icons/AngleUp.vue';
+import AngleDown from '@/Components/Icons/AngleDown.vue';
 
 const isLoading = ref(true);
 const fetchedData = ref([]);
@@ -189,6 +199,15 @@ const breadcrumbs = [
     { title: 'Claims', link: route('claims') },
     { title: '#' + formatId(props.id), },
 ];
+const showSection = ref({
+    details: true,
+    amount: true,
+    receipt: true,
+});
+
+const toggleShowSection = (name) => {
+    showSection.value[name] = !showSection.value[name];
+};
 
 // Fetch data
 const fetchData = async () => {
