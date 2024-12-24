@@ -1,25 +1,25 @@
 <script setup>
-import DangerButton from '@/Components/DangerButton.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import Modal from '@/Components/Modal.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { useForm } from '@inertiajs/vue3';
-import { nextTick, ref } from 'vue';
+import { ref } from 'vue';
 import { onMounted } from 'vue';
 import Swal from 'sweetalert2';
 
 const showingCreateClaimModal = ref(false);
 const emit = defineEmits();
 const currencyData = ref([]);
+const paymentCategoryData = ref([]);
 const error = ref(null);
 const form = useForm({
-    payment_type: 'reimbursement',
+    payment_type: '',
     payment_category: '',
     currency: '',
     amount: '',
-    gst: '0',
+    gst: '',
     purpose: '',
     receipt_date: '',
     receipt: null,
@@ -90,9 +90,19 @@ const fetchCurrencies = async () => {
     }
 };
 
+const fetchPaymentCategory = async () => {
+    try {
+        const { data } = await axios.get(route('paymentCategory.listChoice'));
+        paymentCategoryData.value = data;
+    } catch (err) {
+        error.value = err;
+    }
+};
+
 // On component mount, load data
 onMounted(() => {
     fetchCurrencies();
+    fetchPaymentCategory();
 });
 </script>
 
@@ -109,6 +119,7 @@ onMounted(() => {
                         <InputLabel for="payment_type" value="Payment Type" />
                         <select id="payment_type" v-model="form.payment_type"
                             class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                            <option value="" disabled selected>Please select Payment Type</option>
                             <option value="reimbursement">Reimbursement</option>
                             <option value="external_payment">External Payment</option>
                         </select>
@@ -117,8 +128,14 @@ onMounted(() => {
 
                     <div>
                         <InputLabel for="payment_category" value="Payment Category" />
-                        <TextInput id="payment_category" v-model="form.payment_category"
-                            placeholder="e.g., Transportation" class="mt-1 block w-full" required />
+                        <select id="currency" v-model="form.payment_category"
+                            class="mt-1 payment_category w-full border-gray-300 rounded-md shadow-sm" required>
+                            <option value="" disabled selected>Please select Payment Category</option>
+                            <option v-for="(name, code) in paymentCategoryData" :key="code" :value="code"
+                                class="capitalize">
+                                {{ name }}
+                            </option>
+                        </select>
                         <InputError :message="form.errors.payment_category" class="mt-2" />
                     </div>
 
@@ -126,6 +143,7 @@ onMounted(() => {
                         <InputLabel for="currency" value="Currency" />
                         <select id="currency" v-model="form.currency"
                             class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                            <option value="" disabled selected>Please select Currency</option>
                             <option v-for="(name, code) in currencyData" :key="code" :value="code">
                                 {{ name }}
                             </option>
@@ -189,7 +207,7 @@ onMounted(() => {
 
                 <div class="text-right mt-6">
                     <button type="button" @click="closeModal"
-                        class="bg-white hover:bg-gray-100 text-black inline-flex items-center px-4 py-2 border rounded font-semibold">
+                        class="bg-white hover:bg-gray-100 text-black inline-flex items-center px-4 py-2 border rounded-md font-semibold text-xs uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
                         Close
                     </button>
                     <PrimaryButton type="submit" class="ms-3" :class="{ 'opacity-25': form.processing }"

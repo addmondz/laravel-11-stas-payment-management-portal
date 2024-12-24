@@ -1,0 +1,4 @@
+deplyment.txt
+
+1. yarn run build
+2. git push

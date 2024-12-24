@@ -78,7 +78,7 @@ const submit = () => {
 
             </form>
         </div>
-        <div class="w-full sm:max-w-md mt-5 overflow-hidden sm:rounded-lg flex items-center justify-center">
+        <!-- <div class="w-full sm:max-w-md mt-5 overflow-hidden sm:rounded-lg flex items-center justify-center">
             <div class="flex-grow border-t border-gray-500"></div>
             <span class="px-4 text-gray-500">or</span>
             <div class="flex-grow border-t border-gray-500"></div>
@@ -91,6 +91,6 @@ const submit = () => {
                 Register
             </SecondaryButton>
             </Link>
-        </div>
+        </div> -->
     </GuestLayout>
 </template>

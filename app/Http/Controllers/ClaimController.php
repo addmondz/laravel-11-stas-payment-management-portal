@@ -57,8 +57,8 @@ class ClaimController extends Controller
             $claim = Claim::create([
                 'created_by'            => $user->id,
                 'payment_type'          => $requestData['payment_type'],
-                'payment_category'      => $requestData['payment_category'],
-                'currency'              => $requestData['currency'],
+                'payment_category_id'   => $requestData['payment_category'],
+                'currency_id'           => $requestData['currency'],
                 'amount'                => $requestData['amount'],
                 'purpose'               => $requestData['purpose'],
                 'receipt_date'          => $requestData['receipt_date'],
@@ -116,6 +116,7 @@ class ClaimController extends Controller
             $datas->getCollection()->transform(function ($data) {
                 $data->currency = $data->currencyObject->short_code;
                 $data->status = ApprovalStatus::APPROVAL_STATUS_ID[$data->status];
+                $data->payment_category_name = $data->paymentCategory->name;
                 return $data;
             });
 
@@ -127,7 +128,7 @@ class ClaimController extends Controller
             ]);
         } catch (\Exception $e) {
             // Log the error with detailed information
-            Log::error('Error listing users', [
+            Log::error('Error listing Claims', [
                 'message' => $e->getMessage(),
                 'line' => $e->getLine(),
                 'file' => $e->getFile(),
@@ -136,7 +137,7 @@ class ClaimController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'An error occurred while listing claims',
+                'message' => 'An error occurred while listing Claims',
             ], 500);
         }
     }

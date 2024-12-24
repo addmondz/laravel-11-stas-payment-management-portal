@@ -4,13 +4,13 @@
     <AuthenticatedLayout>
         <template #header>
             <div class="flex justify-between content-center">
-                <BreadcrumbComponent :breadcrumbs="[{ title: 'Users' }]" />
-                <UserForm @createComplete="handleCreateComplete" />
+                <BreadcrumbComponent :breadcrumbs="[{ title: 'Settings' }, { title: 'Payment Category' }]" />
+                <PaymmentCategoryForm @createComplete="handleCreateComplete" />
             </div>
         </template>
 
         <div v-if="isLoading">
-            <LoadingComponent class="mt-32"/>
+            <LoadingComponent class="mt-32" />
         </div>
         <div v-else>
             <div class="py-12" v-if="apiResponse">
@@ -28,7 +28,7 @@
                             @click="applyFilters">Search</button>
                     </div>
                     <div class="grid md:grid-cols gap-4 mb-5">
-                        <UsersListTemplate v-for="product in listData" :key="product.id" :data="product" />
+                        <PaymentCategoryListTemplate v-for="product in listData" :key="product.id" :data="product" />
                     </div>
                     <div v-if="listData.length === 0 || listData == []">
                         <NotFound />
@@ -65,12 +65,12 @@ import axios from 'axios';
 import { ref, onMounted, watch } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
-import UsersListTemplate from '@/Components/UsersListTemplate.vue';
+import PaymentCategoryListTemplate from '@/Components/PaymentCategoryListTemplate.vue';
 import NotFound from '@/Components/Icons/NotFound.vue';
 import FilterDropdown from '@/Components/FilterDropdown.vue';
 import LoadingComponent from '@/Components/LoadingComponent.vue';
 import BreadcrumbComponent from '@/Components/BreadcrumbComponent.vue';
-import UserForm from '@/Components/UserForm.vue';
+import PaymmentCategoryForm from '@/Components/PaymmentCategoryForm.vue';
 
 const isLoading = ref(true);
 const listData = ref([]);
@@ -83,7 +83,7 @@ const apiResponse = ref(null);
 const limit = ref(9);
 const currentPage = ref(1);
 const lastPage = ref(0);
-const apiUrl = route('users.list');
+const apiUrl = route('paymentCategory.list');
 
 // Fetch products with filters applied
 const fetchList = async (page = 1) => {

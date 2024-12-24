@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\BankAccount;
 use App\Models\Country;
 use App\Models\Currency;
+use App\Models\PaymentCategory;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -35,6 +36,10 @@ class DatabaseSeeder extends Seeder
             'swift_code' => 'BOFLUS33',
             'currency' => Currency::find(1)->id,
             'owner' => User::find(1)->id,
+        ]);
+
+        PaymentCategory::create([
+            'name' => 'transportation',
         ]);
     }
 }

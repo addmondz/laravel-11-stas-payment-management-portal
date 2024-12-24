@@ -24,7 +24,7 @@
                         </div>
                         <div class="row">
                             <div class="col">
-                                <div class="">{{ data.payment_type }}</div>
+                                <div class="">{{ formatString(data.payment_type) }}</div>
                             </div>
                         </div>
                     </div>
@@ -36,7 +36,8 @@
                         </div>
                         <div class="row">
                             <div class="col">
-                                <div class="">{{ data.payment_category }}</div>
+                                <div class="capitalize">{{ data.payment_category_name }}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -48,7 +49,8 @@
                         </div>
                         <div class="row">
                             <div class="col">
-                                <div class="whitespace-nowrap overflow-hidden text-ellipsis">{{ data.currency }} {{ formatPrice(data.amount) }}</div>
+                                <div class="whitespace-nowrap overflow-hidden text-ellipsis">{{ data.currency }} {{
+                                    formatPrice(data.amount) }}</div>
                             </div>
                         </div>
                     </div>
@@ -60,7 +62,8 @@
                         </div>
                         <div class="row">
                             <div class="col">
-                                <div class="whitespace-nowrap overflow-hidden text-ellipsis">{{ data.gst_amount == 0 ? '-' : data.currency + ' '
+                                <div class="whitespace-nowrap overflow-hidden text-ellipsis">{{ data.gst_amount == 0 ?
+                                    '-' : data.currency + ' '
                                     + formatPrice(data.gst_amount) }}</div>
                             </div>
                         </div>
@@ -121,7 +124,7 @@ import AngleRight from '@/Components/Icons/AngleRight.vue';
 import { formatPrice } from '@/Helpers/helpers.js';
 import { Link } from '@inertiajs/vue3';
 import StatusLabel from '@/Components/StatusLabel.vue';
-import { formatDate } from '@/Helpers/helpers.js';
+import { formatDate, formatString } from '@/Helpers/helpers.js';
 
 const props = defineProps({
     data: {

@@ -30,13 +30,17 @@ Route::get('/users', function () {
     return Inertia::render('User');
 })->middleware(['auth', 'verified'])->name('users');
 
-
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
-require __DIR__.'/api.php';
+// settings routes
+Route::get('/settings/payment-category', function () {
+    return Inertia::render('Settings/PaymentCategory');
+})->middleware(['auth', 'verified'])->name('settings.paymentCategory');
+// end settings routes
 
+require __DIR__ . '/auth.php';
+require __DIR__ . '/api.php';

@@ -2,7 +2,7 @@
     <div class="relative inline-block text-left">
         <button @click="toggleOpen"
             class="inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm ring-1 ring-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-            {{ modelValue || selectedOption }}
+            {{ formatString(modelValue || selectedOption) }}
             <svg class="ml-2 -mr-1 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                 stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -19,7 +19,7 @@
                 <div class="p-1">
                     <button v-for="option in options" :key="option" @click="selectOption(option)"
                         class="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        {{ option }}
+                        {{ formatString(option) }}
                     </button>
                 </div>
             </div>
@@ -29,6 +29,7 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, watch } from 'vue';
+import { formatString } from '@/Helpers/helpers.js';
 
 const props = defineProps({
     modelValue: String,

@@ -11,7 +11,7 @@ class CreateUserPrivilegesTable extends Migration
         Schema::create('user_privileges', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('privilege_id')->constrained()->onDelete('cascade');
+            $table->integer('privilege_id')->default(null);
             $table->timestamps();
         });
     }

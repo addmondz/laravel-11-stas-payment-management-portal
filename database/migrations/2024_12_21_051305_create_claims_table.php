@@ -15,8 +15,8 @@ class CreateClaimsTable extends Migration
             $table->foreignId('payment_to')->constrained('users')->onDelete('cascade');
             $table->foreignId('bank_account_id')->constrained('bank_accounts')->onDelete('cascade');
             $table->string('payment_type'); // Reimbursement or External Payments
-            $table->string('payment_category');
-            $table->foreignId('currency')->constrained('currencies')->onDelete('cascade');
+            $table->foreignId('payment_category_id')->constrained('payment_categories')->onDelete('cascade');
+            $table->foreignId('currency_id')->constrained('currencies')->onDelete('cascade');
             $table->decimal('amount', 10, 2);
             $table->decimal('gst_amount', 10, 2);
             $table->decimal('gst_percent', 5, 2);

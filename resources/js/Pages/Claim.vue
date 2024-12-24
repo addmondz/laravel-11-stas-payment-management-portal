@@ -70,14 +70,11 @@ import NotFound from '@/Components/Icons/NotFound.vue';
 import LoadingComponent from '@/Components/LoadingComponent.vue';
 import CreateClaimForm from '@/Components/CreateClaimForm.vue';
 import FilterDropdown from '@/Components/FilterDropdown.vue';
-import InputLabel from '@/Components/InputLabel.vue';
 import BreadcrumbComponent from '@/Components/BreadcrumbComponent.vue';
 import TextInput from '@/Components/TextInput.vue';
 
 const isLoading = ref(true);
 const listData = ref([]);
-const categoryData = ref([]);
-const brandData = ref([]);
 const error = ref(null);
 const paymentType = ref(null);
 const categoryFilter = ref(null);
@@ -87,9 +84,6 @@ const limit = ref(9);
 const currentPage = ref(1);
 const lastPage = ref(0);
 const apiUrl = route('claims.list');
-const breadcrumbs = [
-    { title: 'Claims' },
-];
 
 // Fetch data with filters applied
 const fetchList = async (page = 1) => {

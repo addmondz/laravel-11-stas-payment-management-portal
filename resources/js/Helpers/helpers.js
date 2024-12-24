@@ -62,5 +62,11 @@ const getPriceAfterDiscount = (price, returnFormat = 'string') => {
 
 const formatId = (id) => String(id).padStart(5, '0');
 
+const formatString = str => str
+    .toLowerCase()
+    .split('_')
+    .map(word => word[0].toUpperCase() + word.slice(1))
+    .join(' ');
+
 // Exporting functions
-export { fetchUserDetails, formatPrice, apiBaseUrl, getPriceAfterDiscount, convertStringToNumber, formatNumberToTwoDecimals, formatId, formatDate };
+export { fetchUserDetails, formatPrice, apiBaseUrl, getPriceAfterDiscount, convertStringToNumber, formatNumberToTwoDecimals, formatId, formatDate, formatString };
