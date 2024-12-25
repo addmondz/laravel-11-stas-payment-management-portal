@@ -10,10 +10,10 @@ class UserPrivilege extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'privilege_id'];
+    protected $fillable = ['user_id', 'approval_role_id'];
 
     public function getPrivilegeNameAttribute()
     {
-        return ApprovalRoles::APPROVAL_ROLES_ID[$this->privilege_id] ?? '';
+        return ApprovalRoles::APPROVAL_ROLES_ID[$this->approval_role_id] ?? '';
     }
 }

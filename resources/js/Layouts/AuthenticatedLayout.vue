@@ -1,11 +1,12 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import { Link, usePage } from '@inertiajs/vue3';
+import { isAdmin } from '@/Composables/GlobalFuntions.vue';
 
 const showingNavigationDropdown = ref(false);
 const { props } = usePage();
@@ -14,6 +15,7 @@ const logout = () => {
     sessionStorage.clear();
     localStorage.clear();
 };
+
 </script>
 
 <template>
@@ -39,13 +41,14 @@ const logout = () => {
                                 Claims
                             </NavLink>
                         </div>
-                        <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                        <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex" v-if="isAdmin().value">
                             <NavLink :href="route('users')" :active="route().current('users')">
                                 Users
                             </NavLink>
                         </div>
-                        <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                            <NavLink :href="route('settings.paymentCategory')" :active="route().current('settings.paymentCategory')">
+                        <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex" v-if="isAdmin().value">
+                            <NavLink :href="route('settings.paymentCategory')"
+                                :active="route().current('settings.paymentCategory')">
                                 Payment Category
                             </NavLink>
                         </div>

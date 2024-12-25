@@ -48,14 +48,14 @@
                                 <p class="mb-1 text-sm text-gray-500">Payment Type</p>
                                 <InfoCircleOutlined class="text-gray-400" />
                             </div>
-                            <p class="text-base">{{ fetchedData.payment_type ?? '-' }}</p>
+                            <p class="text-base">{{ formatString(fetchedData.payment_type) ?? '-' }}</p>
                         </div>
                         <div class="mb-4">
                             <div class="flex justify-between">
                                 <p class="mb-1 text-sm text-gray-500">Payment Category</p>
                                 <InfoCircleOutlined class="text-gray-400" />
                             </div>
-                            <p class="text-base">{{ fetchedData.payment_category ?? '-' }}</p>
+                            <p class="text-base capitalize">{{ fetchedData.payment_category?.name || '-' }}</p>
                         </div>
                         <div class="mb-4">
                             <div class="flex justify-between">
@@ -169,14 +169,32 @@
                         </div>
                     </div>
                     <div class="p-6 border-gray-300 mb-4 w-full" v-if="showSection.approvalHistory">
-                        <p v-for="(log) in fetchedData.status_log" :key="log.id" :value="log">
-                            {{ formatDateWithTime(log.created_at) }} - {{ log.name }} - {{ log.status }}
-                        </p>
+                        <ul class="relative list-none">
+                            <div class="absolute top-3 left-[21px] w-[2px] bg-gray-300 h-full z-1"></div>
+                            <li class="relative pl-10 mb-4" v-for="(log) in fetchedData.status_log" :key="log.id"
+                                :value="log">
+                                <div class="absolute left-[12px] top-1 w-5 h-5 rounded-full"
+                                    style="background-color: #d4d9df;">
+                                    <div class="absolute left-[4px] top-1 w-3 h-3 rounded-full"
+                                        style="background-color:  #7367F0;"></div>
+                                </div>
+                                <div class="flex justify-between flex-col sm:flex-row">
+                                    <p class="font-bold">{{ log.status }}</p>
+                                    <p class="text-gray-500">{{ formatDateWithTime(log.created_at) }}</p>
+                                </div>
+                                <p>{{ log.name }}</p>
+                            </li>
+                        </ul>
+
                     </div>
                 </div>
 
-                <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5 text-right">
-                    <PrimaryButton @click="handleConfirmation">Approve Claim</PrimaryButton>
+                <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5 text-right" v-if="fetchedData.status_id < 2 && (getUserApprovalPrivillage().value == fetchedData.next_approval_level)">
+                    <PrimaryButton @click="approvalClaimConfirmation">Approve Claim</PrimaryButton>
+                </div>
+                
+                <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5 text-right" v-if="fetchedData.status_id == 2 && isAdmin().value">
+                    <PrimaryButton @click="paymentCompletedConfirmation">Mark as Payment Completed</PrimaryButton>
                 </div>
             </div>
             <div v-else>
@@ -188,7 +206,7 @@
 
 <script setup>
 import axios from 'axios';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import NotFound from '@/Components/Icons/NotFound.vue';
@@ -197,12 +215,12 @@ import StatusLabel from '@/Components/StatusLabel.vue';
 import BreadcrumbComponent from '@/Components/BreadcrumbComponent.vue';
 import { formatId } from '@/Helpers/helpers.js';
 import { InfoCircleOutlined, CloseOutlined } from '@ant-design/icons-vue';
-import { formatPrice, formatDate } from '@/Helpers/helpers.js';
+import { formatPrice, formatDate, formatString, formatDateWithTime } from '@/Helpers/helpers.js';
 import AngleUp from '@/Components/Icons/AngleUp.vue';
 import AngleDown from '@/Components/Icons/AngleDown.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import Swal from 'sweetalert2';
-import moment from 'moment';
+import { isAdmin, getUserApprovalPrivillage } from '@/Composables/GlobalFuntions.vue';
 
 const isLoading = ref(true);
 const fetchedData = ref([]);
@@ -232,7 +250,7 @@ const toggleShowSection = (name) => {
     showSection.value[name] = !showSection.value[name];
 };
 
-const handleConfirmation = () => {
+const approvalClaimConfirmation = () => {
     Swal.fire({
         title: "Are you sure?",
         text: "Are you sure you want to approve this Claim?",
@@ -254,7 +272,44 @@ const handleConfirmation = () => {
 const callApiToApproveClaim = async () => {
     try {
         const response = await axios.post(route('claims.approveClaim', props.id));
-        console.log(response.data.response); // Assuming this is the success response data
+        fetchData();
+        Swal.fire({
+            title: "Success!",
+            text: "The claim has been successfully approved.",
+            icon: "success",
+            confirmButtonText: "OK"
+        });
+    } catch (err) {
+        Swal.fire({
+            title: "Error!",
+            text: err.response ? err.response.data.error || "There was an error while approving the claim. Please try again." : "An unexpected error occurred.",
+            icon: "error",
+            confirmButtonText: "OK"
+        });
+    }
+};
+
+const paymentCompletedConfirmation = () => {
+    Swal.fire({
+        title: "Are you sure?",
+        text: "Are you sure you want to approve this Claim?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: 'Yes',
+        cancelButtonText: 'No',
+        allowOutsideClick: false,
+        stopKeydownPropagation: true,
+        preConfirm: () => {
+            return new Promise((resolve, reject) => {
+                callApiToCompleteClaim(resolve, reject);
+            });
+        }
+    });
+};
+
+const callApiToCompleteClaim = async () => {
+    try {
+        const response = await axios.post(route('claims.paymentCompleted', props.id));
         fetchData();
         Swal.fire({
             title: "Success!",
@@ -303,7 +358,5 @@ const closeModal = () => {
     isModalOpen.value = false;
 };
 
-const formatDateWithTime = (date) => {
-    return moment(date).format('DD-MM-YYYY hh:mm:ss A');
-};
+// const isAdmin = $useIsAdmin;
 </script>

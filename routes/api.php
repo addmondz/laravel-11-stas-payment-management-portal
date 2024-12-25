@@ -18,6 +18,8 @@ Route::prefix('api')->middleware('auth')->group(function () {
         Route::post('/store', [ClaimController::class, 'store'])->name('claims.store');
         Route::get('/{id}/fetch', [ClaimController::class, 'fetchData'])->name('claims.fetchData');
         Route::post('/{id}/approve', [ClaimController::class, 'approveClaim'])->name('claims.approveClaim');
+        // extra mark as payment completed
+        Route::post('/{id}/payment-completed', [ClaimController::class, 'paymentCompleted'])->name('claims.paymentCompleted');
     });
 
     Route::prefix('currency')->group(function () {

@@ -27,8 +27,8 @@ final class ApprovalStatus
         self::CANCELLED                   => "Cancelled",
         self::PAYMENT_FAILED              => "Payment Failed",
         
-        self::L1_APPROVAL                 => "L1 Approval",
-        self::L2_APPROVAL                 => "L2 Approval",
-        self::L3_APPROVAL                 => "L3 Approval",
+        self::L1_APPROVAL                 => "L1 Approved",
+        self::L2_APPROVAL                 => "L2 Approved",
+        self::L3_APPROVAL                 => "L3 Approved",
     ];
 }

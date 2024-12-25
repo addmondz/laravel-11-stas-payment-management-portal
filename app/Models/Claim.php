@@ -43,11 +43,6 @@ class Claim extends Model
         return $this->belongsTo(User::class, 'payment_to', 'id');
     }
 
-    public function paymentCategoryObject()
-    {
-        return $this->belongsTo(User::class, 'payment_to', 'id');
-    }
-
     public function paymentCategory()
     {
         return $this->belongsTo(PaymentCategory::class, 'payment_category_id', 'id');

@@ -96,8 +96,17 @@ class ClaimController extends Controller
     public function list(Request $request)
     {
         try {
-            // Define the base query
-            $query = Claim::query();
+            $user = auth()->user();
+
+            // if is admin show all
+            $isAdmin = $user->role == 'admin';
+            $hasPrivillageRoles = $user->privileges->first()->approval_role_id ?? null;
+            if ($isAdmin || $hasPrivillageRoles) {
+                $query = Claim::query();
+            } else {
+                // if is normal user, can only show what they have submitted 
+                $query = Claim::where('created_by', $user->id);
+            }
 
             if ($request->input('paymentType')) {
                 $query->where('payment_type', $request->input('paymentType'));
@@ -154,7 +163,7 @@ class ClaimController extends Controller
     public function fetchData(Request $request, $id)
     {
         // Fetch the claim data with the relationships
-        $data = Claim::with('currencyObject', 'createdUser', 'paymentToUser', 'statusLogs')->find($id);
+        $data = Claim::with('currencyObject', 'createdUser', 'paymentToUser', 'statusLogs', 'paymentCategory')->find($id);
 
         // Check if data exists
         if (!$data) {
@@ -164,8 +173,16 @@ class ClaimController extends Controller
             ], 404);
         }
 
+        $data->status_id = $data->status;
         // Format the status field (assuming ApprovalStatus::APPROVAL_STATUS_ID holds the status names)
         $data->status = ApprovalStatus::APPROVAL_STATUS_ID[$data->status] ?? 'Unknown Status';
+
+        $currentApprovalLevel = $data->approvalLogs->max('approval_level') ?? 0;
+        $nextApprovalLevel = $currentApprovalLevel < ApprovalRoles::L3_APPROVAL_MEMBERS
+            ? $currentApprovalLevel + 1
+            : null;
+
+        $data->next_approval_level = $nextApprovalLevel;
 
         $data->status_log = $data->statusLogs->map(function ($log) {
             $logStatus = ApprovalStatus::APPROVAL_STATUS_ID[$log->status] ?? 'Unknown Status';
@@ -205,7 +222,7 @@ class ClaimController extends Controller
             return response()->json(['message' => 'Claim fully approved.'], 200);
         }
 
-        $userRole = auth()->user()->privileges->first()->privilege_id ?? null;
+        $userRole = auth()->user()->privileges->first()->approval_role_id ?? null;
 
         if ($userRole !== $nextApprovalLevel) {
             return response()->json(['error' => 'Insufficient privileges for this approval level.'], 403);
@@ -249,5 +266,35 @@ class ClaimController extends Controller
         }
 
         return response()->json(['message' => 'Claim approved at this level. Awaiting further approvals.'], 200);
+    }
+
+    public function paymentCompleted(Request $request, $id)
+    {
+        $claim = Claim::find($id);
+
+        if (!$claim) {
+            return response()->json(['error' => 'Claim not found.'], 404);
+        }
+
+        if ($claim->status < ApprovalStatus::APPROVED) {
+            return response()->json(['error' => 'Claim has not been approved yet.'], 409);
+        }
+
+        if ($claim->status >= ApprovalStatus::PAYMENT_COMPLETED) {
+            return response()->json(['error' => 'Claim has already been marked as Payment Completed.'], 409);
+        }
+
+        // todo-new: update here if anyone else can update
+        if (auth()->user()->role != 'admin') {
+            return response()->json(['error' => 'Insufficient privileges for this approval level.'], 403);
+        }
+
+        $claim->update(['status' => ApprovalStatus::PAYMENT_COMPLETED]);
+        ClaimStatusLog::create([
+            'claim_id'      => $claim->id,
+            'status'        => ApprovalStatus::PAYMENT_COMPLETED,
+            'causer_id'     => auth()->id(),
+        ]);
+        return response()->json(['message' => 'Claim has been updated.'], 200);
     }
 }

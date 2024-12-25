@@ -43,23 +43,6 @@ const formatDate = (date) => {
     return moment(date).format('DD-MM-YYYY');
 };
 
-const getPriceAfterDiscount = (price, returnFormat = 'string') => {
-    price = Number(price);
-    const discount = Number(storedUserData?.membership_type?.discount) || 0;
-
-    const discountedPrice = discount > 0
-        ? price * ((100 - discount) / 100)
-        : price;
-
-    // Return number if specifiedZ
-    if (returnFormat === 'number') {
-        return formatNumberToTwoDecimals(discountedPrice);
-    }
-
-    // Otherwise, return formatted string
-    return formatPrice(discountedPrice);
-};
-
 const formatId = (id) => String(id).padStart(5, '0');
 
 const formatString = str => str
@@ -68,5 +51,9 @@ const formatString = str => str
     .map(word => word[0].toUpperCase() + word.slice(1))
     .join(' ');
 
+const formatDateWithTime = (date) => {
+    return moment(date).format('DD MMMM YYYY · hh:mm:ss A');
+};
+
 // Exporting functions
-export { fetchUserDetails, formatPrice, apiBaseUrl, getPriceAfterDiscount, convertStringToNumber, formatNumberToTwoDecimals, formatId, formatDate, formatString };
+export { fetchUserDetails, formatPrice, apiBaseUrl, convertStringToNumber, formatNumberToTwoDecimals, formatId, formatDate, formatString, formatDateWithTime };

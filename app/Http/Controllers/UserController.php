@@ -28,8 +28,8 @@ class UserController extends Controller
             // Assuming one privilege per user, transform the privilege name
             $users->getCollection()->each(function ($user) {
                 if ($user->privileges->isNotEmpty()) {
-                    $user->privilege_name = \App\Classes\ValueObjects\Constants\ApprovalRoles::APPROVAL_ROLES_ID[$user->privileges->first()->privilege_id] ?? 'Unknown Privilege';
-                    $user->privilege_id = $user->privileges->first()->privilege_id;
+                    $user->privilege_name = \App\Classes\ValueObjects\Constants\ApprovalRoles::APPROVAL_ROLES_ID[$user->privileges->first()->approval_role_id] ?? 'Unknown Privilege';
+                    $user->approval_role_id = $user->privileges->first()->approval_role_id;
                 }
             });
 
@@ -66,7 +66,7 @@ class UserController extends Controller
         if ($request->input('approvalRole')) {
             UserPrivilege::create([
                 'user_id'           => $user->id,
-                'privilege_id'      => $request->input('approvalRole'),
+                'approval_role_id'      => $request->input('approvalRole'),
             ]);
         }
 
@@ -114,7 +114,7 @@ class UserController extends Controller
         if ($request->input('approvalRole')) {
             UserPrivilege::updateOrCreate(
                 ['user_id' => $user->id],
-                ['privilege_id' => $request->input('approvalRole')]
+                ['approval_role_id' => $request->input('approvalRole')]
             );
         } else {
             UserPrivilege::where('user_id', $user->id)->delete();

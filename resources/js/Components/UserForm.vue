@@ -38,7 +38,7 @@ watch(() => props.userData, (newUserData) => {
         form.name = newUserData.name;
         form.email = newUserData.email;
         form.isAdmin = newUserData.role === 'admin' ? '1' : '0';
-        form.approvalRole = newUserData.privilege_id;
+        form.approvalRole = newUserData.approval_role_id;
     } else {
         form.reset(); // Reset if no userData
     }
@@ -130,7 +130,7 @@ onMounted(() => {
 
 <template>
     <section class="space-y-6">
-        <PrimaryButton @click="toggleModal">{{ props.userData ? 'Edit User' : 'Create User' }}</PrimaryButton>
+        <PrimaryButton @click="toggleModal">{{ props.userData ? 'Edit' : 'Create User' }}</PrimaryButton>
 
         <Modal :show="showingCreateUserModal" @close="toggleModal">
             <form @submit.prevent="submitUser" class="p-6 space-y-4">

@@ -2,7 +2,7 @@ APP_NAME="Stas Payment Management Portal"
 APP_ENV=local
 APP_KEY=75189cfe66ae4b5f8b7536edcdccbd6c
 APP_DEBUG=true
-APP_TIMEZONE=UTC
+APP_TIMEZONE=Asia/Kuala_Lumpur
 APP_URL=https://deeppink-mule-517335.hostingersite.com/public
 VITE_API_BASE_URL=https://deeppink-mule-517335.hostingersite.com/
 
