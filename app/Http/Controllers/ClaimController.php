@@ -55,25 +55,33 @@ class ClaimController extends Controller
 
         $hasGst = filter_var($requestData['gst'], FILTER_VALIDATE_BOOLEAN);
 
+        $claim = [
+            'created_by'            => $user->id,
+            'payment_type'          => $requestData['payment_type'],
+            'payment_category_id'   => $requestData['payment_category'],
+            'currency_id'           => $requestData['currency'],
+            'amount'                => $requestData['amount'],
+            'purpose'               => $requestData['purpose'],
+            'receipt_date'          => $requestData['receipt_date'],
+            'receipt_file'          => $path ?? null,
+
+            // field to update later
+            'payment_to'            => $user->id,
+            'gst_amount'            => $hasGst ? ($requestData['amount'] * 0.06) : 0,
+            'gst_percent'           => '6',
+            'bank_account_id'       => '1',
+            'status'                => ApprovalStatus::PENDING_APPROVAL,
+        ];
+
+        // check user roles, if created by user with higer role, then dont need approval for lower role
+        $userPrivilage = $user->privileges->first()->approval_role_id ?? null;
+        if ($userPrivilage) {
+            $claim['approval_status'] = $userPrivilage - 1;
+        }
+
         // Create a new claim record
         try {
-            $claim = Claim::create([
-                'created_by'            => $user->id,
-                'payment_type'          => $requestData['payment_type'],
-                'payment_category_id'   => $requestData['payment_category'],
-                'currency_id'           => $requestData['currency'],
-                'amount'                => $requestData['amount'],
-                'purpose'               => $requestData['purpose'],
-                'receipt_date'          => $requestData['receipt_date'],
-                'receipt_file'          => $path ?? null,
-
-                // field to update later
-                'payment_to'            => $user->id,
-                'gst_amount'            => $hasGst ? ($requestData['amount'] * 0.06) : 0,
-                'gst_percent'           => '6',
-                'bank_account_id'       => '1',
-                'status'                => ApprovalStatus::PENDING_APPROVAL,
-            ]);
+            $claim = Claim::create($claim);
         } catch (\Exception $e) {
             Log::error('Error creating claim: ' . $e->getMessage());
             return response()->json([
@@ -176,13 +184,7 @@ class ClaimController extends Controller
         $data->status_id = $data->status;
         // Format the status field (assuming ApprovalStatus::APPROVAL_STATUS_ID holds the status names)
         $data->status = ApprovalStatus::APPROVAL_STATUS_ID[$data->status] ?? 'Unknown Status';
-
-        $currentApprovalLevel = $data->approvalLogs->max('approval_level') ?? 0;
-        $nextApprovalLevel = $currentApprovalLevel < ApprovalRoles::L3_APPROVAL_MEMBERS
-            ? $currentApprovalLevel + 1
-            : null;
-
-        $data->next_approval_level = $nextApprovalLevel;
+        $data->next_approval_level =  $data->approval_status + 1;
 
         $data->status_log = $data->statusLogs->map(function ($log) {
             $logStatus = ApprovalStatus::APPROVAL_STATUS_ID[$log->status] ?? 'Unknown Status';
@@ -210,10 +212,8 @@ class ClaimController extends Controller
             return response()->json(['error' => 'Claim not found.'], 404);
         }
 
-        $currentApprovalLevel = $claim->approvalLogs->max('approval_level') ?? 0;
-        $nextApprovalLevel = $currentApprovalLevel < ApprovalRoles::L3_APPROVAL_MEMBERS
-            ? $currentApprovalLevel + 1
-            : null;
+        $currentApprovalLevel = $claim->approval_status;
+        $nextApprovalLevel = $currentApprovalLevel + 1;
 
         if ($claim->status === ApprovalStatus::APPROVED || is_null($nextApprovalLevel)) {
             if ($claim->status !== ApprovalStatus::APPROVED) {
@@ -228,12 +228,6 @@ class ClaimController extends Controller
             return response()->json(['error' => 'Insufficient privileges for this approval level.'], 403);
         }
 
-        ApprovalLog::create([
-            'claim_id' => $claim->id,
-            'approval_level' => $nextApprovalLevel,
-            'user_id' => auth()->id(),
-        ]);
-
         $claimLogStatus = null;
         switch ($nextApprovalLevel) {
             case 1:
@@ -246,7 +240,6 @@ class ClaimController extends Controller
                 $claimLogStatus = ApprovalStatus::L3_APPROVAL;
                 break;
         }
-
         if ($claimLogStatus) {
             ClaimStatusLog::create([
                 'claim_id'      => $claim->id,
@@ -254,6 +247,7 @@ class ClaimController extends Controller
                 'causer_id'     => auth()->id(),
             ]);
         }
+        $claim->update(['approval_status' => $nextApprovalLevel]);
 
         if ($nextApprovalLevel >= ApprovalRoles::L3_APPROVAL_MEMBERS) {
             $claim->update(['status' => ApprovalStatus::APPROVED]);

@@ -25,7 +25,8 @@ class Claim extends Model
         'purpose',
         'receipt_date',
         'receipt_file',
-        'status'
+        'status',
+        'approval_status',
     ];
 
     public function currencyObject()
@@ -46,11 +47,6 @@ class Claim extends Model
     public function paymentCategory()
     {
         return $this->belongsTo(PaymentCategory::class, 'payment_category_id', 'id');
-    }
-
-    public function approvalLogs()
-    {
-        return $this->hasMany(ApprovalLog::class);
     }
 
     public function statusLogs()

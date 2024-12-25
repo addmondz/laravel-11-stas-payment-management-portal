@@ -1,5 +1,6 @@
 <?php
 
+use App\Classes\ValueObjects\Constants\ApprovalRoles;
 use App\Classes\ValueObjects\Constants\ApprovalStatus;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -24,6 +25,7 @@ class CreateClaimsTable extends Migration
             $table->date('receipt_date');
             $table->string('receipt_file')->nullable();
             $table->integer('status')->default(ApprovalStatus::PENDING_SUBMISSION);
+            $table->integer('approval_status')->default(ApprovalRoles::NONE_APPROVAL);
             $table->timestamps();
             $table->softDeletes();
         });

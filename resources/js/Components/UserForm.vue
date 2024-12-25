@@ -5,7 +5,7 @@ import Modal from '@/Components/Modal.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { useForm } from '@inertiajs/vue3';
-import { ref, defineProps, watch } from 'vue';
+import { ref, watch } from 'vue';
 import Swal from 'sweetalert2';
 import { onMounted } from 'vue';
 
