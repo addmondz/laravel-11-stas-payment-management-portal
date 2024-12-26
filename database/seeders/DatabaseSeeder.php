@@ -3,12 +3,14 @@
 namespace Database\Seeders;
 
 use App\Classes\ValueObjects\Constants\ApprovalRoles;
+use App\Classes\ValueObjects\Constants\GeneralConstant;
 use App\Models\BankAccount;
 use App\Models\Country;
 use App\Models\Currency;
 use App\Models\PaymentCategory;
 use App\Models\User;
 use App\Models\UserPrivilege;
+use App\Models\Variable;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -78,6 +80,12 @@ class DatabaseSeeder extends Seeder
 
         PaymentCategory::create([
             'name' => 'transportation',
+        ]);
+
+        Variable::create([
+            'name' => 'Gst Percentage',
+            'value' => '6',
+            'general_constant_id' => GeneralConstant::GST_CONFIGURATION,
         ]);
     }
 }

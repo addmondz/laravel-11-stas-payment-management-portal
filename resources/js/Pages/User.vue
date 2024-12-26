@@ -65,12 +65,12 @@ import axios from 'axios';
 import { ref, onMounted, watch } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
-import UsersListTemplate from '@/Components/UsersListTemplate.vue';
+import UsersListTemplate from '@/Components/List/UsersListTemplate.vue';
 import NotFound from '@/Components/Icons/NotFound.vue';
-import FilterDropdown from '@/Components/FilterDropdown.vue';
-import LoadingComponent from '@/Components/LoadingComponent.vue';
-import BreadcrumbComponent from '@/Components/BreadcrumbComponent.vue';
-import UserForm from '@/Components/UserForm.vue';
+import FilterDropdown from '@/Components/General/FilterDropdown.vue';
+import LoadingComponent from '@/Components/General/LoadingComponent.vue';
+import BreadcrumbComponent from '@/Components/General/BreadcrumbComponent.vue';
+import UserForm from '@/Components/Form/UserForm.vue';
 
 const isLoading = ref(true);
 const listData = ref([]);

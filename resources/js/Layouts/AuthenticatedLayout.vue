@@ -1,10 +1,10 @@
 <script setup>
 import { ref } from 'vue';
-import ApplicationLogo from '@/Components/ApplicationLogo.vue';
-import Dropdown from '@/Components/Dropdown.vue';
-import DropdownLink from '@/Components/DropdownLink.vue';
-import NavLink from '@/Components/NavLink.vue';
-import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
+import ApplicationLogo from '@/Components/General/ApplicationLogo.vue';
+import Dropdown from '@/Components/General/Dropdown.vue';
+import DropdownLink from '@/Components/General/DropdownLink.vue';
+import NavLink from '@/Components/General/NavLink.vue';
+import ResponsiveNavLink from '@/Components/General/ResponsiveNavLink.vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import { isAdmin } from '@/Composables/GlobalFuntions.vue';
 
@@ -47,9 +47,9 @@ const logout = () => {
                             </NavLink>
                         </div>
                         <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex" v-if="isAdmin().value">
-                            <NavLink :href="route('settings.paymentCategory')"
-                                :active="route().current('settings.paymentCategory')">
-                                Payment Category
+                            <NavLink :href="route('settings')"
+                                :active="route().current('settings')">
+                                Settings
                             </NavLink>
                         </div>
                     </div>
@@ -106,6 +106,8 @@ const logout = () => {
                         <ResponsiveNavLink :href="route('claims')" :active="route().current('claims')">Claims
                         </ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('users')" :active="route().current('users')">Users
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('settings')" :active="route().current('settings')">Settings
                         </ResponsiveNavLink>
                     </div>
                     <div class="pt-4 pb-1 border-t border-gray-200">

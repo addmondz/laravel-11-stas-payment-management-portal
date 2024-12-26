@@ -5,6 +5,7 @@ use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\PaymentCategoryController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\VariableController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('api')->middleware('auth')->group(function () {
@@ -24,6 +25,11 @@ Route::prefix('api')->middleware('auth')->group(function () {
 
     Route::prefix('currency')->group(function () {
         Route::get('/list-short-code', [CurrencyController::class, 'listShortCode'])->name('currency.listShortCode');
+    });
+
+    Route::prefix('variables')->group(function () {
+        Route::get('/fetch-gst', [VariableController::class, 'fetchesGst'])->name('variables.fetchesGst');
+        Route::post('/update-gst', [VariableController::class, 'updateGst'])->name('variables.updateGst');
     });
 
     Route::prefix('payment-category')->group(function () {

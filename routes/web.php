@@ -1,6 +1,8 @@
 <?php
 
+use App\Classes\ValueObjects\Constants\GeneralConstant;
 use App\Http\Controllers\ProfileController;
+use App\Models\Variable;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -36,11 +38,15 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// settings routes
-Route::get('/settings/payment-category', function () {
-    return Inertia::render('Settings/PaymentCategory');
-})->middleware(['auth', 'verified'])->name('settings.paymentCategory');
-// end settings routes
+// not using
+// Route::get('/settings/payment-category', function () {
+//     return Inertia::render('PaymentCategoryPage');
+// })->middleware(['auth', 'verified'])->name('settings.paymentCategory');
+// not using
+
+Route::get('/settings', function () {
+    return Inertia::render('Settings');
+})->middleware(['auth', 'verified'])->name('settings');
 
 require __DIR__ . '/auth.php';
 require __DIR__ . '/api.php';

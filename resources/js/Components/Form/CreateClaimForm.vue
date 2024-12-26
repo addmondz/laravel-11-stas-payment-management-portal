@@ -1,14 +1,14 @@
 <script setup>
-import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import Modal from '@/Components/Modal.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
+import InputError from '@/Components/General/InputError.vue';
+import InputLabel from '@/Components/General/InputLabel.vue';
+import Modal from '@/Components/General/Modal.vue';
+import PrimaryButton from '@/Components/General/PrimaryButton.vue';
+import TextInput from '@/Components/General/TextInput.vue';
 import { useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import { onMounted } from 'vue';
 import Swal from 'sweetalert2';
-import LoadingComponent from '@/Components/LoadingComponent.vue';
+import LoadingComponent from '@/Components/General/LoadingComponent.vue';
 
 const showingCreateClaimModal = ref(false);
 const formIsLoading = ref(false);

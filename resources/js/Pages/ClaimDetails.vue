@@ -91,15 +91,15 @@
                             </div>
                             <p class="text-base">{{ fetchedData.currency_object.short_code }} {{
                                 formatPrice(fetchedData.amount)
-                            }}</p>
+                                }}</p>
                         </div>
                         <div class="mb-4">
                             <div class="flex justify-between">
-                                <p class="mb-1 text-sm text-gray-500">With GST</p>
+                                <p class="mb-1 text-sm text-gray-500">GST Percent</p>
                                 <InfoCircleOutlined class="text-gray-400" />
                             </div>
                             <p class="text-base">
-                                {{ Number(fetchedData.gst_amount) === 0 ? 'No' : 'Yes' }}
+                                {{ Number(fetchedData.gst_amount) === 0 ? '-' : fetchedData.gst_percent + ' %' }}
                             </p>
                         </div>
                         <div class="mb-4">
@@ -110,7 +110,7 @@
                             <p class="text-base">
                                 {{ Number(fetchedData.gst_amount) === 0 ? '-' : fetchedData.currency_object.short_code +
                                     ' ' +
-                                    formatPrice(fetchedData.gst_amount) }}
+                                formatPrice(fetchedData.gst_amount) }}
                             </p>
                         </div>
                     </div>
@@ -192,8 +192,9 @@
                 <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5 text-right" v-if="fetchedData.status_id < 2 && (getUserApprovalPrivillage().value == fetchedData.next_approval_level)">
                     <PrimaryButton @click="approvalClaimConfirmation">Approve Claim</PrimaryButton>
                 </div>
-                
-                <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5 text-right" v-if="fetchedData.status_id == 2 && isAdmin().value">
+
+                <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5 text-right"
+                    v-if="fetchedData.status_id == 2 && isAdmin().value">
                     <PrimaryButton @click="paymentCompletedConfirmation">Mark as Payment Completed</PrimaryButton>
                 </div>
             </div>
@@ -210,15 +211,15 @@ import { ref, onMounted, computed } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import NotFound from '@/Components/Icons/NotFound.vue';
-import LoadingComponent from '@/Components/LoadingComponent.vue';
-import StatusLabel from '@/Components/StatusLabel.vue';
-import BreadcrumbComponent from '@/Components/BreadcrumbComponent.vue';
+import LoadingComponent from '@/Components/General/LoadingComponent.vue';
+import StatusLabel from '@/Components/General/StatusLabel.vue';
+import BreadcrumbComponent from '@/Components/General/BreadcrumbComponent.vue';
 import { formatId } from '@/Helpers/helpers.js';
 import { InfoCircleOutlined, CloseOutlined } from '@ant-design/icons-vue';
 import { formatPrice, formatDate, formatString, formatDateWithTime } from '@/Helpers/helpers.js';
 import AngleUp from '@/Components/Icons/AngleUp.vue';
 import AngleDown from '@/Components/Icons/AngleDown.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
+import PrimaryButton from '@/Components/General/PrimaryButton.vue';
 import Swal from 'sweetalert2';
 import { isAdmin, getUserApprovalPrivillage } from '@/Composables/GlobalFuntions.vue';
 

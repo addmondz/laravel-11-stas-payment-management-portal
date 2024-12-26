@@ -8,11 +8,18 @@ use App\Models\ApprovalLog;
 use Illuminate\Http\Request;
 use App\Models\Claim;
 use App\Models\ClaimStatusLog;
+use App\Services\FetchesGstTax;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
 class ClaimController extends Controller
 {
+    protected $fetchesGstTax;
+
+    public function __construct(FetchesGstTax $fetchesGstTax)
+    {
+        $this->fetchesGstTax = $fetchesGstTax;
+    }
     public function store(Request $request)
     {
         // dd($request->all());
@@ -52,8 +59,8 @@ class ClaimController extends Controller
 
 
         $requestData = $request->all();
-
         $hasGst = filter_var($requestData['gst'], FILTER_VALIDATE_BOOLEAN);
+        $gstTax = (float) $this->fetchesGstTax->execute();
 
         $claim = [
             'created_by'            => $user->id,
@@ -67,8 +74,8 @@ class ClaimController extends Controller
 
             // field to update later
             'payment_to'            => $user->id,
-            'gst_amount'            => $hasGst ? ($requestData['amount'] * 0.06) : 0,
-            'gst_percent'           => '6',
+            'gst_amount'            => $hasGst ? ($requestData['amount'] * $gstTax / 100) : 0,
+            'gst_percent'           => $gstTax,
             'bank_account_id'       => '1',
             'status'                => ApprovalStatus::PENDING_APPROVAL,
         ];

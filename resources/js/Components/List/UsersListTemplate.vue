@@ -92,7 +92,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { formatDate } from '@/Helpers/helpers.js';
-import UserForm from '@/Components/UserForm.vue';
+import UserForm from '@/Components/Form/UserForm.vue';
 
 const emit = defineEmits();
 const props = defineProps({

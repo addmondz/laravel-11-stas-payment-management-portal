@@ -65,12 +65,12 @@ import axios from 'axios';
 import { ref, onMounted, watch } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
-import PaymentCategoryListTemplate from '@/Components/PaymentCategoryListTemplate.vue';
+import PaymentCategoryListTemplate from '@/Components/List/PaymentCategoryListTemplate.vue';
 import NotFound from '@/Components/Icons/NotFound.vue';
-import FilterDropdown from '@/Components/FilterDropdown.vue';
-import LoadingComponent from '@/Components/LoadingComponent.vue';
-import BreadcrumbComponent from '@/Components/BreadcrumbComponent.vue';
-import PaymmentCategoryForm from '@/Components/PaymmentCategoryForm.vue';
+import FilterDropdown from '@/Components/General/FilterDropdown.vue';
+import LoadingComponent from '@/Components/General/LoadingComponent.vue';
+import BreadcrumbComponent from '@/Components/General/BreadcrumbComponent.vue';
+import PaymmentCategoryForm from '@/Components/Form/PaymmentCategoryForm.vue';
 
 const isLoading = ref(true);
 const listData = ref([]);

@@ -123,7 +123,7 @@ import { ref, computed } from 'vue';
 import AngleRight from '@/Components/Icons/AngleRight.vue';
 import { formatPrice } from '@/Helpers/helpers.js';
 import { Link } from '@inertiajs/vue3';
-import StatusLabel from '@/Components/StatusLabel.vue';
+import StatusLabel from '@/Components/General/StatusLabel.vue';
 import { formatDate, formatString } from '@/Helpers/helpers.js';
 
 const props = defineProps({
