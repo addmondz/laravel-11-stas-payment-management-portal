@@ -16,6 +16,7 @@ const props = defineProps({
 // Computed property to determine the class based on the status
 const statusClass = computed(() => {
 	switch (props.status.toLowerCase()) {
+		case 'completed':
 		case 'payment completed':
 		case 'success':
 			return 'text-green-800 bg-green-100'

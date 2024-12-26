@@ -130,7 +130,7 @@ onMounted(() => {
 
 <template>
     <section class="space-y-6">
-        <PrimaryButton @click="toggleModal">{{ props.userData ? 'Edit' : 'Create User' }}</PrimaryButton>
+        <PrimaryButton @click="toggleModal">{{ props.userData ? 'Edit' : 'Create' }}</PrimaryButton>
 
         <Modal :show="showingCreateUserModal" @close="toggleModal">
             <form @submit.prevent="submitUser" class="p-6 space-y-4">

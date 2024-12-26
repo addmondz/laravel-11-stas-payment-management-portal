@@ -88,7 +88,8 @@
                         </div>
                         <div class="row">
                             <div class="col">
-                                <StatusLabel class="text-xs inline-block w-[120px]" :status="data.status" />
+                                <!-- <StatusLabel class="text-2xs inline-block w-[140px]" :status="data.status" /> -->
+                                <StatusLabel class="text-[11px] inline-block w-[135px] rounded-xl" :status="data.status" />
                             </div>
                         </div>
                     </div>

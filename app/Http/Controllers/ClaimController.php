@@ -175,6 +175,76 @@ class ClaimController extends Controller
         }
     }
 
+    public function listPendingApproval(Request $request)
+    {
+        try {
+            $user = auth()->user();
+
+            // if is admin show all
+            $isAdmin = $user->role == 'admin';
+            $hasPrivillageRoles = $user->privileges->first()->approval_role_id ?? null;
+            if ($hasPrivillageRoles) {
+                $query = Claim::where('approval_status', $hasPrivillageRoles - 1);
+            } else {
+                return response()->json([
+                    'success' => true,
+                    'data' => [],
+                    'message' => 'Claims listed successfully',
+                ]);
+            }
+
+            if ($request->input('paymentType')) {
+                $query->where('payment_type', $request->input('paymentType'));
+            }
+
+            if ($request->input('searchValue')) {
+                $queryParam = ['payment_category', 'purpose'];
+                $searchValue = $request->input('paymentType');
+                $query->where(function ($query) use ($queryParam, $searchValue) {
+                    foreach ($queryParam as $q) {
+                        $query->orWhere($q, 'like', '%' . $searchValue . '%');
+                    }
+                });
+            }
+
+            // Apply sorting if provided
+            $sortColumn = $request->input('sort.column', 'id');
+            $sortDirection = $request->input('sort.direction', 'asc');
+            $query->orderBy($sortColumn, $sortDirection);
+
+            // Paginate the results
+            $perPage = $request->get('per_page', 10); // Default to 10 items per page
+            $datas = $query->paginate($perPage);
+
+            $datas->getCollection()->transform(function ($data) {
+                $data->currency = $data->currencyObject->short_code;
+                $data->status = ApprovalStatus::APPROVAL_STATUS_ID[$data->status];
+                $data->payment_category_name = $data->paymentCategory->name;
+                return $data;
+            });
+
+            // Return the response in a structured format
+            return response()->json([
+                'success' => true,
+                'data' => $datas,
+                'message' => 'Claims listed successfully',
+            ]);
+        } catch (\Exception $e) {
+            // Log the error with detailed information
+            Log::error('Error listing Claims', [
+                'message' => $e->getMessage(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while listing Claims',
+            ], 500);
+        }
+    }
+
     public function fetchData(Request $request, $id)
     {
         // Fetch the claim data with the relationships

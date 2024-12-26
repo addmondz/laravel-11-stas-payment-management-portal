@@ -6,7 +6,7 @@ import DropdownLink from '@/Components/General/DropdownLink.vue';
 import NavLink from '@/Components/General/NavLink.vue';
 import ResponsiveNavLink from '@/Components/General/ResponsiveNavLink.vue';
 import { Link, usePage } from '@inertiajs/vue3';
-import { isAdmin } from '@/Composables/GlobalFuntions.vue';
+import { isAdmin, getUserApprovalPrivillage } from '@/Composables/GlobalFuntions.vue';
 
 const showingNavigationDropdown = ref(false);
 const { props } = usePage();

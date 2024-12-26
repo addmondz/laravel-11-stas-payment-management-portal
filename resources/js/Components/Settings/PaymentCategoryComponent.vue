@@ -10,8 +10,7 @@
     <div v-else>
         <div class="pt-12" v-if="apiResponse">
             <div class="grid md:grid-cols gap-4 mb-5">
-                <PaymentCategoryListTemplate @createComplete="handleCreateComplete" v-for="product in listData"
-                    :key="product.id" :data="product" />
+                <PaymentCategoryListTemplate @createComplete="handleCreateComplete" v-for="product in listData" :key="product.id" :data="product" />
             </div>
             <div v-if="listData.length === 0 || listData == []">
                 <NotFound />
@@ -37,15 +36,11 @@
 
 <script setup>
 import axios from 'axios';
-import { ref, onMounted, watch } from 'vue';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head } from '@inertiajs/vue3';
+import { ref, onMounted } from 'vue';
 import PaymentCategoryListTemplate from '@/Components/List/PaymentCategoryListTemplate.vue';
 import NotFound from '@/Components/Icons/NotFound.vue';
-import FilterDropdown from '@/Components/General/FilterDropdown.vue';
 import LoadingComponent from '@/Components/General/LoadingComponent.vue';
-import BreadcrumbComponent from '@/Components/General/BreadcrumbComponent.vue';
-import PaymmentCategoryForm from '@/Components/Form/PaymmentCategoryForm.vue';
+import PaymmentCategoryForm from '../Form/PaymmentCategoryForm.vue';
 
 const isLoading = ref(true);
 const listData = ref([]);

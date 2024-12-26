@@ -55,7 +55,6 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import AngleRight from '@/Components/Icons/AngleRight.vue';
 import { formatDate } from '@/Helpers/helpers.js';
 import PaymmentCategoryForm from '@/Components/Form/PaymmentCategoryForm.vue';
 const emit = defineEmits();
