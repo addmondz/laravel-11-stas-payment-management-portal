@@ -13,8 +13,8 @@ class CreateClaimsTable extends Migration
         Schema::create('claims', function (Blueprint $table) {
             $table->id();
             $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
-            $table->foreignId('payment_to')->constrained('users')->onDelete('cascade');
-            $table->foreignId('bank_account_id')->constrained('bank_accounts')->onDelete('cascade');
+            // $table->foreignId('payment_to')->constrained('users')->onDelete('cascade');
+            $table->foreignId('payment_receiver_id')->constrained('payment_receivers')->onDelete('cascade');
             $table->string('payment_type'); // Reimbursement or External Payments
             $table->foreignId('payment_category_id')->constrained('payment_categories')->onDelete('cascade');
             $table->foreignId('currency_id')->constrained('currencies')->onDelete('cascade');

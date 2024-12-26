@@ -14,9 +14,11 @@ const showingCreateClaimModal = ref(false);
 const formIsLoading = ref(false);
 const emit = defineEmits();
 const currencyData = ref([]);
+const paymentReceiverData = ref([]);
 const paymentCategoryData = ref([]);
 const error = ref(null);
 const form = useForm({
+    payment_to: '',
     payment_type: '',
     payment_category: '',
     currency: '',
@@ -104,10 +106,20 @@ const fetchPaymentCategory = async () => {
     }
 };
 
+const listPaymentReceiverNameAndId = async () => {
+    try {
+        const { data } = await axios.get(route('paymentReceiver.listNameAndId'));
+        paymentReceiverData.value = data;
+    } catch (err) {
+        error.value = err;
+    }
+};
+
 // On component mount, load data
 onMounted(() => {
     fetchCurrencies();
     fetchPaymentCategory();
+    listPaymentReceiverNameAndId();
 });
 </script>
 
@@ -123,6 +135,17 @@ onMounted(() => {
                 <div v-else>
                     <h2 class="text-lg font-medium text-gray-900">Create a New Claim</h2>
                     <div class="grid grid-cols-1 gap-4 mt-4">
+                        <div>
+                            <InputLabel for="payment_to" value="Payment To" />
+                            <select id="payment_to" v-model="form.payment_to" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                                <option value="" disabled selected>Please select Payment Category</option>
+                                <option v-for="(name, code) in paymentReceiverData" :key="code" :value="code" class="capitalize">
+                                    {{ name }}
+                                </option>
+                            </select>
+                            <InputError :message="form.errors.payment_to" class="mt-2" />
+                        </div>
+
                         <div>
                             <InputLabel for="payment_type" value="Payment Type" />
                             <select id="payment_type" v-model="form.payment_type"
@@ -195,8 +218,8 @@ onMounted(() => {
 
                         <div>
                             <InputLabel for="receipt_date" value="Date of Receipt / Invoice" />
-                            <TextInput id="receipt_date" v-model="form.receipt_date" type="date" class="mt-1 block w-full"
-                                required />
+                            <TextInput id="receipt_date" v-model="form.receipt_date" type="date"
+                                class="mt-1 block w-full" required />
                             <InputError :message="form.errors.receipt_date" class="mt-2" />
                         </div>
 

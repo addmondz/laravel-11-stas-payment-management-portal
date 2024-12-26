@@ -14,8 +14,8 @@ class Claim extends Model
 
     protected $fillable = [
         'created_by',
+        'payment_receivers_id',
         'payment_to',
-        'bank_account_id',
         'payment_type',
         'payment_category_id',
         'currency_id',
@@ -41,7 +41,8 @@ class Claim extends Model
 
     public function paymentToUser()
     {
-        return $this->belongsTo(User::class, 'payment_to', 'id');
+        // return $this->belongsTo(User::class, 'payment_to', 'id');
+        return $this->belongsTo(PaymentReceiver::class, 'payment_receiver_id', 'id');
     }
 
     public function paymentCategory()

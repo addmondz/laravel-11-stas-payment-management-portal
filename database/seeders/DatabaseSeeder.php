@@ -4,10 +4,10 @@ namespace Database\Seeders;
 
 use App\Classes\ValueObjects\Constants\ApprovalRoles;
 use App\Classes\ValueObjects\Constants\GeneralConstant;
-use App\Models\BankAccount;
 use App\Models\Country;
 use App\Models\Currency;
 use App\Models\PaymentCategory;
+use App\Models\PaymentReceiver;
 use App\Models\User;
 use App\Models\UserPrivilege;
 use App\Models\Variable;
@@ -69,13 +69,12 @@ class DatabaseSeeder extends Seeder
             ['approval_role_id' => ApprovalRoles::L3_APPROVAL_MEMBERS]
         );
 
-        BankAccount::create([
-            'holder_name' => 'John Doe',
+        PaymentReceiver::create([
+            'name' => 'John Doe',
             'bank_name' => 'Bank of Laravel',
-            'bank_account_number' => '1234567890',
+            'bank_account_no' => '1234567890',
             'swift_code' => 'BOFLUS33',
-            'currency' => Currency::find(1)->id,
-            'owner' => User::find(1)->id,
+            'currency_id' => Currency::find(1)->id,
         ]);
 
         PaymentCategory::create([

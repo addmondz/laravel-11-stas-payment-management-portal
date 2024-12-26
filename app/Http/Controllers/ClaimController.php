@@ -28,6 +28,7 @@ class ClaimController extends Controller
 
         // Validate the incoming request
         $validated = $request->validate([
+            'payment_to' => 'required',
             'payment_type' => 'required|in:reimbursement,external_payment',
             'payment_category' => 'required|string',
             'currency' => 'required',
@@ -71,12 +72,11 @@ class ClaimController extends Controller
             'purpose'               => $requestData['purpose'],
             'receipt_date'          => $requestData['receipt_date'],
             'receipt_file'          => $path ?? null,
+            'payment_receivers_id'  => $requestData['payment_to'],
 
             // field to update later
-            'payment_to'            => $user->id,
             'gst_amount'            => $hasGst ? ($requestData['amount'] * $gstTax / 100) : 0,
             'gst_percent'           => $gstTax,
-            'bank_account_id'       => '1',
             'status'                => ApprovalStatus::PENDING_APPROVAL,
         ];
 
@@ -117,10 +117,10 @@ class ClaimController extends Controller
             $isAdmin = $user->role == 'admin';
             $hasPrivillageRoles = $user->privileges->first()->approval_role_id ?? null;
             if ($isAdmin || $hasPrivillageRoles) {
-                $query = Claim::query();
+                $query = Claim::with('createdUser');
             } else {
                 // if is normal user, can only show what they have submitted 
-                $query = Claim::where('created_by', $user->id);
+                $query = Claim::with('createdUser')->where('created_by', $user->id);
             }
 
             if ($request->input('paymentType')) {
@@ -184,7 +184,7 @@ class ClaimController extends Controller
             $isAdmin = $user->role == 'admin';
             $hasPrivillageRoles = $user->privileges->first()->approval_role_id ?? null;
             if ($hasPrivillageRoles) {
-                $query = Claim::where('approval_status', $hasPrivillageRoles - 1);
+                $query = Claim::with('createdUser')->where('approval_status', $hasPrivillageRoles - 1);
             } else {
                 return response()->json([
                     'success' => true,

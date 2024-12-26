@@ -3,6 +3,7 @@
 use App\Http\Controllers\ClaimController;
 use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\PaymentCategoryController;
+use App\Http\Controllers\PaymentReceiverController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VariableController;
@@ -38,6 +39,12 @@ Route::prefix('api')->middleware('auth')->group(function () {
         Route::get('/list-choice', [PaymentCategoryController::class, 'listChoice'])->name('paymentCategory.listChoice');
         Route::post('/create', [PaymentCategoryController::class, 'create'])->name('paymentCategory.create');
         Route::post('/{id}/update', [PaymentCategoryController::class, 'update'])->name('paymentCategory.update');
+    });
+
+    Route::prefix('payment-receiver')->group(function () {
+        // Route::get('/list', [PaymentReceiverController::class, 'list'])->name('paymentReceiver.list');
+        // Route::post('/create', [PaymentReceiverController::class, 'create'])->name('paymentReceiver.create');
+        Route::get('/list-name-and-id', [PaymentReceiverController::class, 'listNameAndId'])->name('paymentReceiver.listNameAndId');
     });
 
     Route::prefix('user')->group(function () {
