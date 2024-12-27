@@ -14,7 +14,7 @@ class Claim extends Model
 
     protected $fillable = [
         'created_by',
-        'payment_receivers_id',
+        'payment_receiver_id',
         'payment_to',
         'payment_type',
         'payment_category_id',

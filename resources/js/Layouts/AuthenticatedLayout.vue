@@ -42,11 +42,6 @@ const logout = () => {
                             </NavLink>
                         </div>
                         <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex" v-if="isAdmin().value">
-                            <NavLink :href="route('users')" :active="route().current('users')">
-                                Users
-                            </NavLink>
-                        </div>
-                        <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex" v-if="isAdmin().value">
                             <NavLink :href="route('settings')"
                                 :active="route().current('settings')">
                                 Settings
@@ -104,8 +99,6 @@ const logout = () => {
                         <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">Dashboard
                         </ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('claims')" :active="route().current('claims')">Claims
-                        </ResponsiveNavLink>
-                        <ResponsiveNavLink :href="route('users')" :active="route().current('users')">Users
                         </ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('settings')" :active="route().current('settings')">Settings
                         </ResponsiveNavLink>

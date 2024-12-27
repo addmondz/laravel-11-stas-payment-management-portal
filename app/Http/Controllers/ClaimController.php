@@ -72,7 +72,7 @@ class ClaimController extends Controller
             'purpose'               => $requestData['purpose'],
             'receipt_date'          => $requestData['receipt_date'],
             'receipt_file'          => $path ?? null,
-            'payment_receivers_id'  => $requestData['payment_to'],
+            'payment_receiver_id'   => $requestData['payment_to'],
 
             // field to update later
             'gst_amount'            => $hasGst ? ($requestData['amount'] * $gstTax / 100) : 0,

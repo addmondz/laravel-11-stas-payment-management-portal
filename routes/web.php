@@ -1,9 +1,7 @@
 <?php
 
-use App\Classes\ValueObjects\Constants\GeneralConstant;
 use App\Http\Controllers\ProfileController;
 use App\Models\Variable;
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -28,10 +26,6 @@ Route::get('/claim/{id}', function ($id) {
     return Inertia::render('ClaimDetails', ['id' => $id]);
 })->middleware(['auth', 'verified'])->name('claim.details');
 
-Route::get('/users', function () {
-    return Inertia::render('User');
-})->middleware(['auth', 'verified'])->name('users');
-
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -42,6 +36,10 @@ Route::middleware('auth')->group(function () {
 // Route::get('/settings/payment-category', function () {
 //     return Inertia::render('PaymentCategoryPage');
 // })->middleware(['auth', 'verified'])->name('settings.paymentCategory');
+
+// Route::get('/users', function () {
+//     return Inertia::render('User');
+// })->middleware(['auth', 'verified'])->name('users');
 // not using
 
 Route::get('/settings', function () {
