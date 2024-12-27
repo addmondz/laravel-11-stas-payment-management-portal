@@ -6,8 +6,7 @@
         <div v-else>
             <div class="pt-12" v-if="apiResponse">
                 <div class="grid md:grid-cols gap-4 mb-5">
-                    <slot></slot>
-                    <slot name="list-view" :data="listData" />
+                    <slot name="list-view" :data="listData" :apiResponse="apiResponse" />
                 </div>
                 <div v-if="listData.length === 0 || listData == []">
                     <NotFound />

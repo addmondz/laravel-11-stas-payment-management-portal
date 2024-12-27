@@ -29,6 +29,10 @@ const formatPrice = (number) => {
     return formattedNumber.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 };
 
+const formatNumberToString = (number) => {
+    return number.toLocaleString();
+}
+
 const formatNumberToTwoDecimals = (number) => {
     number = Number(number).toFixed(2);
     number = parseFloat(number);
@@ -56,4 +60,4 @@ const formatDateWithTime = (date) => {
 };
 
 // Exporting functions
-export { fetchUserDetails, formatPrice, apiBaseUrl, convertStringToNumber, formatNumberToTwoDecimals, formatId, formatDate, formatString, formatDateWithTime };
+export { fetchUserDetails, formatPrice, apiBaseUrl, convertStringToNumber, formatNumberToTwoDecimals, formatId, formatDate, formatString, formatDateWithTime, formatNumberToString };
