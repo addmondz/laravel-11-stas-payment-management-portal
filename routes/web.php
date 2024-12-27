@@ -14,13 +14,13 @@ use Inertia\Inertia;
 //     ]);
 // });
 
-Route::get('/', function () {
-    return Inertia::render('Welcome');
-})->middleware(['auth', 'verified'])->name('dashboard');
+// Route::get('/', function () {
+//     return Inertia::render('Welcome');
+// })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::get('/claims', function () {
+Route::get('/', function () {
     return Inertia::render('Claim');
-})->middleware(['auth', 'verified'])->name('claims');
+})->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::get('/claim/{id}', function ($id) {
     return Inertia::render('ClaimDetails', ['id' => $id]);
