@@ -3,7 +3,7 @@
         <LoadingComponent class="mt-32" />
     </div>
     <div v-else>
-        <div v-if="apiResponse">
+        <div v-if="apiResponse" class="mt-8">
             <div class="grid md:grid-cols-4 gap-4 mb-5">
                 <FilterDropdown class="w-full mr-5" label="a Payment Type" v-model="paymentType"
                     :options="['reimbursement', 'external_payment']" />

@@ -86,7 +86,7 @@ class UserController extends Controller
         // Validate the incoming request data
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $request->user()->id, // Ignore the email check for the current user
+            'email' => 'required|email|unique:users,email,' . $id, // Ignore the email check for the user being updated
             'password' => 'nullable|string|min:8|confirmed', // Password is nullable
         ]);
 
@@ -105,13 +105,16 @@ class UserController extends Controller
         if ($request->input('isAdmin')) {
             $userData['role'] = 'admin';
         }
+        else {
+            $userData['role'] = 'user';
+        }
 
-        // Get the current user and update their information
-        $user = User::find($id);
+        // Find the user by ID
+        $user = User::findOrFail($id); // Ensure the user exists
         $user->update($userData);
 
-        // Create approvalRole for user if provided
-        if ($request->input('approvalRole')) {
+        // Create or update approvalRole for user if provided
+        if ($request->input('approvalRole') && $request->input('approvalRole') != 'undefined') {
             UserPrivilege::updateOrCreate(
                 ['user_id' => $user->id],
                 ['approval_role_id' => $request->input('approvalRole')]

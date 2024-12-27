@@ -47,6 +47,15 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="space-y-4">
+                                <div class="tab-btn border-4 border-white" tab-name="paymentReceiver">
+                                    <div class="flex items-center">
+                                        <div class="flex-1 p-4">
+                                            <p class="font-semibold">Payment Receiver</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div class="w-full md:w-3/4 bg-white">
                             <div class="space-y-4">
@@ -76,13 +85,22 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="space-y-4">
+                                <div class="tab-display" tab-name="paymentReceiver">
+                                    <div class="flex items-center">
+                                        <div class="flex-1 p-4">
+                                            <PaymentReceverComponent />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
         <div v-else>
-            <NotFound />
+            <NotFound style="min-height: 80vh;" />
         </div>
     </AuthenticatedLayout>
 </template>
@@ -96,8 +114,9 @@ import PaymentCategoryComponent from '@/Components/Settings/PaymentCategoryCompo
 import GstSettingsComponent from '@/Components/Settings/GstSettingsComponent.vue';
 import BreadcrumbComponent from '@/Components/General/BreadcrumbComponent.vue';
 import TeamComponent from '@/Components/Settings/TeamComponent.vue';
-import { isAdmin, getUserApprovalPrivillage } from '@/Composables/GlobalFuntions.vue';
+import { isAdmin } from '@/Composables/GlobalFuntions.vue';
 import NotFound from '@/Components/Icons/NotFound.vue';
+import PaymentReceverComponent from '@/Components/Settings/PaymentReceverComponent.vue';
 import $ from 'jquery';
 
 const isLoading = ref(false);

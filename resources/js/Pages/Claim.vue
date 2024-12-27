@@ -12,7 +12,7 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mt-3">
             <div v-if="getUserApprovalPrivillage().value">
                 <!-- Tab Headers -->
-                <div class="flex mb-10">
+                <div class="flex">
                     <span v-for="tab in tabs" :key="tab.name"
                         :class="['tab-btn p-2 px-5 text-md text-black border-4 border-white', tabClasses(tab.name)]"
                         @click="activeTab = tab.name">
@@ -64,7 +64,7 @@ const tabClasses = (tabName) => {
 
 // Handle create completion
 const handleCreateComplete = () => {
-    createCompleteSignal.value = Math.floor(Math.random() * 100) + 132;
+    createCompleteSignal.value = Math.floor(Math.random() * 100) + 1;
 };
 </script>
 

@@ -42,8 +42,9 @@ Route::prefix('api')->middleware('auth')->group(function () {
     });
 
     Route::prefix('payment-receiver')->group(function () {
-        // Route::get('/list', [PaymentReceiverController::class, 'list'])->name('paymentReceiver.list');
-        // Route::post('/create', [PaymentReceiverController::class, 'create'])->name('paymentReceiver.create');
+        Route::get('/list', [PaymentReceiverController::class, 'list'])->name('paymentReceiver.list');
+        Route::post('/create', [PaymentReceiverController::class, 'create'])->name('paymentReceiver.create');
+        Route::post('/{id}/update', [PaymentReceiverController::class, 'update'])->name('paymentReceiver.update');
         Route::get('/list-name-and-id', [PaymentReceiverController::class, 'listNameAndId'])->name('paymentReceiver.listNameAndId');
     });
 
