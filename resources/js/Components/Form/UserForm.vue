@@ -187,7 +187,7 @@ onMounted(() => {
                         <div>
                             <div class="col-span-2">
                                 <InputLabel value="Is Admin" />
-                                <div class="flex items-center space-x-4 mt-1">
+                                <div class="flex items-center space-x-4 mt-1 mb-5">
                                     <label class="inline-flex items-center">
                                         <input type="radio" v-model="form.isAdmin" value="1" class="form-radio" />
                                         <span class="ml-2">Yes</span>
