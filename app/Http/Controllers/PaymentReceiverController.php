@@ -10,11 +10,14 @@ class PaymentReceiverController extends Controller
     public function listNameAndId(Request $request)
     {
         return PaymentReceiver::all()
-            ->map(function ($category) {
-                $category->name = ucwords($category->name);
-                return $category;
-            })
-            ->pluck('name', 'id'); //tod0-new: add currecy also 
+            ->map(function ($receiver) {
+                $receiver->name = ucwords($receiver->name);
+                return [
+                    'id' => $receiver->id,
+                    'name' => $receiver->name,
+                    'currency_id' => $receiver->currency_id,
+                ];
+            });
     }
 
     public function list(Request $request)

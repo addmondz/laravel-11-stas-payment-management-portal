@@ -97,6 +97,11 @@ const fetchCurrencies = async () => {
     }
 };
 
+const handlePaymentToChange = (event) => {
+    const selectedCurrencyId = event.target.selectedOptions[0]?.getAttribute('data-attr-currency-id');
+    form.currency = selectedCurrencyId;
+};
+
 const fetchPaymentCategory = async () => {
     try {
         const { data } = await axios.get(route('paymentCategory.listChoice'));
@@ -137,10 +142,14 @@ onMounted(() => {
                     <div class="grid grid-cols-1 gap-4 mt-4">
                         <div>
                             <InputLabel for="payment_to" value="Payment To" />
-                            <select id="payment_to" v-model="form.payment_to" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                            <select id="payment_to" v-model="form.payment_to"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required
+                                @change="handlePaymentToChange">
                                 <option value="" disabled selected>Please select Payment Category</option>
-                                <option v-for="(name, code) in paymentReceiverData" :key="code" :value="code" class="capitalize">
-                                    {{ name }}
+                                <option v-for="paymentReceiver in paymentReceiverData" :key="paymentReceiver.id"
+                                    :value="paymentReceiver.id" class="capitalize"
+                                    :data-attr-currency-id="paymentReceiver.currency_id">
+                                    {{ paymentReceiver.name }}
                                 </option>
                             </select>
                             <InputError :message="form.errors.payment_to" class="mt-2" />
