@@ -2,7 +2,7 @@
     <div>
         <div class="flex justify-between content-center">
             <p>Payment Category</p>
-            <PaymmentCategoryForm @createComplete="handleCreateComplete" />
+            <PaymentCategoryForm @createComplete="handleCreateComplete" />
         </div>
 
         <ListComponent :apiUrl="route('paymentCategory.list')" :createCompleteSignal="createCompleteSignal">
@@ -16,7 +16,7 @@
 <script setup>
 import { ref } from 'vue';
 import PaymentCategoryListTemplate from '@/Components/List/PaymentCategoryListTemplate.vue';
-import PaymmentCategoryForm from '@/Components/Form/PaymmentCategoryForm.vue';
+import PaymentCategoryForm from '@/Components/Form/PaymentCategoryForm.vue';
 import ListComponent from '../General/ListComponent.vue';
 
 const createCompleteSignal = ref(2);

@@ -7,7 +7,7 @@ import TextInput from '@/Components/General/TextInput.vue';
 import { useForm } from '@inertiajs/vue3';
 import { ref, watch } from 'vue';
 import Swal from 'sweetalert2';
-import { onMounted } from 'vue';
+import LoadingComponent from '@/Components/General/LoadingComponent.vue';
 
 // Accept userData prop for editing existing user
 const props = defineProps({
@@ -16,7 +16,7 @@ const props = defineProps({
         default: null
     }
 });
-
+const isLoading = ref(false);
 const showingCreateUserModal = ref(false);
 const emit = defineEmits();
 const approvalRolesData = ref([]);
@@ -45,6 +45,8 @@ const toggleModal = () => {
 };
 
 const submitUser = async () => {
+    isLoading.value = true;
+
     try {
         const formData = new FormData();
         for (const [key, value] of Object.entries(form.data())) {
@@ -83,6 +85,8 @@ const submitUser = async () => {
                 confirmButtonText: 'OK',
             });
         }
+    } finally {
+        isLoading.value = false;
     }
 };
 </script>
@@ -93,27 +97,32 @@ const submitUser = async () => {
 
         <Modal :show="showingCreateUserModal" @close="toggleModal">
             <form @submit.prevent="submitUser" class="p-6 space-y-4">
-                <h2 class="text-lg font-medium text-gray-900">{{ props.userData ? 'Edit Payment Category' : 'Create a New Payment Category' }}
-                </h2>
+                <div v-if="!isLoading">
+                    <h2 class="text-lg font-medium text-gray-900">{{ props.userData ? 'Edit Payment Category' : 'Create a New Payment Category' }}
+                    </h2>
 
-                <div class="grid grid-cols-1 gap-4 mt-4">
-                    <div>
-                        <InputLabel for="name" value="Name" />
-                        <TextInput id="name" v-model="form.name" placeholder="Full Name" class="mt-1 block w-full"
-                            required />
-                        <InputError :message="form.errors.name" class="mt-2" />
+                    <div class="grid grid-cols-1 gap-4 mt-4">
+                        <div>
+                            <InputLabel for="name" value="Name" />
+                            <TextInput id="name" v-model="form.name" placeholder="Full Name" class="mt-1 block w-full"
+                                required />
+                            <InputError :message="form.errors.name" class="mt-2" />
+                        </div>
+                    </div>
+
+                    <div class="text-right mt-6">
+                        <button type="button" @click="toggleModal"
+                            class="bg-white hover:bg-gray-100 text-black inline-flex items-center px-4 py-2 border rounded-md font-semibold text-xs uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                            Close
+                        </button>
+                        <PrimaryButton type="submit" class="ms-3" :class="{ 'opacity-25': form.processing }"
+                            :disabled="form.processing">
+                            {{ props.userData ? 'Update' : 'Submit' }}
+                        </PrimaryButton>
                     </div>
                 </div>
-
-                <div class="text-right mt-6">
-                    <button type="button" @click="toggleModal"
-                        class="bg-white hover:bg-gray-100 text-black inline-flex items-center px-4 py-2 border rounded-md font-semibold text-xs uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                        Close
-                    </button>
-                    <PrimaryButton type="submit" class="ms-3" :class="{ 'opacity-25': form.processing }"
-                        :disabled="form.processing">
-                        {{ props.userData ? 'Update' : 'Submit' }}
-                    </PrimaryButton>
+                <div v-else>
+                    <LoadingComponent class="mt-32 mb-32 " />
                 </div>
             </form>
         </Modal>

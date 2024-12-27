@@ -65,7 +65,11 @@ const validatePassword = () => {
 };
 
 const submitUser = async () => {
+    isLoading.value = true;
+
     if (!validatePassword()) {
+        isLoading.value = false;
+
         Swal.fire({
             title: 'Error!',
             text: 'Passwords do not match.',
@@ -83,7 +87,6 @@ const submitUser = async () => {
 
         // Determine if we're editing or creating
         const url = props.userData ? route('user.update', props.userData.id) : route('user.create');
-        // const method = props.userData ? 'put' : 'post';
         const method = 'post';
 
         // Make the API request
@@ -113,8 +116,11 @@ const submitUser = async () => {
                 confirmButtonText: 'OK',
             });
         }
+    } finally {
+        isLoading.value = false;
     }
 };
+
 
 const fetchApprovalRoles = async () => {
     try {
@@ -221,7 +227,7 @@ onMounted(() => {
                     </div>
                 </div>
                 <div v-else>
-                    <LoadingComponent class="mt-20 mb-30" />
+                    <LoadingComponent class="mt-32 mb-32 " />
                 </div>
             </form>
         </Modal>

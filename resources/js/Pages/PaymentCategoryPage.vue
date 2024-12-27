@@ -5,7 +5,7 @@
         <template #header>
             <div class="flex justify-between content-center">
                 <BreadcrumbComponent :breadcrumbs="[{ title: 'Settings' }, { title: 'Payment Category' }]" />
-                <PaymmentCategoryForm @createComplete="handleCreateComplete" />
+                <PaymentCategoryForm @createComplete="handleCreateComplete" />
             </div>
         </template>
 
@@ -70,7 +70,7 @@ import NotFound from '@/Components/Icons/NotFound.vue';
 import FilterDropdown from '@/Components/General/FilterDropdown.vue';
 import LoadingComponent from '@/Components/General/LoadingComponent.vue';
 import BreadcrumbComponent from '@/Components/General/BreadcrumbComponent.vue';
-import PaymmentCategoryForm from '@/Components/Form/PaymmentCategoryForm.vue';
+import PaymentCategoryForm from '@/Components/Form/PaymentCategoryForm.vue';
 
 const isLoading = ref(true);
 const listData = ref([]);
