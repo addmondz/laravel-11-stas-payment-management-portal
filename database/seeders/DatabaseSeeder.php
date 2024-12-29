@@ -69,6 +69,14 @@ class DatabaseSeeder extends Seeder
             ['approval_role_id' => ApprovalRoles::L3_APPROVAL_MEMBERS]
         );
 
+        User::create([
+            'name' => 'Finance',
+            'email' => 'finance@email.com',
+            'email_verified_at' => now(),
+            'password' => Hash::make('12345678'), // You can set the password as per your choice
+            'role' => 'finance', // Assign the admin role
+        ]);
+
         PaymentReceiver::create([
             'name' => 'John Doe',
             'bank_name' => 'Bank of Laravel',
