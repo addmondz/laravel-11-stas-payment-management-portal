@@ -91,7 +91,7 @@
                             </div>
                             <p class="text-base">{{ fetchedData.currency_object.short_code }} {{
                                 formatPrice(fetchedData.amount)
-                                }}</p>
+                            }}</p>
                         </div>
                         <div class="mb-4">
                             <div class="flex justify-between">
@@ -110,7 +110,7 @@
                             <p class="text-base">
                                 {{ Number(fetchedData.gst_amount) === 0 ? '-' : fetchedData.currency_object.short_code +
                                     ' ' +
-                                formatPrice(fetchedData.gst_amount) }}
+                                    formatPrice(fetchedData.gst_amount) }}
                             </p>
                         </div>
                     </div>
@@ -189,17 +189,59 @@
                     </div>
                 </div>
 
-                <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5 text-right" v-if="fetchedData.status_id < 2 && (getUserApprovalPrivillage().value == fetchedData.next_approval_level)">
-                    <PrimaryButton @click="approvalClaimConfirmation">Approve Claim</PrimaryButton>
+                <div class="bg-white max-w-7xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5" v-if="fetchedData.status_id >= 3">
+                    <div class="px-5 py-3 border-b border-gray-300 flex justify-between items-center">
+                        <div class="flex justify-between content-center w-full">
+                            <h2>Payment Voucher</h2>
+                            <AngleUp class="cursor-pointer" v-if="showSection.paymentVoucher"
+                                @click="toggleShowSection('paymentVoucher')" />
+                            <AngleDown class="cursor-pointer" v-if="!showSection.paymentVoucher"
+                                @click="toggleShowSection('paymentVoucher')" />
+                        </div>
+                    </div>
+                    <div class="grid md:grid-cols-3 gap-9 p-6 border-gray-300 col-span-2" v-if="showSection.paymentVoucher">
+                        <div class="mb-4">
+                            <div class="flex justify-between">
+                                <p class="mb-1 text-sm text-gray-500">Payment Voucher Number</p>
+                                <InfoCircleOutlined class="text-gray-400" />
+                            </div>
+                            <p class="text-base">{{ fetchedData.payment_voucher_number ?? '-' }}</p>
+                        </div>
+                        <div class="mb-4">
+                            <div class="flex justify-between">
+                                <p class="mb-1 text-sm text-gray-500">Payment Date</p>
+                                <InfoCircleOutlined class="text-gray-400" />
+                            </div>
+                            <p class="text-base">{{ formatDate(fetchedData.payment_date) ?? '-' }}</p>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5 text-right"
+                    v-if="fetchedData.status_id < 2 && (getUserApprovalPrivillage().value == fetchedData.next_approval_level)">
+                    <PrimaryButton @click="approvalClaimConfirmation">Approve Claim</PrimaryButton>
+                </div>
+
+                <!-- <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5 text-right"
                     v-if="fetchedData.status_id == 2 && isAdmin().value">
                     <PrimaryButton @click="paymentCompletedConfirmation">Mark as Payment Completed</PrimaryButton>
+                </div> -->
+
+                <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5 text-right"
+                    v-if="fetchedData.status_id == 2 && isAdmin().value">
+                    <PaymentVoucherForm :claimId="props.id" />
                 </div>
             </div>
             <div v-else>
-                <NotFound />
+                <!-- <NotFound /> -->
+                <div style="min-height: 80vh;" class="flex flex-col justify-center items-center">
+                    <NotFound />
+                    <div class="flex justify-center">
+                        <Link :href="route('dashboard')">
+                            <PrimaryButton class="p-4">Back To Home Page</PrimaryButton>
+                        </Link>
+                    </div>
+                </div>
             </div>
         </div>
     </AuthenticatedLayout>
@@ -222,6 +264,8 @@ import AngleDown from '@/Components/Icons/AngleDown.vue';
 import PrimaryButton from '@/Components/General/PrimaryButton.vue';
 import Swal from 'sweetalert2';
 import { isAdmin, getUserApprovalPrivillage } from '@/Composables/GlobalFuntions.vue';
+import PaymentVoucherForm from '@/Components/Form/PaymentVoucherForm.vue';
+import { Link } from '@inertiajs/vue3';
 
 const isLoading = ref(true);
 const fetchedData = ref([]);
@@ -237,7 +281,7 @@ const apiUrl = route('claims.fetchData', props.id);
 const schemaId = ref('0');
 const returnData = ref({});
 const breadcrumbs = [
-    { title: 'Claims', link: route('dashbaord') },
+    { title: 'Claims', link: route('dashboard') },
     { title: '#' + formatId(props.id), },
 ];
 const showSection = ref({
@@ -245,6 +289,7 @@ const showSection = ref({
     amount: true,
     receipt: true,
     approvalHistory: true,
+    paymentVoucher: true,
 });
 
 const toggleShowSection = (name) => {

@@ -27,6 +27,9 @@ class Claim extends Model
         'receipt_file',
         'status',
         'approval_status',
+
+        'payment_voucher_number',
+        'payment_date',
     ];
 
     public function currencyObject()

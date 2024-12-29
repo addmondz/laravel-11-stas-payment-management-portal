@@ -100,7 +100,14 @@
             </div>
         </div>
         <div v-else>
-            <NotFound style="min-height: 80vh;" />
+            <div style="min-height: 80vh;" class="flex flex-col justify-center items-center">
+                <NotFound />
+                <div class="flex justify-center">
+                    <Link :href="route('dashboard')">
+                        <PrimaryButton class="p-4">Back To Home Page</PrimaryButton>
+                    </Link>
+                </div>
+            </div>
         </div>
     </AuthenticatedLayout>
 </template>
@@ -117,6 +124,8 @@ import TeamComponent from '@/Components/Settings/TeamComponent.vue';
 import { isAdmin } from '@/Composables/GlobalFuntions.vue';
 import NotFound from '@/Components/Icons/NotFound.vue';
 import PaymentReceverComponent from '@/Components/Settings/PaymentReceverComponent.vue';
+import { Link } from '@inertiajs/vue3';
+import PrimaryButton from '@/Components/General/PrimaryButton.vue';
 import $ from 'jquery';
 
 const isLoading = ref(false);

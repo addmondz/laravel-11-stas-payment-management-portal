@@ -343,6 +343,11 @@ class ClaimController extends Controller
     {
         $claim = Claim::find($id);
 
+        $validated = $request->validate([
+            "paymentVoucherNumber" => 'required',
+            "paymentDate" => 'required',
+        ]);
+
         if (!$claim) {
             return response()->json(['error' => 'Claim not found.'], 404);
         }
@@ -360,7 +365,12 @@ class ClaimController extends Controller
             return response()->json(['error' => 'Insufficient privileges for this approval level.'], 403);
         }
 
-        $claim->update(['status' => ApprovalStatus::PAYMENT_COMPLETED]);
+        $claim->update([
+            'status'                  => ApprovalStatus::PAYMENT_COMPLETED,
+            "payment_voucher_number"  => $validated['paymentVoucherNumber'],
+            "payment_date"            => $validated['paymentDate'],
+        ]);
+
         ClaimStatusLog::create([
             'claim_id'      => $claim->id,
             'status'        => ApprovalStatus::PAYMENT_COMPLETED,
