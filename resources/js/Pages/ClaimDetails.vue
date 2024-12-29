@@ -13,7 +13,7 @@
             <LoadingComponent class="mt-32" />
         </div>
         <div v-else>
-            <div class="py-12 m-5 mt-0 pt-5" v-if="apiResponse">
+            <div class="py-12 m-5 mt-0 mb-0 pt-5" v-if="apiResponse">
                 <div class="bg-white max-w-7xl mx-auto sm:px-6 lg:px-8 mb-5">
                     <div class="px-5 py-3 border-b border-gray-300 flex justify-between items-center">
                         <div class="flex justify-between content-center w-full">
