@@ -228,7 +228,7 @@
                 </div> -->
 
                 <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5 text-right"
-                    v-if="fetchedData.status_id == 2 && isAdmin().value">
+                    v-if="fetchedData.status_id == 2 && isFinance().value">
                     <PaymentVoucherForm :claimId="props.id" @createComplete="handleCreateComplete" />
                 </div>
             </div>
@@ -263,7 +263,7 @@ import AngleUp from '@/Components/Icons/AngleUp.vue';
 import AngleDown from '@/Components/Icons/AngleDown.vue';
 import PrimaryButton from '@/Components/General/PrimaryButton.vue';
 import Swal from 'sweetalert2';
-import { isAdmin, getUserApprovalPrivillage } from '@/Composables/GlobalFuntions.vue';
+import { isAdmin, getUserApprovalPrivillage, isFinance } from '@/Composables/GlobalFuntions.vue';
 import PaymentVoucherForm from '@/Components/Form/PaymentVoucherForm.vue';
 import { Link } from '@inertiajs/vue3';
 
@@ -407,5 +407,4 @@ const closeModal = () => {
     isModalOpen.value = false;
 };
 
-// const isAdmin = $useIsAdmin;
 </script>

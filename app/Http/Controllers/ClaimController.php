@@ -115,8 +115,9 @@ class ClaimController extends Controller
 
             // if is admin show all
             $isAdmin = $user->role == 'admin';
+            $isFinance = $user->role == 'finance';
             $hasPrivillageRoles = $user->privileges->first()->approval_role_id ?? null;
-            if ($isAdmin || $hasPrivillageRoles) {
+            if ($isAdmin || $hasPrivillageRoles || $isFinance) {
                 $query = Claim::with('createdUser');
             } else {
                 // if is normal user, can only show what they have submitted 
@@ -178,14 +179,11 @@ class ClaimController extends Controller
     public function listPendingApproval(Request $request)
     {
         try {
-            $user = auth()->user();
+            $user = $request->user();
+            $privilegeRoleId = $user->privileges->first()->approval_role_id ?? null;
 
-            // if is admin show all
-            $isAdmin = $user->role == 'admin';
-            $hasPrivillageRoles = $user->privileges->first()->approval_role_id ?? null;
-            if ($hasPrivillageRoles) {
-                $query = Claim::with('createdUser')->where('approval_status', $hasPrivillageRoles - 1);
-            } else {
+            // Step 1: Check if the user lacks privilege roles
+            if (!$privilegeRoleId && !$user->role === 'finance') {
                 return response()->json([
                     'success' => true,
                     'data' => [],
@@ -193,57 +191,70 @@ class ClaimController extends Controller
                 ]);
             }
 
-            if ($request->input('paymentType')) {
-                $query->where('payment_type', $request->input('paymentType'));
+            // Initialize query
+            $query = Claim::with(['createdUser', 'currencyObject', 'paymentCategory']);
+
+            // Step 2: Check if the user is in the finance role
+            if ($user->role === 'finance') {
+                $query->where('status', ApprovalStatus::APPROVED);
             }
 
-            if ($request->input('searchValue')) {
-                $queryParam = ['payment_category', 'purpose'];
-                $searchValue = $request->input('paymentType');
-                $query->where(function ($query) use ($queryParam, $searchValue) {
-                    foreach ($queryParam as $q) {
-                        $query->orWhere($q, 'like', '%' . $searchValue . '%');
+            // Step 3: Apply privilege-based filtering
+            if ($privilegeRoleId) {
+                $query->orWhere('approval_status', $privilegeRoleId - 1);
+            }
+
+            // Apply additional filters
+            if ($paymentType = $request->input('paymentType')) {
+                $query->where('payment_type', $paymentType);
+            }
+
+            if ($searchValue = $request->input('searchValue')) {
+                $query->where(function ($q) use ($searchValue) {
+                    $queryParam = ['payment_category', 'purpose'];
+                    foreach ($queryParam as $param) {
+                        $q->orWhere($param, 'like', "%{$searchValue}%");
                     }
                 });
             }
 
-            // Apply sorting if provided
-            $sortColumn = $request->input('sort.column', 'id');
-            $sortDirection = $request->input('sort.direction', 'asc');
-            $query->orderBy($sortColumn, $sortDirection);
-
-            // Paginate the results
-            $perPage = $request->get('per_page', 10); // Default to 10 items per page
-            $datas = $query->paginate($perPage);
-
-            $datas->getCollection()->transform(function ($data) {
-                $data->currency = $data->currencyObject->short_code;
-                $data->status = ApprovalStatus::APPROVAL_STATUS_ID[$data->status];
-                $data->payment_category_name = $data->paymentCategory->name;
-                return $data;
-            });
-
-            // Return the response in a structured format
-            return response()->json([
-                'success' => true,
-                'data' => $datas,
-                'message' => 'Claims listed successfully',
-            ]);
-        } catch (\Exception $e) {
-            // Log the error with detailed information
-            Log::error('Error listing Claims', [
-                'message' => $e->getMessage(),
-                'line' => $e->getLine(),
-                'file' => $e->getFile(),
-                'trace' => $e->getTraceAsString(),
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred while listing Claims',
-            ], 500);
-        }
-    }
+             // Apply sorting if provided
+             $sortColumn = $request->input('sort.column', 'id');
+             $sortDirection = $request->input('sort.direction', 'asc');
+             $query->orderBy($sortColumn, $sortDirection);
+ 
+             // Paginate the results
+             $perPage = $request->get('per_page', 10); // Default to 10 items per page
+             $datas = $query->paginate($perPage);
+ 
+             $datas->getCollection()->transform(function ($data) {
+                 $data->currency = $data->currencyObject->short_code;
+                 $data->status = ApprovalStatus::APPROVAL_STATUS_ID[$data->status];
+                 $data->payment_category_name = $data->paymentCategory->name;
+                 return $data;
+             });
+ 
+             // Return the response in a structured format
+             return response()->json([
+                 'success' => true,
+                 'data' => $datas,
+                 'message' => 'Claims listed successfully',
+             ]);
+         } catch (\Exception $e) {
+             // Log the error with detailed information
+             Log::error('Error listing Claims', [
+                 'message' => $e->getMessage(),
+                 'line' => $e->getLine(),
+                 'file' => $e->getFile(),
+                 'trace' => $e->getTraceAsString(),
+             ]);
+ 
+             return response()->json([
+                 'success' => false,
+                 'message' => 'An error occurred while listing Claims',
+             ], 500);
+         }
+     }
 
     public function fetchData(Request $request, $id)
     {
@@ -361,7 +372,7 @@ class ClaimController extends Controller
         }
 
         // todo-new: update here if anyone else can update
-        if (auth()->user()->role != 'admin') {
+        if (auth()->user()->role != 'finance') {
             return response()->json(['error' => 'Insufficient privileges for this approval level.'], 403);
         }
 

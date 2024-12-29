@@ -7,6 +7,11 @@ export function isAdmin() {
     return computed(() => props?.auth?.user?.role === 'admin');
 }
 
+export function isFinance() {
+    const { props } = usePage();
+    return computed(() => props?.auth?.user?.role === 'finance');
+}
+
 export function getUserApprovalPrivillage() {
     const { props } = usePage();
     return computed(() => {
