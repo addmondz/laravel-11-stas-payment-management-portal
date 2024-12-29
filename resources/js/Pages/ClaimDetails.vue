@@ -229,7 +229,7 @@
 
                 <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5 text-right"
                     v-if="fetchedData.status_id == 2 && isAdmin().value">
-                    <PaymentVoucherForm :claimId="props.id" />
+                    <PaymentVoucherForm :claimId="props.id" @createComplete="handleCreateComplete" />
                 </div>
             </div>
             <div v-else>
@@ -391,6 +391,9 @@ onMounted(() => {
     fetchData();
 });
 
+const handleCreateComplete = () => {
+    fetchData();
+};
 
 // State to manage modal visibility
 const isModalOpen = ref(false);

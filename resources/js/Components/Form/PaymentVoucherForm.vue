@@ -49,7 +49,7 @@ const submitPayment = async () => {
 
         toggleModal();
         form.reset();
-        emit('updateComplete', true);
+        emit('createComplete', true);
     } catch (err) {
         if (err.response && err.response.data.errors) {
             form.errors = err.response.data.errors;
