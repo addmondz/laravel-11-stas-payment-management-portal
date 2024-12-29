@@ -16,7 +16,7 @@
                 <!-- <div class="max-w-full mx-auto sm:px-6 lg:px-8 p-5 mt-5"> -->
                 <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 p-5 mt-5">
                     <div class="flex flex-col md:flex-row m-h-10 bg-gray-100">
-                        <div class="w-full md:w-1/4">
+                        <div class="w-full md:w-1/4 mb-6 md:mb-0">
                             <div class="space-y-4">
                                 <div class="tab-btn border-4 border-white" tab-name="paymentCategory">
                                     <div class="flex items-center">

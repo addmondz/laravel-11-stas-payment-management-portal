@@ -47,17 +47,15 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
+            'role' => 'string',
         ]);
 
         $userData = [
             'name' => $validatedData['name'],
             'email' => $validatedData['email'],
+            'role' => $validatedData['role'],
             'password' => Hash::make($validatedData['password']), // Hash the password
         ];
-
-        if ($request->input('isAdmin')) {
-            $userData['role'] = 'admin';
-        }
 
         // Create the user
         $user = User::create($userData);
@@ -65,7 +63,7 @@ class UserController extends Controller
         // create approvalRole for user
         if ($request->input('approvalRole')) {
             UserPrivilege::create([
-                'user_id'           => $user->id,
+                'user_id'               => $user->id,
                 'approval_role_id'      => $request->input('approvalRole'),
             ]);
         }
@@ -88,27 +86,21 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $id, // Ignore the email check for the user being updated
             'password' => 'nullable|string|min:8|confirmed', // Password is nullable
+            'role' => 'string',
         ]);
 
         // Prepare the user data
         $userData = [
             'name' => $validatedData['name'],
             'email' => $validatedData['email'],
+            'role' => $validatedData['role'],
         ];
 
         // Check if a password was provided and hash it if necessary
         if ($request->filled('password')) {
             $userData['password'] = Hash::make($validatedData['password']);
         }
-
-        // Update the user's role if necessary
-        if ($request->input('isAdmin')) {
-            $userData['role'] = 'admin';
-        }
-        else {
-            $userData['role'] = 'user';
-        }
-
+        
         // Find the user by ID
         $user = User::findOrFail($id); // Ensure the user exists
         $user->update($userData);

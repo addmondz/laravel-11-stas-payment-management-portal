@@ -30,7 +30,8 @@ const form = useForm({
     email: '',
     password: '',
     password_confirmation: '',
-    isAdmin: '0',
+    // isAdmin: '0',
+    role: '',
     approvalRole: '',
 });
 
@@ -39,7 +40,8 @@ watch(() => props.userData, (newUserData) => {
     if (newUserData) {
         form.name = newUserData.name;
         form.email = newUserData.email;
-        form.isAdmin = newUserData.role === 'admin' ? '1' : '0';
+        // form.isAdmin = newUserData.role === 'admin' ? '1' : '0';
+        form.role = newUserData.role;
         form.approvalRole = newUserData.approval_role_id;
     } else {
         form.reset(); // Reset if no userData
@@ -185,6 +187,18 @@ onMounted(() => {
                         </div>
 
                         <div>
+                            <InputLabel for="role" value="User Role" />
+                            <select id="role" v-model="form.role"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                                <option value="" disabled selected>Please select User Role</option>
+                                <option value="user">User</option>
+                                <option value="finance">Finance</option>
+                                <option value="admin">Admin</option>
+                            </select>
+                            <InputError :message="form.errors.payment_type" class="mt-2" />
+                        </div>
+
+                        <!-- <div>
                             <div class="col-span-2">
                                 <InputLabel value="Is Admin" />
                                 <div class="flex items-center space-x-4 mt-1 mb-5">
@@ -199,20 +213,20 @@ onMounted(() => {
                                 </div>
                                 <InputError :message="form.errors.isAdmin" class="mt-2" />
                             </div>
-                        </div>
-                    </div>
+                        </div> -->
 
-                    <div>
-                        <InputLabel for="payment_category" value="Approval Role" />
-                        <select id="currency" v-model="form.approvalRole"
-                            class="mt-1 payment_category w-full border-gray-300 rounded-md shadow-sm">
-                            <option value="">None</option>
-                            <option v-for="(name, code) in approvalRolesData" :key="code" :value="code"
-                                class="capitalize">
-                                {{ name }}
-                            </option>
-                        </select>
-                        <InputError :message="form.errors.payment_category" class="mt-2" />
+                        <div>
+                            <InputLabel for="payment_category" value="Approval Role" />
+                            <select id="currency" v-model="form.approvalRole"
+                                class="mt-1 payment_category w-full border-gray-300 rounded-md shadow-sm">
+                                <option value="">None</option>
+                                <option v-for="(name, code) in approvalRolesData" :key="code" :value="code"
+                                    class="capitalize">
+                                    {{ name }}
+                                </option>
+                            </select>
+                            <InputError :message="form.errors.payment_category" class="mt-2" />
+                        </div>
                     </div>
 
                     <div class="text-right mt-6">
