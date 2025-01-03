@@ -83,7 +83,7 @@ class ClaimController extends Controller
         // check user roles, if created by user with higer role, then dont need approval for lower role
         $userPrivilage = $user->privileges->first()->approval_role_id ?? null;
         if ($userPrivilage) {
-            $claim['approval_status'] = $userPrivilage - 1;
+            $claim['approval_status'] = $userPrivilage; // adjust the approval_status here on created
         }
 
         // Create a new claim record

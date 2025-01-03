@@ -12,10 +12,10 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mt-3" style="padding-top: 20px; padding-bottom: 40px;">
             <div v-if="getUserApprovalPrivillage().value || isFinance().value">
                 <!-- Tab Headers -->
-                <div class="flex">
-                    <span v-for="tab in tabs" :key="tab.name" :class="['tab-btn p-2 px-5 text-md text-black border-4 border-white', tabClasses(tab.name)]" @click="activeTab = tab.name">
+                <div class="inline-flex bg-white rounded">
+                    <span v-for="tab in tabs" :key="tab.name" :class="['tab-btn p-2 px-5 text-md rounded', tabClasses(tab.name)]" @click="activeTab = tab.name">
                         {{ tab.label }}
-                        <span class="bg-gray-500 px-2 py-1 ml-2 rounded text-white text-xs notification-circle" v-if="tab.name == 'pendingApproval' && pendingClaimCount != 0 && pendingClaimCount != null">{{ formatNumberToString(pendingClaimCount) }}</span>
+                        <span class="bg-gray-500 px-2 py-1 ml-2 text-white text-xs notification-circle" v-if="tab.name == 'pendingApproval' && pendingClaimCount != 0 && pendingClaimCount != null">{{ formatNumberToString(pendingClaimCount) }}</span>
                     </span>
                 </div>
 
@@ -60,7 +60,7 @@ const tabs = ref([
 const tabClasses = (tabName) => {
     return activeTab.value === tabName
         ? 'active bg-violet-500 text-white font-bold'
-        : 'hover:bg-gray-200';
+        : 'hover:bg-gray-200 text-black bg-white';
 };
 
 // Handle create completion
@@ -78,14 +78,10 @@ const handlePendingClaimsCount = (value) => {
     cursor: pointer;
     user-select: none;
     /* Prevent text selection */
-    border-radius: 0.25rem;
     /* Small border radius */
     transition: background-color 0.3s ease;
     /* Smooth hover effect */
-}
-
-.tab-btn.active {
-    border-radius: 0.5rem;
+    margin: 3px;
 }
 
 .tab-btn.active .notification-circle{

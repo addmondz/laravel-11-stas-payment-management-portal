@@ -14,7 +14,7 @@
         </div>
         <div v-else>
             <div class="py-12 m-5 mt-0 mb-0 pt-5" v-if="apiResponse">
-                <div class="bg-white max-w-7xl mx-auto sm:px-6 lg:px-8 mb-5">
+                <div class="bg-white max-w-7xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5">
                     <div class="px-5 py-3 border-b border-gray-300 flex justify-between items-center">
                         <div class="flex justify-between content-center w-full">
                             <h2>Details</h2>
@@ -91,7 +91,7 @@
                             </div>
                             <p class="text-base">{{ fetchedData.currency_object.short_code }} {{
                                 formatPrice(fetchedData.amount)
-                            }}</p>
+                                }}</p>
                         </div>
                         <div class="mb-4">
                             <div class="flex justify-between">
@@ -189,7 +189,8 @@
                     </div>
                 </div>
 
-                <div class="bg-white max-w-7xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5" v-if="fetchedData.status_id >= 3">
+                <div class="bg-white max-w-7xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5"
+                    v-if="fetchedData.status_id >= 3">
                     <div class="px-5 py-3 border-b border-gray-300 flex justify-between items-center">
                         <div class="flex justify-between content-center w-full">
                             <h2>Payment Voucher</h2>
@@ -199,7 +200,8 @@
                                 @click="toggleShowSection('paymentVoucher')" />
                         </div>
                     </div>
-                    <div class="grid md:grid-cols-3 gap-9 p-6 border-gray-300 col-span-2" v-if="showSection.paymentVoucher">
+                    <div class="grid md:grid-cols-3 gap-9 p-6 border-gray-300 col-span-2"
+                        v-if="showSection.paymentVoucher">
                         <div class="mb-4">
                             <div class="flex justify-between">
                                 <p class="mb-1 text-sm text-gray-500">Payment Voucher Number</p>
@@ -238,7 +240,7 @@
                     <NotFound />
                     <div class="flex justify-center">
                         <Link :href="route('dashboard')">
-                            <PrimaryButton class="p-4">Back To Home Page</PrimaryButton>
+                        <PrimaryButton class="p-4">Back To Home Page</PrimaryButton>
                         </Link>
                     </div>
                 </div>
