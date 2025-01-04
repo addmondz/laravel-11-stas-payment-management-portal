@@ -71,7 +71,7 @@ class ClaimController extends Controller
             'amount'                => $requestData['amount'],
             'purpose'               => $requestData['purpose'],
             'receipt_date'          => $requestData['receipt_date'],
-            'receipt_file'          => $path ?? null,
+            'receipt_file' => app()->environment('production') ? '/public/' . ($path ?? null) : $path ?? null,
             'payment_receiver_id'   => $requestData['payment_to'],
 
             // field to update later

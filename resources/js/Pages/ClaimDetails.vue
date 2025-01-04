@@ -143,9 +143,9 @@
                                                 <CloseOutlined class="pb-2" @click="closeModal" />
                                             </div>
                                             <!-- <div class="flex justify-center items-center" style="min-width: 300px; min-height: 300px;">
-                                                <img :src="`/public/${fetchedData.receipt_file}`" alt="Receipt Image" class="max-w-full max-h-screen" />
+                                                <img :src="`/${fetchedData.receipt_file}`" alt="Receipt Image" class="max-w-full max-h-screen" />
                                             </div> -->
-                                            <ImageLoader :src="`/public/${fetchedData.receipt_file}`" alt="Receipt Image" />
+                                            <ImageLoader :src="`/${fetchedData.receipt_file}`" alt="Receipt Image" />
                                         </div>
                                     </div>
                                 </div>

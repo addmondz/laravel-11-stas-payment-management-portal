@@ -1,5 +1,5 @@
 APP_NAME="Stas Payment Management Portal"
-APP_ENV=local
+APP_ENV=production
 APP_KEY=75189cfe66ae4b5f8b7536edcdccbd6c
 APP_DEBUG=true
 APP_TIMEZONE=Asia/Kuala_Lumpur
