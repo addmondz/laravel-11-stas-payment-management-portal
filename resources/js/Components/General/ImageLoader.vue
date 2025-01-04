@@ -1,18 +1,16 @@
 <template>
-    <div class="flex justify-center items-center" style="min-width: 300px; min-height: 300px;">
-        <!-- Loading Spinner -->
-        <LoadingComponent v-if="isLoading" />
-        <!-- Image -->
-        <img v-else :src="src" :alt="alt" class="max-w-full max-h-screen" @load="isLoading = false" />
+    <div>
+        <img v-show="isLoaded" @load="onImgLoad" :src="src" :alt="alt" />
+        <LoadingComponent v-show="!isLoaded" />
     </div>
 </template>
 
-<script setup>
+<script
+ setup>
 import { ref } from 'vue';
-import LoadingComponent from './LoadingComponent.vue';
+import LoadingComponent from '@/Components/General/LoadingComponent.vue';
 
-// Props
-defineProps({
+const props = defineProps({
     src: {
         type: String,
         required: true,
@@ -23,14 +21,10 @@ defineProps({
     },
 });
 
-// Reactive state for loading
-const isLoading = ref(true);
-</script>
+const isLoaded = ref(false);
 
-<style scoped>
-.loading-spinner {
-    font-size: 18px;
-    color: gray;
-    font-weight: bold;
-}
-</style>
+const onImgLoad = () => {
+    console.log('Image loaded');
+    isLoaded.value = true;
+};
+</script>
