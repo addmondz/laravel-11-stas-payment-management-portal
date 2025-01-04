@@ -13,9 +13,9 @@
             <div v-if="getUserApprovalPrivillage().value || isFinance().value">
                 <!-- Tab Headers -->
                 <div class="inline-flex bg-white rounded">
-                    <span v-for="tab in tabs" :key="tab.name" :class="['tab-btn p-2 px-5 text-md rounded', tabClasses(tab.name)]" @click="activeTab = tab.name">
+                    <span v-for="tab in tabs" :key="tab.name" :class="['tab-btn p-2 px-5 text-md rounded flex justify-center items-center', tabClasses(tab.name)]" @click="activeTab = tab.name">
                         {{ tab.label }}
-                        <span class="bg-gray-500 px-2 py-1 ml-2 text-white text-xs notification-circle rounded" v-if="tab.name == 'pendingApproval' && pendingClaimCount != 0 && pendingClaimCount != null">{{ formatNumberToString(pendingClaimCount) }}</span>
+                        <span class="bg-gray-500 px-2 py-1 ml-3 text-white text-xs notification-circle rounded" v-if="tab.name == 'pendingApproval' && pendingClaimCount != 0 && pendingClaimCount != null">{{ formatNumberToString(pendingClaimCount) }}</span>
                     </span>
                 </div>
 

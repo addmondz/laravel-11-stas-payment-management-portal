@@ -1,7 +1,10 @@
 <template>
     <div
-        class="w-full flex flex-col justify-center order-last lg:order-none max-lg:mx-auto border p-5 rounded-xl overflow-hidden bg-white hover:border-violet-600 transition-all duration-500">
+        class="w-full flex flex-col justify-center order-last lg:order-none max-lg:mx-auto border p-5 rounded-xl overflow-hidden bg-white hover:border-violet-600 transition-all duration-500" :class="{ 'bg-violet-50 border-violet-900': isSelected }">
         <div class="flex">
+            <div class="flex justify-center items-center">
+                <SquareBtn @update-selected="handleUpdateSelected" :isSelected="isSelected" class="block mr-5"/>
+            </div>
             <div class="flex-1">
                 <div class="grid lg:grid-cols-7 grid-cols-2 gap-x-4 gap-y-4">
                     <div class="col">
@@ -54,13 +57,15 @@
 
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, defineEmits } from 'vue';
 import AngleRight from '@/Components/Icons/AngleRight.vue';
 import { formatPrice } from '@/Helpers/helpers.js';
 import { Link } from '@inertiajs/vue3';
 import StatusLabel from '@/Components/General/StatusLabel.vue';
 import { formatDate, formatString } from '@/Helpers/helpers.js';
+import SquareBtn from '../Icons/SquareBtn.vue';
 
+const emit = defineEmits();
 const props = defineProps({
     data: {
         type: Object,
@@ -68,15 +73,11 @@ const props = defineProps({
     },
 });
 
-const showDetails = ref(false);
-
-const itemTotalQuantity = computed(() => {
-    return props.order.items.reduce((total, item) => {
-        return total + item.quantity;
-    }, 0);
-
-    return 0;
-});
+const isSelected = ref(false);
+const handleUpdateSelected = (value) => {
+    isSelected.value = value;
+    emit('update-selected-list', { isSelected: value, id: props.data.id });
+};
 </script>
 
 <style>

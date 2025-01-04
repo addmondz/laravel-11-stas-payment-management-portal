@@ -66,16 +66,6 @@ const props = defineProps({
     },
 });
 
-const showDetails = ref(false);
-
-const itemTotalQuantity = computed(() => {
-    return props.order.items.reduce((total, item) => {
-        return total + item.quantity;
-    }, 0);
-
-    return 0;
-});
-
 const handleCreateComplete = () => {
     emit('createComplete', true);
 };

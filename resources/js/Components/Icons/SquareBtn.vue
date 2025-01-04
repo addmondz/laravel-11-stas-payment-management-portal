@@ -1,20 +1,18 @@
 <template>
-    <div class="square-btn" :class="{ selected: isSelected }" @click="toggleSelected"></div>
+    <div class="square-btn border-4" :class="{
+        'selected bg-violet-500 border-violet-700': isSelected,
+        'border-gray-600': !isSelected
+    }" @click="toggleSelected">
+    </div>
 </template>
 
 <style>
 .square-btn {
-    width: 20px;
-    height: 20px;
-    border: 3px solid black;
+    width: 25px;
+    height: 25px;
     border-radius: 0.4rem;
     cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.square-btn.selected {
-    background-color: lightblue;
-    border-color: blue;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 </style>
 
@@ -30,10 +28,10 @@ const props = defineProps({
 });
 
 // Define emits
-const emit = defineEmits(['update:selected']);
+const emit = defineEmits(['update-selected']);
 
 // Function to toggle selected and emit event
 const toggleSelected = () => {
-    emit('update:selected', !props.isSelected);
+    emit('update-selected', !props.isSelected);
 };
 </script>
