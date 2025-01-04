@@ -71,7 +71,7 @@ class ClaimController extends Controller
             'amount'                => $requestData['amount'],
             'purpose'               => $requestData['purpose'],
             'receipt_date'          => $requestData['receipt_date'],
-            'receipt_file' => app()->environment('production') ? '/public/' . ($path ?? null) : $path ?? null,
+            'receipt_file'          => $path ?? null,
             'payment_receiver_id'   => $requestData['payment_to'],
 
             // field to update later
@@ -151,6 +151,7 @@ class ClaimController extends Controller
                 $data->currency = $data->currencyObject->short_code;
                 $data->status = ApprovalStatus::APPROVAL_STATUS_ID[$data->status];
                 $data->payment_category_name = $data->paymentCategory->name;
+                $data->receipt_file = $this->getReceiptFileUrl($data->receipt_file);
                 return $data;
             });
 
@@ -218,43 +219,44 @@ class ClaimController extends Controller
                 });
             }
 
-             // Apply sorting if provided
-             $sortColumn = $request->input('sort.column', 'id');
-             $sortDirection = $request->input('sort.direction', 'asc');
-             $query->orderBy($sortColumn, $sortDirection);
- 
-             // Paginate the results
-             $perPage = $request->get('per_page', 10); // Default to 10 items per page
-             $datas = $query->paginate($perPage);
- 
-             $datas->getCollection()->transform(function ($data) {
-                 $data->currency = $data->currencyObject->short_code;
-                 $data->status = ApprovalStatus::APPROVAL_STATUS_ID[$data->status];
-                 $data->payment_category_name = $data->paymentCategory->name;
-                 return $data;
-             });
- 
-             // Return the response in a structured format
-             return response()->json([
-                 'success' => true,
-                 'data' => $datas,
-                 'message' => 'Claims listed successfully',
-             ]);
-         } catch (\Exception $e) {
-             // Log the error with detailed information
-             Log::error('Error listing Claims', [
-                 'message' => $e->getMessage(),
-                 'line' => $e->getLine(),
-                 'file' => $e->getFile(),
-                 'trace' => $e->getTraceAsString(),
-             ]);
- 
-             return response()->json([
-                 'success' => false,
-                 'message' => 'An error occurred while listing Claims',
-             ], 500);
-         }
-     }
+            // Apply sorting if provided
+            $sortColumn = $request->input('sort.column', 'id');
+            $sortDirection = $request->input('sort.direction', 'asc');
+            $query->orderBy($sortColumn, $sortDirection);
+
+            // Paginate the results
+            $perPage = $request->get('per_page', 10); // Default to 10 items per page
+            $datas = $query->paginate($perPage);
+
+            $datas->getCollection()->transform(function ($data) {
+                $data->currency = $data->currencyObject->short_code;
+                $data->status = ApprovalStatus::APPROVAL_STATUS_ID[$data->status];
+                $data->payment_category_name = $data->paymentCategory->name;
+                $data->receipt_file = $this->getReceiptFileUrl($data->receipt_file);
+                return $data;
+            });
+
+            // Return the response in a structured format
+            return response()->json([
+                'success' => true,
+                'data' => $datas,
+                'message' => 'Claims listed successfully',
+            ]);
+        } catch (\Exception $e) {
+            // Log the error with detailed information
+            Log::error('Error listing Claims', [
+                'message' => $e->getMessage(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while listing Claims',
+            ], 500);
+        }
+    }
 
     public function fetchData(Request $request, $id)
     {
@@ -273,6 +275,7 @@ class ClaimController extends Controller
         // Format the status field (assuming ApprovalStatus::APPROVAL_STATUS_ID holds the status names)
         $data->status = ApprovalStatus::APPROVAL_STATUS_ID[$data->status] ?? 'Unknown Status';
         $data->next_approval_level =  $data->approval_status + 1;
+        $data->receipt_file = $this->getReceiptFileUrl($data->receipt_file);
 
         $data->status_log = $data->statusLogs->map(function ($log) {
             $logStatus = ApprovalStatus::APPROVAL_STATUS_ID[$log->status] ?? 'Unknown Status';
@@ -353,15 +356,15 @@ class ClaimController extends Controller
     public function groupApprove(Request $request, $ids)
     {
         $ids = explode(',', $ids);
-        
+
         foreach ($ids as $id) {
             $response = $this->approveClaim($request, $id);
-            
+
             if ($response->getStatusCode() !== 200) {
                 return $response; // Return the error response immediately
             }
         }
-    
+
         return response()->json(['message' => 'Group Approve Claim Success.'], 200);
     }
 
@@ -403,5 +406,10 @@ class ClaimController extends Controller
             'causer_id'     => auth()->id(),
         ]);
         return response()->json(['message' => 'Claim has been updated.'], 200);
+    }
+
+    public function getReceiptFileUrl($url)
+    {
+        return $url ? (app()->environment('production') ? 'public/' : '') . $url : null;
     }
 }
