@@ -51,7 +51,7 @@ class UserController extends Controller
         ]);
 
         $userData = [
-            'name' => $validatedData['name'],
+            'name' => ucwords($validatedData['name']),
             'email' => $validatedData['email'],
             'role' => $validatedData['role'],
             'password' => Hash::make($validatedData['password']), // Hash the password
