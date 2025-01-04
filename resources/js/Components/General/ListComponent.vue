@@ -4,7 +4,7 @@
             <LoadingComponent class="mt-20 mb-20" />
         </div>
         <div v-else>
-            <div class="pt-12" v-if="apiResponse">
+            <div :class="{ 'pt-12': hasPaddingTop }" v-if="apiResponse">
                 <div class="grid md:grid-cols gap-4 mb-5">
                     <slot name="list-view" :data="listData" :apiResponse="apiResponse" />
                 </div>
@@ -18,10 +18,12 @@
                     </div>
                     <div class="flex justify-end flex-1">
                         <button class="bg-white hover:bg-gray-200 text-gray py-2 px-4 rounded ml-2" @click="prevPage"
-                            :disabled="currentPage == 1" :class="[{ 'cursor-not-allowed': currentPage == 1 }]">Previous Page</button>
+                            :disabled="currentPage == 1" :class="[{ 'cursor-not-allowed': currentPage == 1 }]">Previous
+                            Page</button>
                         <button class="bg-black hover:bg-gray-700 text-white py-2 px-4 rounded ml-2"
                             :disabled="currentPage == lastPage"
-                            :class="[{ 'cursor-not-allowed': currentPage == lastPage }]" @click="nextPage">Next Page</button>
+                            :class="[{ 'cursor-not-allowed': currentPage == lastPage }]" @click="nextPage">Next
+                            Page</button>
                     </div>
                 </div>
             </div>
@@ -55,6 +57,10 @@ const props = defineProps({
     createCompleteSignal: {
         type: Number,
         default: false
+    },
+    hasPaddingTop: {
+        type: Boolean,
+        default: true
     }
 });
 

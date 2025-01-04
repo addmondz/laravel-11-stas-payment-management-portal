@@ -2,7 +2,6 @@
     <div>
         <ListComponent :apiUrl="route('claims.list')" :createCompleteSignal="createCompleteSignal">
             <template v-slot:list-view="{ data, apiResponse }">
-                {{ emitPendingClaimsCount(apiResponse.total) }}
                 <ClaimsListTemplate :createComplete="createCompleteSignal"
                     @update-selected-list="handleUpdateSelectedList" v-for="product in data" :key="product.id"
                     :data="product" />
@@ -12,7 +11,7 @@
 </template>
 
 <script setup>
-import { ref, computed, defineEmits } from 'vue';
+import { ref, computed } from 'vue';
 import ClaimsListTemplate from '@/Components/List/ClaimsListTemplate.vue';
 import ListComponent from '../General/ListComponent.vue';
 
@@ -24,12 +23,7 @@ const props = defineProps({
     }
 });
 
-const emitPendingClaimsCount = (count) => {
-    emit('pendingClaimsCount', count);
-};
-
 const selectedIds = ref([]);
-
 const handleUpdateSelectedList = ({ isSelected, id }) => {
     selectedIds.value = isSelected
         ? [...new Set([...selectedIds.value, id])]

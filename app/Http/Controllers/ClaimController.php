@@ -350,6 +350,21 @@ class ClaimController extends Controller
         return response()->json(['message' => 'Claim approved at this level. Awaiting further approvals.'], 200);
     }
 
+    public function groupApprove(Request $request, $ids)
+    {
+        $ids = explode(',', $ids);
+        
+        foreach ($ids as $id) {
+            $response = $this->approveClaim($request, $id);
+            
+            if ($response->getStatusCode() !== 200) {
+                return $response; // Return the error response immediately
+            }
+        }
+    
+        return response()->json(['message' => 'Group Approve Claim Success.'], 200);
+    }
+
     public function paymentCompleted(Request $request, $id)
     {
         $claim = Claim::find($id);

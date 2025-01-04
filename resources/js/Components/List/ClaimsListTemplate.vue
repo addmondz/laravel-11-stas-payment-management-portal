@@ -2,7 +2,7 @@
     <div
         class="w-full flex flex-col justify-center order-last lg:order-none max-lg:mx-auto border p-5 rounded-xl overflow-hidden bg-white hover:border-violet-600 transition-all duration-500" :class="{ 'bg-violet-50 border-violet-900': isSelected }">
         <div class="flex">
-            <div class="flex justify-center items-center">
+            <div class="flex justify-center items-center" v-if="showGroupActions">
                 <SquareBtn @update-selected="handleUpdateSelected" :isSelected="isSelected" class="block mr-5"/>
             </div>
             <div class="flex-1">
@@ -57,7 +57,7 @@
 
 
 <script setup>
-import { ref, computed, defineEmits } from 'vue';
+import { ref } from 'vue';
 import AngleRight from '@/Components/Icons/AngleRight.vue';
 import { formatPrice } from '@/Helpers/helpers.js';
 import { Link } from '@inertiajs/vue3';
@@ -71,6 +71,10 @@ const props = defineProps({
         type: Object,
         required: true,
     },
+    showGroupActions: {
+        type: Boolean,
+        required: false,
+    },
 });
 
 const isSelected = ref(false);
@@ -83,5 +87,9 @@ const handleUpdateSelected = (value) => {
 <style>
 .overide-fs-11 {
     font-size: 11px !important;
+}
+
+.bg-violet-50 {
+    background-color: #F5F3FF; /* bg-violet-50 */
 }
 </style>

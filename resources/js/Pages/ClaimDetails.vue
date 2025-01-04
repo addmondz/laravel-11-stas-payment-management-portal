@@ -264,7 +264,6 @@ import { formatPrice, formatDate, formatString, formatDateWithTime } from '@/Hel
 import AngleUp from '@/Components/Icons/AngleUp.vue';
 import AngleDown from '@/Components/Icons/AngleDown.vue';
 import PrimaryButton from '@/Components/General/PrimaryButton.vue';
-import Swal from 'sweetalert2';
 import { isAdmin, getUserApprovalPrivillage, isFinance } from '@/Composables/GlobalFuntions.vue';
 import PaymentVoucherForm from '@/Components/Form/PaymentVoucherForm.vue';
 import { Link } from '@inertiajs/vue3';

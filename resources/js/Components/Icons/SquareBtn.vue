@@ -1,8 +1,9 @@
 <template>
-    <div class="square-btn border-4" :class="{
-        'selected bg-violet-500 border-violet-700': isSelected,
-        'border-gray-600': !isSelected
+    <div class="square-btn border-4 flex justify-center items-center" :class="{
+        'selected bg-violet-400 border-violet-400': isSelected,
+        'border-gray-400': !isSelected
     }" @click="toggleSelected">
+    <CheckOutlined class="font-extrabold text-white" v-show="isSelected" />
     </div>
 </template>
 
@@ -17,7 +18,7 @@
 </style>
 
 <script setup>
-import { defineProps, defineEmits } from 'vue';
+import { CheckOutlined } from '@ant-design/icons-vue';
 
 // Define props
 const props = defineProps({

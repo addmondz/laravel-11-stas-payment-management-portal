@@ -107,7 +107,6 @@ const submitUser = async () => {
         form.reset();
         emit('createComplete', true);
     } catch (err) {
-        console.log(err);
         if (err.response && err.response.data.errors) {
             form.errors = err.response.data.errors;
         } else {
