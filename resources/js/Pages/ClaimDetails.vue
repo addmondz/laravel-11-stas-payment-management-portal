@@ -142,9 +142,10 @@
                                             <div class="text-right">
                                                 <CloseOutlined class="pb-2" @click="closeModal" />
                                             </div>
-                                            <div class="flex justify-center items-center" style="min-width: 300px; min-height: 300px;">
+                                            <!-- <div class="flex justify-center items-center" style="min-width: 300px; min-height: 300px;">
                                                 <img :src="`/public/${fetchedData.receipt_file}`" alt="Receipt Image" class="max-w-full max-h-screen" />
-                                            </div>
+                                            </div> -->
+                                            <ImageLoader :src="`/public/${fetchedData.receipt_file}`" alt="Receipt Image" />
                                         </div>
                                     </div>
                                 </div>
@@ -241,7 +242,7 @@
                     <NotFound />
                     <div class="flex justify-center">
                         <Link :href="route('dashboard')">
-                        <PrimaryButton class="p-4">Back To Home Page</PrimaryButton>
+                            <PrimaryButton class="p-4">Back To Home Page</PrimaryButton>
                         </Link>
                     </div>
                 </div>
@@ -268,6 +269,7 @@ import PrimaryButton from '@/Components/General/PrimaryButton.vue';
 import { isAdmin, getUserApprovalPrivillage, isFinance } from '@/Composables/GlobalFuntions.vue';
 import PaymentVoucherForm from '@/Components/Form/PaymentVoucherForm.vue';
 import { Link } from '@inertiajs/vue3';
+import ImageLoader from '@/Components/General/ImageLoader.vue';
 
 const isLoading = ref(true);
 const fetchedData = ref([]);
