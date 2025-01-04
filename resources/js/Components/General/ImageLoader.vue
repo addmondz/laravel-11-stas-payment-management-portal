@@ -1,5 +1,5 @@
 <template>
-    <div>
+     <div class="flex justify-center items-center" style="min-width: 300px; min-height: 300px;">
         <img v-show="isLoaded" @load="onImgLoad" :src="src" :alt="alt" />
         <LoadingComponent v-show="!isLoaded" />
     </div>
