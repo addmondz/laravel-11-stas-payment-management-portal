@@ -132,8 +132,8 @@
                                 <InfoCircleOutlined class="text-gray-400" />
                             </div>
                             <div>
-                                <div class="text-base cursor-pointer inline text-violet-700 font-bold"
-                                    @click="openModal">Open
+                                <div class="text-base cursor-pointer inline text-violet-700 font-bold" @click="openModal">
+                                    Open
                                 </div>
                                 <div v-if="isModalOpen"
                                     class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
@@ -142,8 +142,9 @@
                                             <div class="text-right">
                                                 <CloseOutlined class="pb-2" @click="closeModal" />
                                             </div>
-                                            <img :src="`/public/${fetchedData.receipt_file}`" alt="Receipt Image"
-                                                class="max-w-full max-h-screen" />
+                                            <div class="flex justify-center items-center" style="min-width: 300px; min-height: 300px;">
+                                                <img :src="`/public/${fetchedData.receipt_file}`" alt="Receipt Image" class="max-w-full max-h-screen" />
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
