@@ -132,23 +132,7 @@
                                 <InfoCircleOutlined class="text-gray-400" />
                             </div>
                             <div>
-                                <div class="text-base cursor-pointer inline text-violet-700 font-bold" @click="openModal">
-                                    Open
-                                </div>
-                                <div v-if="isModalOpen"
-                                    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-                                    <div class="bg-white p-4 pt-2 rounded-lg max-w-lg">
-                                        <div class="flex flex-col">
-                                            <div class="text-right">
-                                                <CloseOutlined class="pb-2" @click="closeModal" />
-                                            </div>
-                                            <!-- <div class="flex justify-center items-center" style="min-width: 300px; min-height: 300px;">
-                                                <img :src="`/${fetchedData.receipt_file}`" alt="Receipt Image" class="max-w-full max-h-screen" />
-                                            </div> -->
-                                            <ImageLoader :src="`/${fetchedData.receipt_file}`" alt="Receipt Image" />
-                                        </div>
-                                    </div>
-                                </div>
+                                <ImageLoader :src="`/${fetchedData.receipt_file}`" alt="Receipt Image" :id="fetchedData.id" />
                             </div>
                         </div>
                         <div class="mb-4">
@@ -253,7 +237,7 @@
 
 <script setup>
 import axios from 'axios';
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import NotFound from '@/Components/Icons/NotFound.vue';
@@ -261,12 +245,12 @@ import LoadingComponent from '@/Components/General/LoadingComponent.vue';
 import StatusLabel from '@/Components/General/StatusLabel.vue';
 import BreadcrumbComponent from '@/Components/General/BreadcrumbComponent.vue';
 import { formatId } from '@/Helpers/helpers.js';
-import { InfoCircleOutlined, CloseOutlined } from '@ant-design/icons-vue';
+import { InfoCircleOutlined } from '@ant-design/icons-vue';
 import { formatPrice, formatDate, formatString, formatDateWithTime } from '@/Helpers/helpers.js';
 import AngleUp from '@/Components/Icons/AngleUp.vue';
 import AngleDown from '@/Components/Icons/AngleDown.vue';
 import PrimaryButton from '@/Components/General/PrimaryButton.vue';
-import { isAdmin, getUserApprovalPrivillage, isFinance } from '@/Composables/GlobalFuntions.vue';
+import { getUserApprovalPrivillage, isFinance } from '@/Composables/GlobalFuntions.vue';
 import PaymentVoucherForm from '@/Components/Form/PaymentVoucherForm.vue';
 import { Link } from '@inertiajs/vue3';
 import ImageLoader from '@/Components/General/ImageLoader.vue';
@@ -397,18 +381,6 @@ onMounted(() => {
 
 const handleCreateComplete = () => {
     fetchData();
-};
-
-// State to manage modal visibility
-const isModalOpen = ref(false);
-
-// Methods to open and close the modal
-const openModal = () => {
-    isModalOpen.value = true;
-};
-
-const closeModal = () => {
-    isModalOpen.value = false;
 };
 
 </script>
