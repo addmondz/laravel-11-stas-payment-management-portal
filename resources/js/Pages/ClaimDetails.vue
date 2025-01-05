@@ -253,6 +253,7 @@ import PrimaryButton from '@/Components/General/PrimaryButton.vue';
 import { getUserApprovalPrivillage, isFinance } from '@/Composables/GlobalFuntions.vue';
 import PaymentVoucherForm from '@/Components/Form/PaymentVoucherForm.vue';
 import { Link } from '@inertiajs/vue3';
+import Swal from 'sweetalert2';
 import ImageLoader from '@/Components/General/ImageLoader.vue';
 
 const isLoading = ref(true);

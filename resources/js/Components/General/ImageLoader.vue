@@ -4,14 +4,14 @@
             Open
         </div>
         <div v-if="isModalOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-            <div class="bg-white p-4 pt-2 rounded-lg max-w-lg">
+            <div class="bg-white p-4 pt-2 rounded-lg max-w-lg img-modal">
                 <div class="flex flex-col">
                     <div class="flex justify-between">
                         <PrimaryButton class="m-3 ml-0" @click="downloadImage">Download Receipt</PrimaryButton>
                         <CloseOutlined class="pb-2 mt-3" @click="closeModal" />
                     </div>
-                    <div class="flex justify-center items-center" style="min-width: 300px; min-height: 300px;">
-                        <img v-show="isLoaded" @load="onImgLoad" :src="src" :alt="alt" />
+                    <div class="flex justify-center items-center img-loader-container">
+                        <img v-show="isLoaded" @load="onImgLoad" :src="src" :alt="alt" style="overflow: hidden;" />
                         <LoadingComponent v-show="!isLoaded" />
                     </div>
                 </div>
@@ -23,7 +23,7 @@
 <script setup>
 import { ref } from 'vue';
 import LoadingComponent from '@/Components/General/LoadingComponent.vue';
-import { CloseOutlined, DownloadOutlined } from '@ant-design/icons-vue';
+import { CloseOutlined } from '@ant-design/icons-vue';
 import PrimaryButton from '@/Components/General/PrimaryButton.vue';
 import { formatId } from '@/Helpers/helpers.js';
 
@@ -87,6 +87,21 @@ const downloadImage = async () => {
         console.error("Error downloading the image:", error);
     }
 };
-
-
 </script>
+
+<style>
+.img-loader-container {
+    min-width: 300px;
+    min-height: 300px;
+}
+
+@media (max-width: 768px) { /* Adjust breakpoint as needed */
+    .img-loader-container {
+    }
+
+    .img-modal{
+        width: 90%;
+        max-width: 90%;
+    }
+}
+</style>
