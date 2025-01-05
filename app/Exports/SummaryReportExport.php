@@ -2,9 +2,12 @@
 
 namespace App\Exports;
 
+use App\Classes\ValueObjects\Constants\ApprovalStatus;
 use App\Models\Claim;
+use App\Models\ClaimStatusLog;
 use App\Models\PaymentCategory;
 use App\Models\PaymentReceiver;
+use App\Models\User;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
@@ -36,11 +39,17 @@ class SummaryReportExport implements FromArray, ShouldAutoSize, WithStyles
 
         $claims = Claim::whereBetween('created_at', [$formattedFromDate, $formattedToDate])->get();
         $groupedClaims = $claims->groupBy('payment_receiver_id');
+
+        // Retrieve all receiver names in one go for efficiency
+        $receivers = PaymentReceiver::whereIn('id', $groupedClaims->keys())->pluck('name', 'id');
+
         $currentRow = 2; // Start from row 2 after the title
 
         foreach ($groupedClaims as $receiverId => $categories) {
-            $receiverName = PaymentReceiver::find($receiverId)->name ?? $notAvailable;
+            // Use pre-fetched receiver names
+            $receiverName = $receivers[$receiverId] ?? $notAvailable;
 
+            // Add header information for each receiver
             $reportData[] = [''];
             $reportData[] = [''];
             $reportData[] = ["Pay to:", $receiverName, "", "", "", "", "Date:", $currentDate];
@@ -70,16 +79,27 @@ class SummaryReportExport implements FromArray, ShouldAutoSize, WithStyles
                 $amount = $categoryClaims->sum('amount');
                 $currency = $categoryClaims->first()->currencyObject->short_code ?? $notAvailable;
                 $categoryName = ucwords(PaymentCategory::find($categoryId)->name);
+                $claimIds = $categoryClaims->pluck('id');
+                $approvalLogs = ClaimStatusLog::whereIn('claim_id', $claimIds)->get();
 
+                // Log for debugging
+                Log::info(User::whereIn('id', $approvalLogs->where('status', ApprovalStatus::L2_APPROVAL)->pluck('causer_id'))->pluck('name')->toArray());
+
+                // Retrieve approvers
+                $l1Approvers = User::whereIn('id', $approvalLogs->where('status', ApprovalStatus::L1_APPROVAL)->pluck('causer_id'))->pluck('name')->toArray();
+                $l2Approvers = User::whereIn('id', $approvalLogs->where('status', ApprovalStatus::L2_APPROVAL)->pluck('causer_id'))->pluck('name')->toArray();
+                $l3Approvers = User::whereIn('id', $approvalLogs->where('status', ApprovalStatus::L3_APPROVAL)->pluck('causer_id'))->pluck('name')->toArray();
+
+                // Add category data to report
                 $reportData[] = [
                     $categoryCounter,
                     $categoryName,
                     $transactionCount,
                     $currency,
                     $this->formatPrice($amount),
-                    "Wensin",
-                    "Eddy",
-                    "STAS Treasurer",
+                    implode(', ', $l1Approvers),
+                    implode(', ', $l2Approvers),
+                    implode(', ', $l3Approvers),
                 ];
                 $currentRow++;
                 $categoryCounter++;
@@ -136,7 +156,7 @@ class SummaryReportExport implements FromArray, ShouldAutoSize, WithStyles
             // Round to two decimal places and format as a string with two decimal places
             $price = number_format(round($price, 2), 2, '.', ',');
         }
-    
+
         // Ensure the result is a string and return it
         return (string)$price;
     }
