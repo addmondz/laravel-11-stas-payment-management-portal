@@ -37,9 +37,13 @@ const logout = () => {
                             </NavLink>
                         </div>
                         <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex" v-if="isAdmin().value">
-                            <NavLink :href="route('settings')"
-                                :active="route().current('settings')">
+                            <NavLink :href="route('settings')" :active="route().current('settings')">
                                 Settings
+                            </NavLink>
+                        </div>
+                        <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex" v-if="isAdmin().value">
+                            <NavLink :href="route('reports')" :active="route().current('reports')">
+                                Reports
                             </NavLink>
                         </div>
                     </div>
@@ -91,9 +95,14 @@ const logout = () => {
                 <div :class="{ block: showingNavigationDropdown, hidden: !showingNavigationDropdown }"
                     class="sm:hidden">
                     <div class="pt-2 pb-3 space-y-1">
-                        <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">Claims
+                        <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">
+                            Claims
                         </ResponsiveNavLink>
-                        <ResponsiveNavLink :href="route('settings')" :active="route().current('settings')">Settings
+                        <ResponsiveNavLink :href="route('settings')" :active="route().current('settings')">
+                            Settings
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('reports')" :active="route().current('reports')">
+                            Reports
                         </ResponsiveNavLink>
                     </div>
                     <div class="pt-4 pb-1 border-t border-gray-200">

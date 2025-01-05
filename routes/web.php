@@ -46,5 +46,9 @@ Route::get('/settings', function () {
     return Inertia::render('Settings');
 })->middleware(['auth', 'verified'])->name('settings');
 
+Route::get('/reports', function () {
+    return Inertia::render('Reports');
+})->middleware(['auth', 'verified'])->name('reports');
+
 require __DIR__ . '/auth.php';
 require __DIR__ . '/api.php';

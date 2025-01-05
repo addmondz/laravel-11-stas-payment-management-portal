@@ -4,6 +4,7 @@ use App\Http\Controllers\ClaimController;
 use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\PaymentCategoryController;
 use App\Http\Controllers\PaymentReceiverController;
+use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VariableController;
@@ -61,4 +62,10 @@ Route::prefix('api')->middleware('auth')->group(function () {
     Route::prefix('settings')->group(function () {
         Route::get('/approval-roles/list', [SettingController::class, 'listApprovalRoles'])->name('approvalRoles.list');
     });
+
+    Route::prefix('reports')->group(function () {
+        Route::post('/summary-report/{dateFrom}/{dateTo}', [ReportsController::class, 'summaryReport'])->name('reports.newSummaryReport');
+        Route::post('/transactions-report/{dateFrom}/{dateTo}', [ReportsController::class, 'transactionsReport'])->name('reports.transactionsReport');
+    });
+
 });

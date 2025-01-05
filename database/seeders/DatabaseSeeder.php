@@ -85,9 +85,24 @@ class DatabaseSeeder extends Seeder
             'currency_id' => Currency::find(1)->id,
         ]);
 
-        PaymentCategory::create([
-            'name' => 'transportation',
+        PaymentReceiver::create([
+            'name' => 'Calvin James',
+            'bank_name' => 'Maybank',
+            'bank_account_no' => '472381698',
+            'swift_code' => 'JHVB1234',
+            'currency_id' => Currency::find(2)->id,
         ]);
+
+        $categories = [
+            'transportation',
+            'mobile',
+            'entertainment',
+        ];
+        foreach($categories as $category) {
+            PaymentCategory::create([
+                'name' => $category,
+            ]);
+        }
 
         Variable::create([
             'name' => 'Gst Percentage',
