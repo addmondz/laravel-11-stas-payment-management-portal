@@ -82,9 +82,6 @@ class SummaryReportExport implements FromArray, ShouldAutoSize, WithStyles
                 $claimIds = $categoryClaims->pluck('id');
                 $approvalLogs = ClaimStatusLog::whereIn('claim_id', $claimIds)->get();
 
-                // Log for debugging
-                Log::info(User::whereIn('id', $approvalLogs->where('status', ApprovalStatus::L2_APPROVAL)->pluck('causer_id'))->pluck('name')->toArray());
-
                 // Retrieve approvers
                 $l1Approvers = User::whereIn('id', $approvalLogs->where('status', ApprovalStatus::L1_APPROVAL)->pluck('causer_id'))->pluck('name')->toArray();
                 $l2Approvers = User::whereIn('id', $approvalLogs->where('status', ApprovalStatus::L2_APPROVAL)->pluck('causer_id'))->pluck('name')->toArray();

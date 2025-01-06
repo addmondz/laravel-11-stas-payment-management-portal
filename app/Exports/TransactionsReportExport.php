@@ -95,7 +95,7 @@ class TransactionsReportExport implements FromArray, ShouldAutoSize, WithStyles
                     $claim->statusLogs()->where('status', ApprovalStatus::L1_APPROVAL)->first()->causer->name ?? $notAvalable,
                     $claim->statusLogs()->where('status', ApprovalStatus::L2_APPROVAL)->first()->causer->name ?? $notAvalable,
                     $claim->statusLogs()->where('status', ApprovalStatus::L3_APPROVAL)->first()->causer->name ?? $notAvalable,
-                    'xxx',
+                    $this->getReceiptFileUrl($claim->receipt_file),
                     $claim->payment_voucher_number,
                     $claim->payment_date,
                 ];
@@ -160,5 +160,12 @@ class TransactionsReportExport implements FromArray, ShouldAutoSize, WithStyles
 
         // Ensure the result is a string and return it
         return (string)$price;
+    }
+
+    public function getReceiptFileUrl($url)
+    {
+        $url = $url ? (app()->environment('production') ? 'public/' : '') . $url : null;
+
+        return url($url);
     }
 }
