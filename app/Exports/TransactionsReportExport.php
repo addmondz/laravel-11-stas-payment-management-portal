@@ -14,12 +14,14 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class TransactionsReportExport implements FromArray, ShouldAutoSize, WithStyles
 {
+    private $request;
     private $fromDate;
     private $toDate;
     private $transactionRanges = []; // Store ranges for transaction summaries
 
-    public function __construct($fromDate, $toDate)
+    public function __construct($request, $fromDate, $toDate)
     {
+        $this->request = $request;
         $this->fromDate = $fromDate;
         $this->toDate = $toDate;
     }
@@ -35,7 +37,17 @@ class TransactionsReportExport implements FromArray, ShouldAutoSize, WithStyles
         $formattedToDate = date('Y-m-d 23:59:59', strtotime($this->toDate));
         $currentDate = date('m/d/y');
 
-        $claims = Claim::whereBetween('created_at', [$formattedFromDate, $formattedToDate])->get();
+        $claims = Claim::whereBetween('created_at', [$formattedFromDate, $formattedToDate]);
+        $requestQuery = $this->request->query->all();
+        if ($requestQuery['payment_to']) {
+            $claims->where('payment_receiver_id', $requestQuery['payment_to']);
+        }
+
+        if ($requestQuery['claim_ids_filters']) {
+            $claims->where('id', $requestQuery['claim_ids_filters']);
+        }
+
+        $claims = $claims->get();
         $groupedClaims = $claims->groupBy('payment_receiver_id');
         $currentRow = 2; // Start from row 2 after the title
         $approvalStatus = ApprovalStatus::APPROVAL_STATUS_ID;
@@ -50,8 +62,8 @@ class TransactionsReportExport implements FromArray, ShouldAutoSize, WithStyles
 
             $reportData[] = [''];
             $reportData[] = [''];
-            $reportData[] = ["Pay to:", $receiverName, "", "", "", "", "", "", "", "", "", "", "", "Date:", $currentDate];
-            $reportData[] = ["Bank:", $receiverBank, "", "", "", "", "", "", "", "", "", "", "", "Period:", "{$this->fromDate} - {$this->toDate}"];
+            $reportData[] = ["Pay to:", $receiverName, "", "", "", "", "", "", "", "", "", "", "", "", "Date:", $currentDate];
+            $reportData[] = ["Bank:", $receiverBank, "", "", "", "", "", "", "", "", "", "", "", "", "Period:", "{$this->fromDate} - {$this->toDate}"];
             $reportData[] = ["Account:", $receiverAccount];
 
             $currentRow += 3;
@@ -59,6 +71,7 @@ class TransactionsReportExport implements FromArray, ShouldAutoSize, WithStyles
             // Add table headers
             $reportData[] = [
                 "",
+                'Claim ID',
                 'Date',
                 'Date of expenditure',
                 'Status',
@@ -84,6 +97,7 @@ class TransactionsReportExport implements FromArray, ShouldAutoSize, WithStyles
             foreach ($claims as $claim) {
                 $reportData[] = [
                     $transactionCounter,
+                    str_pad($claim->id, 5, '0', STR_PAD_LEFT),
                     $claim->created_at,
                     $claim->receipt_date,
                     $approvalStatus[$claim->status],
@@ -112,6 +126,7 @@ class TransactionsReportExport implements FromArray, ShouldAutoSize, WithStyles
                 "",
                 "",
                 "",
+                "",
                 "TOTAL",
                 $this->formatPrice($totalGst),
                 $this->formatPrice($totalAmount),
@@ -122,7 +137,7 @@ class TransactionsReportExport implements FromArray, ShouldAutoSize, WithStyles
             $currentRow++;
             $currentRow++;
 
-            $this->transactionRanges[] = "A{$startRow}:O{$currentRow}"; // Store range for borders
+            $this->transactionRanges[] = "A{$startRow}:P{$currentRow}"; // Store range for borders
 
             $reportData[] = []; // Blank row for spacing
             $currentRow++;

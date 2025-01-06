@@ -412,4 +412,16 @@ class ClaimController extends Controller
     {
         return $url ? (app()->environment('production') ? 'public/' : '') . $url : null;
     }
+
+    public function listIds(Request $request)
+    {
+        $query = Claim::query();
+
+        $paymentTo = $request->query('payment_to'); // Fetch the query parameter with a default of null.
+        if (!empty($paymentTo)) {
+            $query->where('payment_receiver_id', $paymentTo);
+        }
+
+        return $query->pluck('id');
+    }
 }

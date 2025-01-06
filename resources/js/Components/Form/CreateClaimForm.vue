@@ -145,7 +145,7 @@ onMounted(() => {
                             <select id="payment_to" v-model="form.payment_to"
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required
                                 @change="handlePaymentToChange">
-                                <option value="" disabled selected>Please select Payment Category</option>
+                                <option value="" disabled selected>Please select Payment Receiver</option>
                                 <option v-for="paymentReceiver in paymentReceiverData" :key="paymentReceiver.id"
                                     :value="paymentReceiver.id" class="capitalize"
                                     :data-attr-currency-id="paymentReceiver.currency_id">

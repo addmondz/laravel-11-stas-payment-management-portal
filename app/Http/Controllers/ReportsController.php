@@ -20,7 +20,7 @@ class ReportsController extends Controller
     public function transactionsReport(Request $request, $fromDate, $toDate)
     {
         return Excel::download(
-            new TransactionsReportExport($fromDate, $toDate),
+            new TransactionsReportExport($request, $fromDate, $toDate),
             "Transactions Report " . $fromDate . " to " . $toDate . ".xls"
         );
     }
