@@ -81,6 +81,7 @@ watch(() => props.createCompleteSignal, (newValue) => {
 });
 
 const fetchList = async (page = 1) => {
+    isLoading.value = true;
     try {
         // Prepare the query parameters with limit, page, and filters
         const queryParams = new URLSearchParams({
