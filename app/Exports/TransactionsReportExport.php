@@ -164,8 +164,6 @@ class TransactionsReportExport implements FromArray, ShouldAutoSize, WithStyles
 
     public function getReceiptFileUrl($url)
     {
-        $url = $url ? (app()->environment('production') ? 'public/' : '') . $url : null;
-
-        return url($url);
+        return $url ? url($url) : null;
     }
 }
