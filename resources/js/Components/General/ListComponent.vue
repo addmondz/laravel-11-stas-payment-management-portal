@@ -4,7 +4,10 @@
             <LoadingComponent class="mt-20 mb-20" />
         </div>
         <div v-else>
-            <div :class="{ 'pt-12': hasPaddingTop }" v-if="apiResponse">
+            <div v-if="apiResponse">
+                <SortAndFilterComponent class="mt-6 mb-6" v-if="sortAndFilters" :sortAndFilters="sortAndFilters" @filtersUpdated="handleFiltersUpdated" />
+                <div class="block mt-12" v-else v-if="hasPaddingTop"></div>
+
                 <div class="grid md:grid-cols gap-4 mb-5">
                     <slot name="list-view" :data="listData" :apiResponse="apiResponse" />
                 </div>
@@ -39,9 +42,11 @@ import axios from 'axios';
 import { ref, onMounted, watch } from 'vue';
 import NotFound from '@/Components/Icons/NotFound.vue';
 import LoadingComponent from '@/Components/General/LoadingComponent.vue';
+import SortAndFilterComponent from '@/Components/General/SortAndFilterComponent.vue';
 
 const isLoading = ref(true);
 const listData = ref([]);
+const filters = ref([]);
 const error = ref(null);
 const brandFilter = ref(null);
 const categoryFilter = ref(null);
@@ -61,7 +66,11 @@ const props = defineProps({
     hasPaddingTop: {
         type: Boolean,
         default: true
-    }
+    },
+    sortAndFilters: {
+        type: Array,
+        required: false,
+    },
 });
 
 // Watch the createCompleteSignal prop and fetch data if true
@@ -71,24 +80,29 @@ watch(() => props.createCompleteSignal, (newValue) => {
     }
 });
 
-// Fetch products with filters applied
 const fetchList = async (page = 1) => {
     try {
+        // Prepare the query parameters with limit, page, and filters
         const queryParams = new URLSearchParams({
             limit: limit.value,
             page: page,
-            brand: brandFilter.value ?? '',
-            category: categoryFilter.value ?? '',
-        }).toString();
+        });
 
-        const { data } = await axios.get(`${props.apiUrl}?${queryParams}`);
+        // Dynamically add filters from filters.value as key-value pairs
+        Object.entries(filters.value).forEach(([key, value]) => {
+            // Only add filters if they have a value (non-empty or non-null)
+            if (value) {
+                queryParams.append(key, value);
+            }
+        });
+
+        const { data } = await axios.get(`${props.apiUrl}?${queryParams.toString()}`);
         listData.value = data.data.data;
         apiResponse.value = data.data;
         lastPage.value = data.data.last_page;
     } catch (err) {
         error.value = err;
-    }
-    finally {
+    } finally {
         isLoading.value = false;
     }
 };
@@ -125,5 +139,10 @@ const resetFilters = () => {
 
 const handleCreateComplete = () => {
     fetchList(currentPage.value);
+};
+
+const handleFiltersUpdated = (value) => {
+    filters.value = value;
+    fetchList();
 };
 </script>

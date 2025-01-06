@@ -81,7 +81,7 @@ const generateReport = async () => {
             confirmButtonText: "OK",
         });
     } catch (err) {
-        console.error(err);
+        // console.error(err);
         Swal.fire({
             title: "Error!",
             text: err.response?.data?.error || "An unexpected error occurred while generating the report.",

@@ -6,7 +6,7 @@ const fetchUserDetails = async () => {
         const { data } = await axios.get(route('user.details'));
         return data;
     } catch (err) {
-        console.error('Error fetching membership data:', err);
+        console.error('Error fetching user data:', err);
         throw err;
     }
 };

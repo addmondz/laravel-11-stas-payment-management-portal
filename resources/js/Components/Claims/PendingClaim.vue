@@ -2,8 +2,8 @@
     <div>
         <PrimaryButton class="mt-5 mb-3" :class="{ 'invisible': !selectedIds.length }" @click="groupApprovalConfirmation">Approve Selected Claim</PrimaryButton>
 
-        <ListComponent :hasPaddingTop="false" :apiUrl="route('claims.listPendingApproval')"
-            :createCompleteSignal="createCompleteSignal" :key="loadingKey">
+        <ListComponent :apiUrl="route('claims.listPendingApproval')"
+            :createCompleteSignal="createCompleteSignal" :key="loadingKey" :allowSorting="true" :sortAndFilters="sortAndFilters" :hasPaddingTop="false">
             <template v-slot:list-view="{ data, apiResponse }">
                 {{ emitPendingClaimsCount(apiResponse.total) }}
                 <ClaimsListTemplate :showGroupActions="true" :createComplete="createCompleteSignal"
@@ -26,7 +26,11 @@ const props = defineProps({
     createCompleteSignal: {
         type: Number,
         default: false
-    }
+    },
+    sortAndFilters: {
+        type: Array,
+        required: false,
+    },
 });
 
 const emitPendingClaimsCount = (count) => {

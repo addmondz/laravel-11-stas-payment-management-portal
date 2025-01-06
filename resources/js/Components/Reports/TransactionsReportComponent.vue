@@ -40,9 +40,9 @@
             </div>
             <div class="mb-5">
                 <InputLabel for="claim_ids_filters" value="Claim ID" />
-                <select id="claim_ids_filters" v-model="claim_ids_filters"
+                <select id="claim_ids_filters" v-model="claim_ids_filters" multiple
                     class="mt-1 border-gray-300 rounded-md shadow-sm" required>
-                    <option value="" disabled selected>Please select Claim ID</option>
+                    <option value="" disabled>Please select Claim ID</option>
                     <option value="">All</option>
                     <option v-for="id in claimids" :key="id" :value="id">
                         {{ formatId(id) }}
@@ -67,7 +67,7 @@ import LoadingComponent from '../General/LoadingComponent.vue';
 const date_from = ref('');
 const date_to = ref('');
 const payment_to = ref('');
-const claim_ids_filters = ref('');
+const claim_ids_filters = ref([]);  // Change this to an array
 
 const errorMessage = ref('');
 const error = ref('');
@@ -102,8 +102,8 @@ const generateReport = async () => {
     if (payment_to.value) {
         urlParams.append('payment_to', payment_to.value);
     }
-    if (claim_ids_filters.value) {
-        urlParams.append('claim_ids_filters', claim_ids_filters.value);
+    if (claim_ids_filters.value.length) { // If any claim IDs are selected
+        urlParams.append('claim_ids_filters', claim_ids_filters.value.join(',')); // Pass selected IDs as a comma-separated string
     }
 
     // Append the parameters to the URL
@@ -136,7 +136,7 @@ const generateReport = async () => {
             confirmButtonText: "OK",
         });
     } catch (err) {
-        console.error(err);
+        // console.error(err);
         Swal.fire({
             title: "Error!",
             text: err.response?.data?.error || "An unexpected error occurred while generating the report.",

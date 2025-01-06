@@ -12,7 +12,7 @@ use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class TransactionsReportExport implements FromArray, ShouldAutoSize, WithStyles
+class PaymentDetailReportExport implements FromArray, ShouldAutoSize, WithStyles
 {
     private $request;
     private $fromDate;
@@ -31,7 +31,7 @@ class TransactionsReportExport implements FromArray, ShouldAutoSize, WithStyles
         $reportData = [];
         $notAvailable = '-';
 
-        $reportData[] = ["Transactions Report"];
+        $reportData[] = ["Payment Detail Report"];
 
         $formattedFromDate = date('Y-m-d 00:00:00', strtotime($this->fromDate));
         $formattedToDate = date('Y-m-d 23:59:59', strtotime($this->toDate));
@@ -45,7 +45,7 @@ class TransactionsReportExport implements FromArray, ShouldAutoSize, WithStyles
         }
         
         if (isset($requestQuery['claim_ids_filters'])) {
-            $claims->whereIn('id', array_filter(explode(',', $requestQuery['claim_ids_filters']), fn($v) => $v !== ''));
+            $claims->where('id', $requestQuery['claim_ids_filters']);
         }
 
         $claims = $claims->get();

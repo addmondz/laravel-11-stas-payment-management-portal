@@ -1,6 +1,6 @@
 <template>
     <div>
-        <ListComponent :apiUrl="route('claims.list')" :createCompleteSignal="createCompleteSignal">
+        <ListComponent :apiUrl="route('claims.list')" :createCompleteSignal="createCompleteSignal" :sortAndFilters="sortAndFilters" :allowSorting="true">
             <template v-slot:list-view="{ data, apiResponse }">
                 <ClaimsListTemplate :createComplete="createCompleteSignal"
                     @update-selected-list="handleUpdateSelectedList" v-for="product in data" :key="product.id"
@@ -20,7 +20,11 @@ const props = defineProps({
     createCompleteSignal: {
         type: Number,
         default: false
-    }
+    },
+    sortAndFilters: {
+        type: Array,
+        required: false,
+    },
 });
 
 const selectedIds = ref([]);

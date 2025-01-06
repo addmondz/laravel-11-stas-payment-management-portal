@@ -84,7 +84,7 @@ const downloadImage = async () => {
         // Revoke the Blob URL after use
         window.URL.revokeObjectURL(url);
     } catch (error) {
-        console.error("Error downloading the image:", error);
+        // console.error("Error downloading the image:", error);
     }
 };
 </script>

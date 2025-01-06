@@ -86,6 +86,10 @@ class ClaimController extends Controller
             $claim['approval_status'] = $userPrivilage; // adjust the approval_status here on created
         }
 
+        if ($userPrivilage == ApprovalRoles::L3_APPROVAL_MEMBERS) {
+            $claim['status'] = ApprovalStatus::APPROVED;
+        }
+
         // Create a new claim record
         try {
             $claim = Claim::create($claim);
@@ -94,6 +98,14 @@ class ClaimController extends Controller
             return response()->json([
                 'error' => 'An error occurred while creating the claim.',
             ], 500);
+        }
+
+        if ($userPrivilage == ApprovalRoles::L3_APPROVAL_MEMBERS) {
+            ClaimStatusLog::create([
+                'claim_id'      => $claim->id,
+                'status'        => ApprovalStatus::L3_APPROVAL,
+                'causer_id'     => $user->id,
+            ]);
         }
 
         ClaimStatusLog::create([
@@ -124,8 +136,11 @@ class ClaimController extends Controller
                 $query = Claim::with('createdUser')->where('created_by', $user->id);
             }
 
-            if ($request->input('paymentType')) {
-                $query->where('payment_type', $request->input('paymentType'));
+            $filters = ['id', 'payment_type', 'payment_category_id', 'currency_id', 'status'];
+            foreach ($filters as $filter) {
+                if ($request->has($filter)) {
+                    $query->where($filter, $request->input($filter));
+                }
             }
 
             if ($request->input('searchValue')) {
@@ -139,8 +154,8 @@ class ClaimController extends Controller
             }
 
             // Apply sorting if provided
-            $sortColumn = $request->input('sort.column', 'id');
-            $sortDirection = $request->input('sort.direction', 'asc');
+            $sortColumn = $request->input('sort_by', 'id');
+            $sortDirection = $request->input('sort_order', $sortColumn === 'id' ? 'desc' : 'asc');
             $query->orderBy($sortColumn, $sortDirection);
 
             // Paginate the results

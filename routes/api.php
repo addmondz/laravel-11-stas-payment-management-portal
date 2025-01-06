@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ApprovalStatusController;
 use App\Http\Controllers\ClaimController;
 use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\PaymentCategoryController;
@@ -24,7 +25,7 @@ Route::prefix('api')->middleware('auth')->group(function () {
         Route::get('/{id}/fetch', [ClaimController::class, 'fetchData'])->name('claims.fetchData');
         Route::post('/{id}/approve', [ClaimController::class, 'approveClaim'])->name('claims.approveClaim');
         Route::post('/{id}/payment-completed', [ClaimController::class, 'paymentCompleted'])->name('claims.paymentCompleted');
-    Route::post('/group-approve-claims/{ids}', [ClaimController::class, 'groupApprove'])->name('claims.groupApprove');
+        Route::post('/group-approve-claims/{ids}', [ClaimController::class, 'groupApprove'])->name('claims.groupApprove');
     });
 
     Route::prefix('currency')->group(function () {
@@ -67,6 +68,11 @@ Route::prefix('api')->middleware('auth')->group(function () {
     Route::prefix('reports')->group(function () {
         Route::post('/summary-report/{dateFrom}/{dateTo}', [ReportsController::class, 'summaryReport'])->name('reports.newSummaryReport');
         Route::post('/transactions-report/{dateFrom}/{dateTo}', [ReportsController::class, 'transactionsReport'])->name('reports.transactionsReport');
+        Route::post('/payment-detail-report/{dateFrom}/{dateTo}', [ReportsController::class, 'paymentDetailReport'])->name('reports.paymentDetailReport');
+    });
+
+    Route::prefix('approval-status')->group(function () {
+        Route::get('/list', [ApprovalStatusController::class, 'list'])->name('approvalStatus.list');
     });
 
 });

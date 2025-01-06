@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\PaymentDetailReportExport;
 use App\Exports\TransactionsReportExport;
 use App\Exports\SummaryReportExport;
 use Maatwebsite\Excel\Facades\Excel;
@@ -22,6 +23,14 @@ class ReportsController extends Controller
         return Excel::download(
             new TransactionsReportExport($request, $fromDate, $toDate),
             "Transactions Report " . $fromDate . " to " . $toDate . ".xls"
+        );
+    }
+
+    public function paymentDetailReport(Request $request, $fromDate, $toDate)
+    {
+        return Excel::download(
+            new PaymentDetailReportExport($request, $fromDate, $toDate),
+            "Payment Detail Report " . $fromDate . " to " . $toDate . ".xls"
         );
     }
 }

@@ -31,4 +31,14 @@ final class ApprovalStatus
         self::L2_APPROVAL                 => "L2 Approved",
         self::L3_APPROVAL                 => "L3 Approved",
     ];
+
+    public const APPROVAL_CHOICE = [
+        self::PENDING_SUBMISSION          => "Pending Submission",
+        self::PENDING_APPROVAL            => "Pending Approval",
+        self::APPROVED                    => "Approved",
+        self::PAYMENT_COMPLETED           => "Payment Completed",
+        self::REJECTED                    => "Rejected",
+        self::CANCELLED                   => "Cancelled",
+        self::PAYMENT_FAILED              => "Payment Failed",
+    ];
 }
