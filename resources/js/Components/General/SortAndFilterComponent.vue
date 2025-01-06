@@ -55,6 +55,25 @@ const submitFilters = () => {
     closeModal();
 };
 
+const resetFilters = () => {
+    // Reset filters to an empty array or default values
+    filters.value = [];
+
+    // Reset sorting options to their default states
+    sortOption.value = '';
+    sortOrder.value = '';
+
+    // Emit the reset state to the parent component
+    emit('filtersUpdated', {
+        filters: filters.value,
+        sort_by: sortOption.value,
+        sort_order: sortOrder.value,
+    });
+
+    // Close the modal after resetting
+    closeModal();
+};
+
 const replaceUnderscoreAndUppercase = (str) => {
     return str
         .replace(/_/g, ' ') // Replace underscores with spaces
@@ -101,7 +120,7 @@ onMounted(async () => {
                     <div class="grid grid-cols-1 gap-4 mt-4">
                         <div v-for="(filter, index) in sortAndFilters" :key="index">
                             <InputLabel :for="filter.field_name"
-                                :value="filter.display_name ?? replaceUnderscoreAndUppercase(filter.field_name)"/>
+                                :value="filter.display_name ?? replaceUnderscoreAndUppercase(filter.field_name)" />
                             <template v-if="filter.field_type === 'select'">
                                 <select v-model="filters[filter.field_name]" :id="filter.field_name"
                                     class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
@@ -113,11 +132,13 @@ onMounted(async () => {
                             </template>
                             <template v-else-if="filter.field_type === 'number'">
                                 <TextInput v-model="filters[filter.field_name]" :id="filter.field_name" type="number"
-                                    placeholder="Enter value" class="mt-1 block w-full" required @keydown.enter="submitFilters" />
+                                    placeholder="Enter value" class="mt-1 block w-full" required
+                                    @keydown.enter="submitFilters" />
                             </template>
                             <template v-else>
                                 <TextInput v-model="filters[filter.field_name]" :id="filter.field_name" type="text"
-                                    placeholder="Enter value" class="mt-1 block w-full" required @keydown.enter="submitFilters" />
+                                    placeholder="Enter value" class="mt-1 block w-full" required
+                                    @keydown.enter="submitFilters" />
                             </template>
                             <InputError :message="formErrors[filter.field_name]" class="mt-2" />
                         </div>
@@ -148,14 +169,20 @@ onMounted(async () => {
                     </div>
                 </div>
 
-                <div class="text-right mt-6" v-if="!formIsLoading">
-                    <button type="button" @click="closeModal"
+                <div class="mt-6 flex justify-between">
+                    <button type="button" @click="resetFilters"
                         class="bg-white hover:bg-gray-100 text-black inline-flex items-center px-4 py-2 border rounded-md font-semibold text-xs uppercase tracking-widest">
-                        Close
+                        Reset Filters
                     </button>
-                    <PrimaryButton @click="submitFilters" class="ms-3">
-                        Apply Filters
-                    </PrimaryButton>
+                    <div class="text-right" v-if="!formIsLoading">
+                        <button type="button" @click="closeModal"
+                            class="bg-white hover:bg-gray-100 text-black inline-flex items-center px-4 py-2 border rounded-md font-semibold text-xs uppercase tracking-widest">
+                            Close
+                        </button>
+                        <PrimaryButton @click="submitFilters" class="ms-3">
+                            Apply Filters
+                        </PrimaryButton>
+                    </div>
                 </div>
             </div>
         </Modal>
