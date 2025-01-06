@@ -3,11 +3,11 @@
         <div class="flex justify-between content-center pt-2 pb-3 border-b border-gray-300 mb-6">
             <p class="font-bold">Transactions Report</p>
         </div>
-        <div class="flex mb-5 flex-col">
-            <div v-if="isLoading">
-                <LoadingComponent class="mt-32" />
-            </div>
-            <div class="mb-5" v-else>
+        <div v-if="isLoading">
+            <LoadingComponent class="mt-20 mb-20" />
+        </div>
+        <div class="flex mb-5 flex-col" v-else>
+            <div class="mb-5">
                 <InputLabel for="receipt_date" value="Date" />
                 <div class="flex justify-center items-center">
                     <div>
@@ -147,7 +147,7 @@ const generateReport = async () => {
 };
 
 const listPaymentReceiverNameAndId = async () => {
-    isLoading.vlaue = true;
+    isLoading.value = true;
     try {
         const { data } = await axios.get(route('paymentReceiver.listNameAndId'));
         paymentReceiverData.value = data;
@@ -160,7 +160,7 @@ const listPaymentReceiverNameAndId = async () => {
 };
 
 const listClaimIds = async () => {
-    isLoading.vlaue = true;
+    isLoading.value = true;
     let url = route('claims.listIds'); // Base URL
     const paymentToValue = payment_to.value; // Assuming payment_to is a reference to an input or similar
 
