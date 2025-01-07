@@ -10,8 +10,6 @@ import LoadingComponent from '@/Components/General/LoadingComponent.vue';
 const showingModal = ref(false);
 const formIsLoading = ref(false);
 const filters = ref({});
-const sortOption = ref('');
-const sortOrder = ref('');
 const error = ref(null);
 const emit = defineEmits();
 
@@ -39,13 +37,26 @@ watch(
     { immediate: true }
 );
 
-watch(() => sortOption.value, (newData) => {
-    if (newData != '' && sortOrder.value == '') {
-        sortOrder.value = 'asc';
+watch(
+    () => filters.value,
+    (newData) => {
+        if (newData && !newData.sort_by) {
+            filters.value.sort_by = '';
+        }
+        if (newData && !newData.sort_order) {
+            filters.value.sort_order = '';
+        }
+    },
+    { immediate: true }
+);
+
+watch(() => filters.value.sort_by, (newData) => {
+    if (newData != '' && filters.value.sort_order == '') {
+        filters.value.sort_order = 'asc';
     }
 
-    if (newData == '' && sortOrder.value != '') {
-        sortOrder.value = '';
+    if (newData == '' && filters.value.sort_order != '') {
+        filters.value.sort_order = '';
     }
 
 }, { immediate: true });
@@ -83,16 +94,12 @@ const validateFilters = () => {
 };
 
 const submitFilters = () => {
-    let combinedFilters = { ...filters.value, sort_by: sortOption.value, sort_order: sortOrder.value };
-    filters.value = combinedFilters;
     updateFilters();
     closeModal();
 };
 
 const resetFilters = () => {
     filters.value = {};
-    sortOption.value = '';
-    sortOrder.value = '';
     updateFilters();
     closeModal();
 };
@@ -155,9 +162,9 @@ onMounted(async () => {
                         </div>
 
                         <div v-if="props.allowSorting">
-                            <InputLabel for="sortOption" value="Sort By" />
+                            <InputLabel for="sort_by" value="Sort By" />
                             <div class="flex">
-                                <select v-model="sortOption" id="sortOption"
+                                <select v-model="filters['sort_by']" id="sort_by"
                                     class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
                                     <option value="" selected>-</option>
                                     <option v-for="(filter, idx) in sortAndFilters" :key="idx"
@@ -165,15 +172,15 @@ onMounted(async () => {
                                         {{ filter.display_name ?? replaceUnderscoreAndUppercase(filter.field_name) }}
                                     </option>
                                 </select>
-                                <select v-model="sortOrder" id="sortOrder"
+                                <select v-model="filters['sort_order']" id="sort_order"
                                     class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-                                    :disabled="!sortOption" required>
+                                    :disabled="!filters['sort_by']" required>
                                     <option value="" disabled selected>Select Sorting Order</option>
                                     <option value="asc">Ascending</option>
                                     <option value="desc">Descending</option>
                                 </select>
                             </div>
-                            <InputError :message="formErrors['sortOption']" class="mt-2" />
+                            <InputError :message="formErrors['sort_by']" class="mt-2" />
                         </div>
                     </div>
                 </div>
