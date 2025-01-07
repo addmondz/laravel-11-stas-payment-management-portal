@@ -1,7 +1,7 @@
 <template>
     <div>
         <div ref="dropdown" @click="openDropDown"
-            class="mt-1 border-gray-300 border rounded-md shadow-sm w-72 relative cursor-pointer">
+            class="mt-1 border-gray-300 border rounded-md shadow-sm w-72 relative cursor-pointer w-full">
             <div class="p-2">
                 {{ selectedFruits.length
                     ? selectedFruits.map(fruitId => getFruitName(fruitId)).join(", ")

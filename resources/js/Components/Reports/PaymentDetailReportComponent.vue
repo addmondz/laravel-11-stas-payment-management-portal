@@ -7,20 +7,17 @@
             <LoadingComponent class="mt-20 mb-20" />
         </div>
         <div class="flex mb-5 flex-col" v-else>
-            <div class="mb-5">
+            <div class="w-full mb-5">
                 <InputLabel for="receipt_date" value="Date" />
-                <div class="flex justify-center items-center">
-                    <div>
-                        <TextInput id="date_from" v-model="date_from" type="date" class="mt-1" required />
+                <div class="flex justify-center items-center w-full">
+                    <div class="flex-1">
+                        <TextInput id="date_from" v-model="date_from" type="date" class="mt-1 block w-full" required />
                     </div>
                     <div class="p-2">
                         to
                     </div>
-                    <div>
-                        <TextInput id="date_to" v-model="date_to" type="date" class="mt-1" required />
-                    </div>
                     <div class="flex-1">
-
+                        <TextInput id="date_to" v-model="date_to" type="date" class="mt-1 block w-full" required />
                     </div>
                 </div>
                 <!-- Display error message here -->
@@ -30,16 +27,9 @@
                 <InputLabel for="payment_to" value="Payment Receiver" />
                 <CustomSelectComponent :choices="paymentReceiverData" v-model="payment_to" :label="'Payment Receiver'" :choicesIsObject="true"  />
             </div>
-            <div class="mb-5">
+            <div class="mb-5 w-full">
                 <InputLabel for="claim_ids_filters" value="Claim ID" />
-                <select id="claim_ids_filters" v-model="claim_ids_filters"
-                    class="mt-1 border-gray-300 rounded-md shadow-sm" required>
-                    <option value="" disabled selected>Please select Claim ID</option>
-                    <option value="">All</option>
-                    <option v-for="id in claimids" :key="id" :value="id">
-                        {{ formatId(id) }}
-                    </option>
-                </select>
+                <CustomSelectComponent :choices="claimids" v-model="claim_ids_filters" :label="'Claim IDs'" />
             </div>
         </div>
         <PrimaryButton @click="generateReport">Download</PrimaryButton>

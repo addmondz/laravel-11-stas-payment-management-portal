@@ -4,16 +4,16 @@
             <p class="font-bold">Summary Report</p>
         </div>
         <div class="flex mb-5">
-            <div>
+            <div class="w-full">
                 <InputLabel for="receipt_date" value="Date" />
-                <div class="flex justify-center items-center">
-                    <div>
+                <div class="flex justify-center items-center w-full">
+                    <div class="flex-1">
                         <TextInput id="date_from" v-model="date_from" type="date" class="mt-1 block w-full" required />
                     </div>
                     <div class="p-2">
                         to
                     </div>
-                    <div>
+                    <div class="flex-1">
                         <TextInput id="date_to" v-model="date_to" type="date" class="mt-1 block w-full" required />
                     </div>
                 </div>

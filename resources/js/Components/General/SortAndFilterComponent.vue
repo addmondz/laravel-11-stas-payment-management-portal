@@ -125,7 +125,13 @@ onMounted(async () => {
 
 <template>
     <section>
-        <PrimaryButton @click="openModal">Sort And Filters</PrimaryButton>
+        <div>
+            <PrimaryButton class="mr-2" @click="openModal">Sort And Filters</PrimaryButton>
+            <button type="button" @click="resetFilters"
+                class="bg-white hover:bg-gray-100 text-black inline-flex items-center px-4 py-2 border border-gray-300 rounded-md font-semibold text-xs uppercase tracking-widest mr-2">
+                Reset Filters
+            </button>
+        </div>
 
         <Modal :show="showingModal" @close="closeModal">
             <div class="p-6">
@@ -139,8 +145,10 @@ onMounted(async () => {
                             <InputLabel :for="filter.field_name"
                                 :value="filter.display_name ?? replaceUnderscoreAndUppercase(filter.field_name)" />
                             <template v-if="filter.field_type === 'select'">
-                                <select v-model="filters[filter.field_name]" :id="filter.field_name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
-                                    <option value="" disabled selected>Select {{ filter.display_name ?? replaceUnderscoreAndUppercase(filter.field_name) }}</option>
+                                <select v-model="filters[filter.field_name]" :id="filter.field_name"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                                    <option value="" disabled selected>Select {{ filter.display_name ??
+                                        replaceUnderscoreAndUppercase(filter.field_name) }}</option>
                                     <option v-for="(option, idx) in filter.options" :key="idx" :value="idx">
                                         {{ replaceUnderscoreAndUppercase(option) }}
                                     </option>

@@ -9,18 +9,15 @@
         <div class="flex mb-5 flex-col" v-else>
             <div class="mb-5">
                 <InputLabel for="receipt_date" value="Date" />
-                <div class="flex justify-center items-center">
-                    <div>
-                        <TextInput id="date_from" v-model="date_from" type="date" class="mt-1" required />
+                <div class="flex justify-center items-center w-full">
+                    <div class="flex-1">
+                        <TextInput id="date_from" v-model="date_from" type="date" class="mt-1 block w-full" required />
                     </div>
                     <div class="p-2">
                         to
                     </div>
-                    <div>
-                        <TextInput id="date_to" v-model="date_to" type="date" class="mt-1" required />
-                    </div>
                     <div class="flex-1">
-
+                        <TextInput id="date_to" v-model="date_to" type="date" class="mt-1 block w-full" required />
                     </div>
                 </div>
                 <!-- Display error message here -->
