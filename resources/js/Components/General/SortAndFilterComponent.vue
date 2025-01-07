@@ -139,10 +139,8 @@ onMounted(async () => {
                             <InputLabel :for="filter.field_name"
                                 :value="filter.display_name ?? replaceUnderscoreAndUppercase(filter.field_name)" />
                             <template v-if="filter.field_type === 'select'">
-                                <select v-model="filters[filter.field_name]" :id="filter.field_name"
-                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
-                                    <option value="" disabled selected>Select {{ filter.display_name ??
-                                        replaceUnderscoreAndUppercase(filter.field_name) }}</option>
+                                <select v-model="filters[filter.field_name]" :id="filter.field_name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                                    <option value="" disabled selected>Select {{ filter.display_name ?? replaceUnderscoreAndUppercase(filter.field_name) }}</option>
                                     <option v-for="(option, idx) in filter.options" :key="idx" :value="idx">
                                         {{ replaceUnderscoreAndUppercase(option) }}
                                     </option>

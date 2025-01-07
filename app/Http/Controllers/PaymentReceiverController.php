@@ -15,7 +15,6 @@ class PaymentReceiverController extends Controller
                 return [
                     'id' => $receiver->id,
                     'name' => $receiver->name,
-                    'currency_id' => $receiver->currency_id,
                 ];
             });
     }

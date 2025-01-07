@@ -28,15 +28,7 @@
             </div>
             <div class="mb-5">
                 <InputLabel for="payment_to" value="Payment Receiver" />
-                <select id="payment_to" v-model="payment_to" class="mt-1 border-gray-300 rounded-md shadow-sm" required>
-                    <option value="" disabled selected>Please select Payment Receiver</option>
-                    <option value="">All</option>
-                    <option v-for="paymentReceiver in paymentReceiverData" :key="paymentReceiver.id"
-                        :value="paymentReceiver.id" class="capitalize"
-                        :data-attr-currency-id="paymentReceiver.currency_id">
-                        {{ paymentReceiver.name }}
-                    </option>
-                </select>
+                <CustomSelectComponent :choices="paymentReceiverData" v-model="payment_to" :label="'Payment Receiver'" :choicesIsObject="true"  />
             </div>
             <div class="mb-5">
                 <InputLabel for="claim_ids_filters" value="Claim ID" />
@@ -63,6 +55,7 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 import { formatId } from '@/Helpers/helpers.js';
 import LoadingComponent from '../General/LoadingComponent.vue';
+import CustomSelectComponent from '../General/CustomSelectComponent.vue';
 
 const date_from = ref('');
 const date_to = ref('');
@@ -182,10 +175,11 @@ const listClaimIds = async () => {
 };
 
 watch(payment_to, (newValue, oldValue) => {
-    if (newValue !== oldValue) {
+    if (JSON.stringify(newValue) !== JSON.stringify(oldValue)) {
         listClaimIds();
+        claim_ids_filters.value = [];
     }
-});
+}, { deep: true });
 
 onMounted(() => {
     listPaymentReceiverNameAndId();
