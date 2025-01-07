@@ -39,6 +39,17 @@ watch(
     { immediate: true }
 );
 
+watch(() => sortOption.value, (newData) => {
+    if (newData != '' && sortOrder.value == '') {
+        sortOrder.value = 'asc';
+    }
+
+    if (newData == '' && sortOrder.value != '') {
+        sortOrder.value = '';
+    }
+
+}, { immediate: true });
+
 // Emit updated filters back to the parent component
 const updateFilters = () => {
     emit('filtersUpdated', filters.value);
