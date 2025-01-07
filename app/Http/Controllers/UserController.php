@@ -38,6 +38,12 @@ class UserController extends Controller
                 );
             }
 
+            if ($request->input('approval_privillage')) {
+                $query->whereHas('privileges', function($q) use ($request) {
+                    $q->where('approval_role_id', $request->input('approval_privillage'));
+                });
+            }
+
             // Apply sorting and pagination
             $users = $query
                 ->orderBy($request->input('sort_by', 'id'), $request->input('sort_order', 'asc'))
