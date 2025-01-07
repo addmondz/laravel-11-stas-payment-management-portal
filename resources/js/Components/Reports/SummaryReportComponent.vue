@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="flex justify-between content-center pt-2 pb-3 border-b border-gray-300 mb-6">
-            <p class="font-bold">Transactions Report</p>
+            <p class="font-bold">Summary Report</p>
         </div>
         <div class="flex mb-5">
             <div>
