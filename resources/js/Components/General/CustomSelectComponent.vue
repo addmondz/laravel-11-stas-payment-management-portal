@@ -7,7 +7,7 @@
                     ? selectedFruits.map(fruitId => getFruitName(fruitId)).join(", ")
                     : "Select " + label }}
             </div>
-            <div v-if="showDropdown" class="absolute w-full bg-white border rounded mt-1 z-10 rounded-md">
+            <div v-if="showDropdown" class="absolute w-full bg-white border border-black rounded mt-1 z-10 rounded-md shadow-2xl">
                 <div class="p-2">
                     <input type="text" v-model="searchQuery" placeholder="Search..."
                         class="w-full p-2 border-b outline-none rounded-md" />

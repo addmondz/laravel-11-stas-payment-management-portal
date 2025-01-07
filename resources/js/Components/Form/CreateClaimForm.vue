@@ -5,10 +5,10 @@ import Modal from '@/Components/General/Modal.vue';
 import PrimaryButton from '@/Components/General/PrimaryButton.vue';
 import TextInput from '@/Components/General/TextInput.vue';
 import { useForm } from '@inertiajs/vue3';
-import { ref } from 'vue';
-import { onMounted } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import Swal from 'sweetalert2';
 import LoadingComponent from '@/Components/General/LoadingComponent.vue';
+import CustomSelectComponent from '../General/CustomSelectComponent.vue';
 
 const showingCreateClaimModal = ref(false);
 const formIsLoading = ref(false);
@@ -16,6 +16,7 @@ const emit = defineEmits();
 const currencyData = ref([]);
 const paymentReceiverData = ref([]);
 const paymentCategoryData = ref([]);
+const payment_to = ref('');
 const error = ref(null);
 const form = useForm({
     payment_to: '',
@@ -120,6 +121,24 @@ const listPaymentReceiverNameAndId = async () => {
     }
 };
 
+watch(
+    () => payment_to.value,
+    (newData, oldData) => {
+        console.log(`payment_to changed from ${oldData} to ${newData}`);
+
+        if (form && 'payment_to' in form) {
+            form.payment_to = newData.toString();
+
+            // Find the corresponding currency_id based on the payment_to id
+            const selectedReceiver = paymentReceiverData.value.find(receiver => receiver.id === parseInt(newData));
+            const currencyId = selectedReceiver ? selectedReceiver.currency_id : null;
+
+            form.currency = currencyId;
+        }
+    },
+    { immediate: true }
+);
+
 // On component mount, load data
 onMounted(() => {
     fetchCurrencies();
@@ -142,16 +161,8 @@ onMounted(() => {
                     <div class="grid grid-cols-1 gap-4 mt-4">
                         <div>
                             <InputLabel for="payment_to" value="Payment To" />
-                            <select id="payment_to" v-model="form.payment_to"
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required
-                                @change="handlePaymentToChange">
-                                <option value="" disabled selected>Please select Payment Receiver</option>
-                                <option v-for="paymentReceiver in paymentReceiverData" :key="paymentReceiver.id"
-                                    :value="paymentReceiver.id" class="capitalize"
-                                    :data-attr-currency-id="paymentReceiver.currency_id">
-                                    {{ paymentReceiver.name }}
-                                </option>
-                            </select>
+                            <CustomSelectComponent :choices="paymentReceiverData" v-model="payment_to"
+                                :label="'Payment Receiver'" :choicesIsObject="true" />
                             <InputError :message="form.errors.payment_to" class="mt-2" />
                         </div>
 
