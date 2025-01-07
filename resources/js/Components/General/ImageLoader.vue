@@ -3,8 +3,8 @@
         <div class="text-base cursor-pointer inline text-violet-700 font-bold" @click="openModal">
             Open
         </div>
-        <div v-if="isModalOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-            <div class="bg-white p-4 pt-2 rounded-lg max-w-lg img-modal">
+        <Modal :show="isModalOpen" @close="closeModal">
+            <div class="bg-white p-4 pt-2 rounded-lg img-modal">
                 <div class="flex flex-col">
                     <div class="flex justify-between">
                         <PrimaryButton class="m-3 ml-0" @click="downloadImage">Download Receipt</PrimaryButton>
@@ -16,7 +16,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </Modal>
     </div>
 </template>
 
@@ -26,6 +26,7 @@ import LoadingComponent from '@/Components/General/LoadingComponent.vue';
 import { CloseOutlined } from '@ant-design/icons-vue';
 import PrimaryButton from '@/Components/General/PrimaryButton.vue';
 import { formatId } from '@/Helpers/helpers.js';
+import Modal from '@/Components/General/Modal.vue';
 
 const props = defineProps({
     src: {
@@ -88,20 +89,3 @@ const downloadImage = async () => {
     }
 };
 </script>
-
-<style>
-.img-loader-container {
-    min-width: 300px;
-    min-height: 300px;
-}
-
-@media (max-width: 768px) { /* Adjust breakpoint as needed */
-    .img-loader-container {
-    }
-
-    .img-modal{
-        width: 90%;
-        max-width: 90%;
-    }
-}
-</style>
