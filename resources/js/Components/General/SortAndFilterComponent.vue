@@ -169,7 +169,7 @@ onMounted(async () => {
 
                 <div class="mt-6 flex justify-between">
                     <button type="button" @click="resetFilters"
-                        class="bg-white hover:bg-gray-100 text-black inline-flex items-center px-4 py-2 border rounded-md font-semibold text-xs uppercase tracking-widest">
+                        class="bg-white hover:bg-gray-100 text-black inline-flex items-center px-4 py-2 border border-black rounded-md font-semibold text-xs uppercase tracking-widest">
                         Reset Filters
                     </button>
                     <div class="text-right" v-if="!formIsLoading">

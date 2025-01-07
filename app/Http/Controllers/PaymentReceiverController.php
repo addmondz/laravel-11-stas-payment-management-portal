@@ -22,7 +22,24 @@ class PaymentReceiverController extends Controller
 
     public function list(Request $request)
     {
-        $receivers = PaymentReceiver::with('currency')->paginate($request->input('per_page', 10));
+        $query = PaymentReceiver::with('currency');
+
+        // Apply dynamic filters
+        foreach (['name', 'bank_name', 'currency_id'] as $filter) {
+            $query->when(
+                $request->filled($filter),
+                function ($q) use ($filter, $request) {
+                    // like filters for special columns
+                    if (in_array($filter, ['name', 'bank_name'])) {
+                        $q->where($filter, 'LIKE', '%' . $request->input($filter) . '%');
+                    } else {
+                        $q->where($filter, $request->input($filter));
+                    }
+                }
+            );
+        }
+
+        $receivers = $query->paginate($request->input('per_page', 10));
 
         return response()->json([
             'success' => true,
