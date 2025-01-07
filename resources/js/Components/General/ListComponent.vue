@@ -5,7 +5,19 @@
         </div>
         <div v-else>
             <div v-if="apiResponse">
-                <SortAndFilterComponent class="mt-6 mb-6" v-if="sortAndFilters" :sortAndFilters="sortAndFilters" @filtersUpdated="handleFiltersUpdated" />
+                <div v-if="sortAndFilters || hasSearchBox" class="flex flex-wrap justify-between items-center mt-6 mb-6 space-y-4 md:space-y-0">
+                    <div class="w-full md:w-auto" v-if="sortAndFilters">
+                        <SortAndFilterComponent :sortAndFilters="sortAndFilters" @filtersUpdated="handleFiltersUpdated" :allowSorting="allowSorting" :filters="filters" />
+                    </div>
+                    <div v-else class="w-full md:w-auto block"></div>
+
+                    <div class="flex justify-end w-full md:w-auto" v-if="hasSearchBox">
+                        <TextInput id="searchText" type="text" v-model="searchText" placeholder="Search" class="border rounded-l-lg bg-gray-50" @keydown.enter="triggerSearch" />
+                        <button class="bg-gray-50 hover:bg-gray-200 text-gray py-2 px-4 rounded-r-lg" @click="triggerSearch">
+                            <SearchOutlined />
+                        </button>
+                    </div>
+                </div>
                 <div class="block mt-12" v-else v-if="hasPaddingTop"></div>
 
                 <div class="grid md:grid-cols gap-4 mb-5">
@@ -43,6 +55,8 @@ import { ref, onMounted, watch } from 'vue';
 import NotFound from '@/Components/Icons/NotFound.vue';
 import LoadingComponent from '@/Components/General/LoadingComponent.vue';
 import SortAndFilterComponent from '@/Components/General/SortAndFilterComponent.vue';
+import TextInput from '@/Components/General/TextInput.vue';
+import { SearchOutlined } from '@ant-design/icons-vue';
 
 const isLoading = ref(true);
 const listData = ref([]);
@@ -50,6 +64,7 @@ const filters = ref([]);
 const error = ref(null);
 const brandFilter = ref(null);
 const categoryFilter = ref(null);
+const searchText = ref('');
 const apiResponse = ref(null);
 const limit = ref(9);
 const currentPage = ref(1);
@@ -67,9 +82,17 @@ const props = defineProps({
         type: Boolean,
         default: true
     },
+    hasSearchBox: {
+        type: Boolean,
+        default: false
+    },
     sortAndFilters: {
         type: Array,
         required: false,
+    },
+    allowSorting: {
+        type: Boolean,
+        default: true,
     },
 });
 
@@ -89,8 +112,11 @@ const fetchList = async (page = 1) => {
             page: page,
         });
 
+        let combinedFilters = filters.value;
+        combinedFilters['search_value'] = searchText.value;
+
         // Dynamically add filters from filters.value as key-value pairs
-        Object.entries(filters.value).forEach(([key, value]) => {
+        Object.entries(combinedFilters).forEach(([key, value]) => {
             // Only add filters if they have a value (non-empty or non-null)
             if (value) {
                 queryParams.append(key, value);
@@ -126,19 +152,8 @@ const prevPage = () => {
     fetchList(currentPage.value);
 };
 
-// Apply filters and reset filters
-const applyFilters = () => {
+const triggerSearch = () => {
     currentPage.value = 1;
-    fetchList(currentPage.value);
-};
-
-const resetFilters = () => {
-    brandFilter.value = null;
-    categoryFilter.value = null;
-    applyFilters();
-};
-
-const handleCreateComplete = () => {
     fetchList(currentPage.value);
 };
 

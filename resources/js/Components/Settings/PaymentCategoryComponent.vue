@@ -5,7 +5,7 @@
             <PaymentCategoryForm @createComplete="handleCreateComplete" />
         </div>
 
-        <ListComponent :apiUrl="route('paymentCategory.list')" :createCompleteSignal="createCompleteSignal">
+        <ListComponent :apiUrl="route('paymentCategory.list')" :createCompleteSignal="createCompleteSignal" :hasSearchBox="true">
             <template v-slot:list-view="{ data }">
                 <PaymentCategoryListTemplate @createComplete="handleCreateComplete" v-for="product in data" :key="product.id" :data="product" />
             </template>

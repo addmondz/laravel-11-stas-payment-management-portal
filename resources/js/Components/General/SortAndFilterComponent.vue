@@ -9,24 +9,41 @@ import LoadingComponent from '@/Components/General/LoadingComponent.vue';
 
 const showingModal = ref(false);
 const formIsLoading = ref(false);
-const filters = ref([]);
+const filters = ref({});
 const sortOption = ref('');
-const sortOrder = ref(''); // Added for sorting order
+const sortOrder = ref('');
 const error = ref(null);
 const emit = defineEmits();
 
 const props = defineProps({
     sortAndFilters: {
         type: Array,
-        default: [],
+        default: () => [],
     },
     allowSorting: {
         type: Boolean,
         default: true,
     },
+    filters: {
+        type: Object,
+        default: () => ({}),
+    },
 });
 
-// Placeholder for dynamic data (you can replace it with API calls)
+// Watch for changes in the parent-provided filters prop and update filters accordingly
+watch(
+    () => props.filters,
+    (newFilters) => {
+        filters.value = { ...newFilters };
+    },
+    { immediate: true }
+);
+
+// Emit updated filters back to the parent component
+const updateFilters = () => {
+    emit('filtersUpdated', filters.value);
+};
+
 const fetchData = async (api) => {
     try {
         const { data } = await axios.get(api);
@@ -36,7 +53,6 @@ const fetchData = async (api) => {
     }
 };
 
-// This function will handle the modal opening and closing
 const openModal = () => {
     showingModal.value = true;
 };
@@ -45,59 +61,42 @@ const closeModal = () => {
     showingModal.value = false;
 };
 
-const submitFilters = () => {
-    // const combinedFilters = [...filters.value, sortOption.value, sortOrder.value, 2]; // Combine filters, sort, order, and 2
-    let combinedFilters = filters.value;
-    combinedFilters['sort_by'] = sortOption.value;
-    combinedFilters['sort_order'] = sortOrder.value;
+const validateFilters = () => {
+    for (const key in filters.value) {
+        if (!filters.value[key]) {
+            formErrors.value[key] = 'This field is required';
+            return false;
+        }
+    }
+    return true;
+};
 
-    emit('filtersUpdated', combinedFilters);
+const submitFilters = () => {
+    let combinedFilters = { ...filters.value, sort_by: sortOption.value, sort_order: sortOrder.value };
+    filters.value = combinedFilters;
+    updateFilters();
     closeModal();
 };
 
 const resetFilters = () => {
-    // Reset filters to an empty array or default values
-    filters.value = [];
-
-    // Reset sorting options to their default states
+    filters.value = {};
     sortOption.value = '';
     sortOrder.value = '';
-
-    // Emit the reset state to the parent component
-    emit('filtersUpdated', {
-        filters: filters.value,
-        sort_by: sortOption.value,
-        sort_order: sortOrder.value,
-    });
-
-    // Close the modal after resetting
+    updateFilters();
     closeModal();
 };
 
 const replaceUnderscoreAndUppercase = (str) => {
-    return str
-        .replace(/_/g, ' ') // Replace underscores with spaces
-        .replace(/\b\w/g, char => char.toUpperCase()); // Capitalize each word's first letter
-}
+    return str.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
+};
 
-const formData = ref([]);
-const formErrors = ref([]);
+const formErrors = ref({});
 
-watch(sortOption, (newValue, oldValue) => {
-    if (newValue !== oldValue) {
-        sortOrder.value = 'asc'
-    }
-
-    if (newValue == '') {
-        sortOrder.value = ''
-    }
-});
-
-// Initialize the filters
 onMounted(async () => {
+    filters.value = { ...props.filters };  // Initialize filters with the value from props
     for (const filter of props.sortAndFilters) {
-        formData.value[filter.name] = '';
-        formErrors.value[filter.name] = '';
+        filters.value[filter.field_name] = filters.value[filter.field_name] || '';
+        formErrors.value[filter.field_name] = '';
         if (filter.field_type === 'select' && filter.api) {
             const data = await fetchData(filter.api);
             filter.options = data;
@@ -124,9 +123,10 @@ onMounted(async () => {
                             <template v-if="filter.field_type === 'select'">
                                 <select v-model="filters[filter.field_name]" :id="filter.field_name"
                                     class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
-                                    <option value="" disabled selected>Select {{ filter.field_name }}</option>
+                                    <option value="" disabled selected>Select {{ filter.display_name ??
+                                        replaceUnderscoreAndUppercase(filter.field_name) }}</option>
                                     <option v-for="(option, idx) in filter.options" :key="idx" :value="idx">
-                                        {{ option }}
+                                        {{ replaceUnderscoreAndUppercase(option) }}
                                     </option>
                                 </select>
                             </template>
@@ -137,13 +137,12 @@ onMounted(async () => {
                             </template>
                             <template v-else>
                                 <TextInput v-model="filters[filter.field_name]" :id="filter.field_name" type="text"
-                                    placeholder="Enter value" class="mt-1 block w-full" required
-                                    @keydown.enter="submitFilters" />
+                                    :placeholder="'Search ' + (filter.display_name ?? replaceUnderscoreAndUppercase(filter.field_name))"
+                                    class="mt-1 block w-full" required @keydown.enter="submitFilters" />
                             </template>
                             <InputError :message="formErrors[filter.field_name]" class="mt-2" />
                         </div>
 
-                        <!-- Add Sort option if allowed -->
                         <div v-if="props.allowSorting">
                             <InputLabel for="sortOption" value="Sort By" />
                             <div class="flex">
@@ -155,7 +154,6 @@ onMounted(async () => {
                                         {{ filter.display_name ?? replaceUnderscoreAndUppercase(filter.field_name) }}
                                     </option>
                                 </select>
-                                <!-- Enable the second dropdown only if a sort option is selected -->
                                 <select v-model="sortOrder" id="sortOrder"
                                     class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
                                     :disabled="!sortOption" required>

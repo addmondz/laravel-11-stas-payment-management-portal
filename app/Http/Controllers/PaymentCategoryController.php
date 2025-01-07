@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PaymentCategory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class PaymentCategoryController extends Controller
 {
@@ -17,15 +18,15 @@ class PaymentCategoryController extends Controller
             //     $query->where('payment_type', $request->input('paymentType'));
             // }
 
-            // if ($request->input('searchValue')) {
-            //     $queryParam = ['payment_category', 'purpose'];
-            //     $searchValue = $request->input('paymentType');
-            //     $query->where(function ($query) use ($queryParam, $searchValue) {
-            //         foreach ($queryParam as $q) {
-            //             $query->orWhere($q, 'like', '%' . $searchValue . '%');
-            //         }
-            //     });
-            // }
+            $searchValue = $request->input('search_value');
+            if ($searchValue) {
+                $queryParam = ['name'];
+                $query->where(function ($query) use ($queryParam, $searchValue) {
+                    foreach ($queryParam as $q) {
+                        $query->orWhere($q, 'like', '%' . $searchValue . '%');
+                    }
+                });
+            }
 
             // Apply sorting if provided
             $sortColumn = $request->input('sort.column', 'id');

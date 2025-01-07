@@ -21,9 +21,28 @@ class UserController extends Controller
     public function list(Request $request)
     {
         try {
-            $users = User::with('privileges')
-                ->orderBy($request->input('sort.column', 'id'), $request->input('sort.direction', 'asc'))
+            $query = User::with('privileges');
+
+            // Apply dynamic filters
+            foreach (['email', 'name', 'role'] as $filter) {
+                $query->when(
+                    $request->filled($filter),
+                    function ($q) use ($filter, $request) {
+                        // like filters for special columns
+                        if (in_array($filter, ['email', 'name'])) {
+                            $q->where($filter, 'LIKE', '%' . $request->input($filter) . '%');
+                        } else {
+                            $q->where($filter, $request->input($filter));
+                        }
+                    }
+                );
+            }
+
+            // Apply sorting and pagination
+            $users = $query
+                ->orderBy($request->input('sort_by', 'id'), $request->input('sort_order', 'asc'))
                 ->paginate($request->get('per_page', 10));
+
 
             // Assuming one privilege per user, transform the privilege name
             $users->getCollection()->each(function ($user) {
@@ -100,7 +119,7 @@ class UserController extends Controller
         if ($request->filled('password')) {
             $userData['password'] = Hash::make($validatedData['password']);
         }
-        
+
         // Find the user by ID
         $user = User::findOrFail($id); // Ensure the user exists
         $user->update($userData);
