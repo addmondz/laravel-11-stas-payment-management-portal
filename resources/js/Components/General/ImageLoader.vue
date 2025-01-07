@@ -11,7 +11,7 @@
                         <CloseOutlined class="pb-2 mt-3" @click="closeModal" />
                     </div>
                     <div class="flex justify-center items-center img-loader-container">
-                        <!-- <img v-show="isLoaded" @load="onImgLoad" :src="src" :alt="alt" style="overflow: hidden;" /> -->
+                        <img v-show="isLoaded" @load="onImgLoad" :src="src" :alt="alt" style="overflow: hidden;" />
                         <LoadingComponent class="mt-32 mb-32 " v-show="!isLoaded" />
                     </div>
                 </div>
