@@ -26,10 +26,9 @@
                 <div v-if="listData.length === 0 || listData == []">
                     <NotFound />
                 </div>
-                <div class="flex justify-between w-full pt-6">
-                    <div>
-                        <p>Showing {{ apiResponse.from ?? 0 }} to {{ apiResponse.to ?? 0 }} of {{ apiResponse.total }}
-                            entries</p>
+                <div class="flex justify-between w-full pt-6 flex-col sm:flex-row">
+                    <div class="mb-4 sm:mb-0">
+                        <p class="text-center">Showing {{ apiResponse.from ?? 0 }} to {{ apiResponse.to ?? 0 }} of {{ apiResponse.total }} entries</p>
                     </div>
                     <div class="flex justify-end flex-1">
                         <button class="bg-white hover:bg-gray-200 text-gray py-2 px-4 rounded ml-2" @click="prevPage"
@@ -41,6 +40,7 @@
                             Page</button>
                     </div>
                 </div>
+
             </div>
             <div v-else>
                 <NotFound />
