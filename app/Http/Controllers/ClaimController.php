@@ -433,9 +433,10 @@ class ClaimController extends Controller
     {
         $query = Claim::query();
 
-        $paymentTo = $request->query('payment_to'); // Fetch the query parameter with a default of null.
-        if (!empty($paymentTo)) {
-            $query->where('payment_receiver_id', $paymentTo);
+        $paymentTo = $request->query('payment_to');
+        if (!empty($paymentTo) && $paymentTo != ['All']) {
+            $paymentToArray = explode(',', $paymentTo);
+            $query->whereIn('payment_receiver_id', $paymentToArray);
         }
 
         return $query->pluck('id');

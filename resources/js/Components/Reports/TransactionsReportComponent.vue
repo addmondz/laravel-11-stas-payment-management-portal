@@ -24,11 +24,11 @@
                 <p v-if="errorMessage" class="text-red-500 text-sm mt-2">{{ errorMessage }}</p>
             </div>
             <div class="mb-5">
-                <InputLabel for="payment_to" value="Payment Receiver" />
-                <CustomSelectComponent :choices="paymentReceiverData" v-model="payment_to" :label="'Payment Receiver'" :choicesIsObject="true"  />
+                <InputLabel for="payment_to" value="Payment Receivers" />
+                <CustomSelectComponent :choices="paymentReceiverData" v-model="payment_to" :label="'Payment Receivers'" :choicesIsObject="true" :allowAllChoice="true" :allowMultiChoice="true" />
             </div>
             <div class="mb-5">
-                <InputLabel for="claim_ids_filters" value="Claim ID" />
+                <InputLabel for="claim_ids_filters" value="Claim IDs" />
                 <CustomSelectComponent :choices="claimids" :allowMultiChoice="true" v-model="claim_ids_filters" :label="'Claim IDs'" />
             </div>
         </div>
@@ -145,7 +145,7 @@ const listPaymentReceiverNameAndId = async () => {
 const listClaimIds = async () => {
     isLoading.value = true;
     let url = route('claims.listIds'); // Base URL
-    const paymentToValue = payment_to.value; // Assuming payment_to is a reference to an input or similar
+    const paymentToValue = payment_to.value == 'All' ? '' : payment_to.value; // Assuming payment_to is a reference to an input or similar
 
     if (paymentToValue !== '') {
         // Append the query parameter if payment_to has a value

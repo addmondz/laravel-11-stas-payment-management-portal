@@ -5,7 +5,7 @@
             <PaymentReceiverForm @createComplete="handleCreateComplete" />
         </div>
 
-        <ListComponent :apiUrl="route('paymentReceiver.list')" :createCompleteSignal="createCompleteSigna" :sortAndFilters="sortAndFilters" :allowSorting="false">
+        <ListComponent :apiUrl="route('paymentReceiver.list')" :createCompleteSignal="createCompleteSignal" :sortAndFilters="sortAndFilters" :allowSorting="false">
             <template v-slot:list-view="{ data }">
                 <PaymentReceiverListTemplate @createComplete="handleCreateComplete" v-for="product in data" :key="product.id" :data="product" />
             </template>

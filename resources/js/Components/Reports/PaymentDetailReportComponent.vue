@@ -29,7 +29,7 @@
             </div>
             <div class="mb-5 w-full">
                 <InputLabel for="claim_ids_filters" value="Claim ID" />
-                <CustomSelectComponent :choices="claimids" v-model="claim_ids_filters" :label="'Claim IDs'" />
+                <CustomSelectComponent :choices="claimids" v-model="claim_ids_filters" :label="'Claim ID'" />
             </div>
         </div>
         <PrimaryButton @click="generateReport">Download</PrimaryButton>
