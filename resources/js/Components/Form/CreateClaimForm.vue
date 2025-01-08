@@ -11,7 +11,7 @@ import LoadingComponent from '@/Components/General/LoadingComponent.vue';
 import CustomSelectComponent from '../General/CustomSelectComponent.vue';
 
 const showingCreateClaimModal = ref(false);
-const formIsLoading = ref(false);
+const formIsLoading = ref(true);
 const emit = defineEmits();
 const currencyData = ref([]);
 const paymentReceiverData = ref([]);
