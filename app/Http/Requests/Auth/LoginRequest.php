@@ -49,6 +49,17 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        $user = Auth::user();
+
+        // Check if the user is inactive
+        if ($user->status != 'active') {
+            Auth::logout();
+
+            throw ValidationException::withMessages([
+                'email' => 'Your account is currently inactive. Please contact Admin.',
+            ]);
+        }
+
         RateLimiter::clear($this->throttleKey());
     }
 
@@ -80,6 +91,6 @@ class LoginRequest extends FormRequest
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
+        return Str::transliterate(Str::lower($this->string('email')) . '|' . $this->ip());
     }
 }

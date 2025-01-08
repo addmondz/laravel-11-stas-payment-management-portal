@@ -59,5 +59,13 @@ const formatDateWithTime = (date) => {
     return moment(date).format('DD MMMM YYYY · hh:mm:ss A');
 };
 
+const toUcWords = (input) => {
+    return input
+        .toLowerCase()
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+}
+
 // Exporting functions
-export { fetchUserDetails, formatPrice, apiBaseUrl, convertStringToNumber, formatNumberToTwoDecimals, formatId, formatDate, formatString, formatDateWithTime, formatNumberToString };
+export { fetchUserDetails, formatPrice, apiBaseUrl, convertStringToNumber, formatNumberToTwoDecimals, formatId, formatDate, formatString, formatDateWithTime, formatNumberToString, toUcWords };

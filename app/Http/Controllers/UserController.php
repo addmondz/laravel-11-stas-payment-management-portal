@@ -24,7 +24,7 @@ class UserController extends Controller
             $query = User::with('privileges');
 
             // Apply dynamic filters
-            foreach (['email', 'name', 'role'] as $filter) {
+            foreach (['email', 'name', 'role', 'status'] as $filter) {
                 $query->when(
                     $request->filled($filter),
                     function ($q) use ($filter, $request) {
@@ -112,6 +112,7 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email,' . $id, // Ignore the email check for the user being updated
             'password' => 'nullable|string|min:8|confirmed', // Password is nullable
             'role' => 'string',
+            'status' => 'string',
         ]);
 
         // Prepare the user data
@@ -119,6 +120,7 @@ class UserController extends Controller
             'name' => $validatedData['name'],
             'email' => $validatedData['email'],
             'role' => $validatedData['role'],
+            'status' => $validatedData['status'],
         ];
 
         // Check if a password was provided and hash it if necessary

@@ -55,6 +55,18 @@
                     <div class="col">
                         <div class="row">
                             <div class="col-auto">
+                                <div class="mb-1 text-xs text-gray-500">Status</div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="text-[14px]">{{ toUcWords(data.status) ?? '-' }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- <div class="col">
+                        <div class="row">
+                            <div class="col-auto">
                                 <div class="mb-1 text-xs text-gray-500">Created At</div>
                             </div>
                         </div>
@@ -63,7 +75,7 @@
                                 <div class="text-[14px]">{{ formatDate(data.created_at) }}</div>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
             </div>
             <div class="flex justify-center items-center">
@@ -79,7 +91,7 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import { formatDate } from '@/Helpers/helpers.js';
+import { formatDate, toUcWords } from '@/Helpers/helpers.js';
 import UserForm from '@/Components/Form/UserForm.vue';
 
 const emit = defineEmits();

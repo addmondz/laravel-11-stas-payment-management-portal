@@ -48,5 +48,13 @@ const sortAndFilters = ref([
             3: "L3 Approval Members",
         }
     },
+    {
+        field_name: "status",
+        field_type: "select",
+        options: {
+            active: 'Active',
+            inactive: 'Inactive',
+        }
+    },
 ]);
 </script>

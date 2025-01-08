@@ -30,6 +30,7 @@ const form = useForm({
     email: '',
     password: '',
     password_confirmation: '',
+    status: '',
     // isAdmin: '0',
     role: '',
     approvalRole: '',
@@ -42,6 +43,7 @@ watch(() => props.userData, (newUserData) => {
         form.email = newUserData.email;
         // form.isAdmin = newUserData.role === 'admin' ? '1' : '0';
         form.role = newUserData.role;
+        form.status = newUserData.status;
         form.approvalRole = newUserData.approval_role_id;
     } else {
         form.reset(); // Reset if no userData
@@ -218,11 +220,21 @@ onMounted(() => {
                             <InputLabel for="payment_category" value="Approval Role" />
                             <select id="currency" v-model="form.approvalRole"
                                 class="mt-1 payment_category w-full border-gray-300 rounded-md shadow-sm">
-                                <option value="">None</option>
+                                <option value="" selected>None</option>
                                 <option v-for="(name, code) in approvalRolesData" :key="code" :value="code"
                                     class="capitalize">
                                     {{ name }}
                                 </option>
+                            </select>
+                            <InputError :message="form.errors.payment_category" class="mt-2" />
+                        </div>
+
+                        <div>
+                            <InputLabel for="status" value="Status" />
+                            <select id="status" v-model="form.status"
+                                class="mt-1 payment_category w-full border-gray-300 rounded-md shadow-sm">
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
                             </select>
                             <InputError :message="form.errors.payment_category" class="mt-2" />
                         </div>
