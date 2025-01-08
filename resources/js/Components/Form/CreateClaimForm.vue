@@ -152,7 +152,7 @@ onMounted(() => {
         <PrimaryButton @click="openCreateClaimModal">Create Claim</PrimaryButton>
 
         <Modal :show="showingCreateClaimModal" @close="closeModal">
-            <form @submit.prevent="submitClaim" class="p-4">
+            <form @submit.prevent="submitClaim" class="p-5">
                 <div v-if="formIsLoading">
                     <LoadingComponent class="mt-32 mb-32 " />
                 </div>
