@@ -38,7 +38,8 @@ export default {
         modelValue: { type: [Array, String], default: () => [] },  // v-model prop
         allowMultiChoice: { type: Boolean, default: false },
         label: { type: String, default: '' },
-        choicesIsObject: { type: Boolean, default: false }
+        choicesIsObject: { type: Boolean, default: false },
+        allowAllChoice: { type: Boolean, default: false },
     },
     data() {
         return {
