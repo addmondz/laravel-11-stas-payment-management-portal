@@ -1,6 +1,7 @@
 <template>
     <div>
-        <div ref="dropdown" @click="openDropDown" class="mt-1 border-gray-300 border rounded-md shadow-sm w-72 relative cursor-pointer w-full">
+        <div ref="dropdown" @click="openDropDown" @keydown.esc="closeDropDown"
+            class="mt-1 border-gray-300 border rounded-md shadow-sm w-72 relative cursor-pointer w-full">
             <div class="p-2">
                 {{ selectedFruits.length
                     ? selectedFruits.map(fruitId => getFruitName(fruitId)).join(", ")
@@ -9,7 +10,8 @@
             <div v-if="showDropdown"
                 class="absolute w-full bg-white border border-black rounded mt-1 z-10 rounded-md shadow-2xl">
                 <div class="p-2">
-                    <input type="text" v-model="searchQuery" placeholder="Search..." class="w-full p-2 border-b outline-none rounded-md" />
+                    <input type="text" v-model="searchQuery" placeholder="Search..."
+                        class="w-full p-2 border-b outline-none rounded-md" />
                 </div>
                 <div v-if="filteredChoices.length">
                     <ul class="max-h-40 overflow-y-auto" v-if="choicesIsObject">
@@ -65,11 +67,12 @@ export default {
         };
     },
     computed: {
-        // Filter choices based on search query
         filteredChoices() {
-            if (!Array.isArray(this.choices) || this.choices.length === 0) return [];
+            if (!this.choices?.length) return [];
             return this.choices.filter(option =>
-                String(option).toLowerCase().includes(this.searchQuery.toLowerCase())
+                String(this.choicesIsObject && typeof option === 'object' ? option.name : option)
+                    .toLowerCase()
+                    .includes(this.searchQuery.toLowerCase())
             );
         }
     },
