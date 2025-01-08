@@ -79,8 +79,8 @@ const maxWidthClass = computed(() => {
                     leave-from-class="opacity-100 translate-y-0 sm:scale-100"
                     leave-to-class="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
                     <div v-show="show"
-                        class="mb-6 bg-white rounded-lg shadow-xl transform transition-all sm:w-full sm:mx-auto min-w-[300px]"
-                        style="max-height: 99%; overflow: scroll;"
+                        class="mb-6 bg-white rounded-lg shadow-xl transform transition-all sm:w-full sm:mx-auto min-w-[300px] scrollbar-container modal-min-width"
+                        style="max-height: 99%; overflow-y: scroll; overflow-x: hidden; padding-left: 8px;"
                         :class="maxWidthClass">
                         <slot v-if="show" />
                     </div>
@@ -89,3 +89,45 @@ const maxWidthClass = computed(() => {
         </Transition>
     </Teleport>
 </template>
+
+<style scoped>
+/* Rounded and minimal scrollbar styling */
+.scrollbar-container::-webkit-scrollbar {
+    width: 8px;
+    /* Adjust width for a more noticeable scrollbar */
+    height: 8px;
+    /* Adjust height for horizontal scrollbar */
+}
+
+.scrollbar-container::-webkit-scrollbar-thumb {
+    background: #cccccc;
+    /* Scrollbar thumb color */
+    border-radius: 12px;
+    /* Fully rounded scrollbar thumb */
+    border: 2px solid transparent;
+    /* Adds spacing around the thumb */
+    background-clip: content-box;
+    /* Ensures the border doesn't overlap the thumb */
+}
+
+.scrollbar-container::-webkit-scrollbar-track {
+    background: #f5f5f5;
+    /* Lighter background for the track */
+    border-radius: 12px;
+    /* Fully rounded scrollbar track */
+}
+
+/* Ensure compatibility with Firefox */
+.scrollbar-container {
+    scrollbar-width: thin;
+    /* Thinner scrollbar in Firefox */
+    scrollbar-color: #cccccc transparent;
+    /* Color of thumb and track */
+}
+
+@media (max-width: 768px) {
+    .modal-min-width{
+        width: 96%;
+    }
+}
+</style>
