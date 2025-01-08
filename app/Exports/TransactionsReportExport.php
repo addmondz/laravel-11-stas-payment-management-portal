@@ -180,6 +180,6 @@ class TransactionsReportExport implements FromArray, ShouldAutoSize, WithStyles
 
     public function getReceiptFileUrl($url)
     {
-        return $url ? url($url) : null;
+        return $url && app()->environment('local') ? url('public/' . ltrim($url, 'public/')) : ($url ? url($url) : null);
     }
 }
