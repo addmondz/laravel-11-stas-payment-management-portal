@@ -40,11 +40,11 @@ class TransactionsReportExport implements FromArray, ShouldAutoSize, WithStyles
         $claims = Claim::whereBetween('created_at', [$formattedFromDate, $formattedToDate]);
 
         $requestQuery = $this->request->query->all();
-        if (isset($requestQuery['payment_to'])) {
-            $claims->where('payment_receiver_id', $requestQuery['payment_to']);
+        if (isset($requestQuery['payment_to']) && $requestQuery['payment_to'] != 'All') {
+            $claims->whereIn('payment_receiver_id', explode(',', $requestQuery['payment_to']));
         }
 
-        if (isset($requestQuery['claim_ids_filters'])) {
+        if (isset($requestQuery['claim_ids_filters']) && $requestQuery['claim_ids_filters'] != 'All') {
             $claims->whereIn('id', array_filter(explode(',', $requestQuery['claim_ids_filters']), fn($v) => $v !== ''));
         }
 
