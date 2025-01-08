@@ -43,7 +43,7 @@ class TransactionsReportExport implements FromArray, ShouldAutoSize, WithStyles
         if (isset($requestQuery['payment_to'])) {
             $claims->where('payment_receiver_id', $requestQuery['payment_to']);
         }
-        
+
         if (isset($requestQuery['claim_ids_filters'])) {
             $claims->whereIn('id', array_filter(explode(',', $requestQuery['claim_ids_filters']), fn($v) => $v !== ''));
         }
@@ -180,6 +180,6 @@ class TransactionsReportExport implements FromArray, ShouldAutoSize, WithStyles
 
     public function getReceiptFileUrl($url)
     {
-        return $url && app()->environment('local') ? url('public/' . ltrim($url, 'public/')) : ($url ? url($url) : null);
+        return $url ? url((app()->environment('local') ? '' : 'public/') . $url) : null;
     }
 }
