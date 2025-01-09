@@ -6,6 +6,7 @@ import InputError from '@/Components/General/InputError.vue';
 import InputLabel from '@/Components/General/InputLabel.vue';
 import TextInput from '@/Components/General/TextInput.vue';
 import LoadingComponent from '@/Components/General/LoadingComponent.vue';
+import DateRangeComponent from '@/Components/General/DateRangeComponent.vue';
 
 const showingModal = ref(false);
 const formIsLoading = ref(false);
@@ -153,6 +154,9 @@ onMounted(async () => {
                                         {{ replaceUnderscoreAndUppercase(option) }}
                                     </option>
                                 </select>
+                            </template>
+                            <template v-else-if="filter.field_type === 'date_range'">
+                                <DateRangeComponent v-model="filters[filter.field_name]" :label="filter.display_name ?? ''" :showLabel="false" />
                             </template>
                             <template v-else-if="filter.field_type === 'number'">
                                 <TextInput v-model="filters[filter.field_name]" :id="filter.field_name" type="number"

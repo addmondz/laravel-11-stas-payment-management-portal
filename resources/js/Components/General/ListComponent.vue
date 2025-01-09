@@ -21,7 +21,7 @@
                 <div class="block mt-12" v-else v-if="hasPaddingTop"></div>
 
                 <div class="grid md:grid-cols gap-4 mb-5">
-                    <slot name="list-view" :data="listData" :apiResponse="apiResponse" />
+                    <slot name="list-view" :data="listData" :apiResponse="apiResponse" :fullApiResponse="fullApiResponse" />
                 </div>
                 <div v-if="listData.length === 0 || listData == []">
                     <NotFound />
@@ -66,6 +66,7 @@ const brandFilter = ref(null);
 const categoryFilter = ref(null);
 const searchText = ref('');
 const apiResponse = ref(null);
+const fullApiResponse = ref(null);
 const limit = ref(9);
 const currentPage = ref(1);
 const lastPage = ref(0);
@@ -126,6 +127,7 @@ const fetchList = async (page = 1) => {
         const { data } = await axios.get(`${props.apiUrl}?${queryParams.toString()}`);
         listData.value = data.data.data;
         apiResponse.value = data.data;
+        fullApiResponse.value = data;
         lastPage.value = data.data.last_page;
     } catch (err) {
         error.value = err;

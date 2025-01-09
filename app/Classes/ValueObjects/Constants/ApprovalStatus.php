@@ -33,7 +33,7 @@ final class ApprovalStatus
     ];
 
     public const APPROVAL_CHOICE = [
-        self::PENDING_SUBMISSION          => "Pending Submission",
+        // self::PENDING_SUBMISSION          => "Pending Submission",
         self::PENDING_APPROVAL            => "Pending Approval",
         self::APPROVED                    => "Approved",
         self::PAYMENT_COMPLETED           => "Payment Completed",

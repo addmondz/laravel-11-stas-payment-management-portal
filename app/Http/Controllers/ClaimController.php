@@ -10,6 +10,7 @@ use App\Models\Claim;
 use App\Models\ClaimStatusLog;
 use App\Services\FetchesGstTax;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class ClaimController extends Controller
@@ -137,10 +138,24 @@ class ClaimController extends Controller
                 $query = Claim::with('createdUser')->where('created_by', $user->id);
             }
 
+            // dd($request->input());
+
             $filters = ['id', 'payment_type', 'payment_category_id', 'currency_id', 'status'];
             foreach ($filters as $filter) {
                 if ($request->has($filter)) {
                     $query->where($filter, $request->input($filter));
+                }
+            }
+
+            $created_at = $request->input('created_at');
+            if ($created_at) {
+                $created_at_array = is_array($created_at) ? $created_at : explode(',', $created_at);
+
+                // Ensure the array is of length 2
+                if (count($created_at_array) == 2) {
+                    $formattedFromDate = date('Y-m-d 00:00:00', strtotime($created_at_array[0]));
+                    $formattedToDate = date('Y-m-d 23:59:59', strtotime($created_at_array[1]));
+                    $query->whereBetween('created_at', [$formattedFromDate, $formattedToDate]);
                 }
             }
 
@@ -162,8 +177,21 @@ class ClaimController extends Controller
             // Paginate the results
             $perPage = $request->get('per_page', 10); // Default to 10 items per page
             $datas = $query->paginate($perPage);
+            $sum = [];
 
-            $datas->getCollection()->transform(function ($data) {
+            $datas->getCollection()->transform(function ($data) use (&$sum) {
+                $currency = $data->currencyObject;
+                $country = $currency->country;
+                $variable = $country->short_code;
+                if (isset($sum[$variable])) {
+                    $sum[$variable]['amount'] += $data->amount;
+                } else {
+                    $sum[$variable]['amount'] = $data->amount;
+                    $sum[$variable]['country_name'] = $country->name;
+                    $sum[$variable]['currency'] = $currency->short_code;
+                }
+
+                // Add transformed properties
                 $data->currency = $data->currencyObject->short_code;
                 $data->status = ApprovalStatus::APPROVAL_STATUS_ID[$data->status];
                 $data->payment_category_name = $data->paymentCategory->name;
@@ -175,6 +203,7 @@ class ClaimController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => $datas,
+                'sum' => $sum,
                 'message' => 'Claims listed successfully',
             ]);
         } catch (\Exception $e) {

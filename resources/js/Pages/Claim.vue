@@ -27,7 +27,8 @@
                 <!-- Tab Content -->
                 <div class="w-full">
                     <div v-show="activeTab === 'pendingApproval'">
-                        <PendingClaim :createCompleteSignal="createCompleteSignal" @pendingClaimsCount="handlePendingClaimsCount"/>
+                        <PendingClaim :createCompleteSignal="createCompleteSignal"
+                            @pendingClaimsCount="handlePendingClaimsCount" />
                     </div>
                     <div v-show="activeTab === 'allClaims'">
                         <AllClaim :createCompleteSignal="createCompleteSignal" :sortAndFilters="sortAndFilters" />
@@ -35,7 +36,7 @@
                 </div>
             </div>
             <div v-else>
-                <AllClaim :createCompleteSignal="createCompleteSignal" :sortAndFilters="sortAndFilters"  />
+                <AllClaim :createCompleteSignal="createCompleteSignal" :sortAndFilters="sortAndFilters" />
             </div>
         </div>
     </AuthenticatedLayout>
@@ -90,7 +91,7 @@ const sortAndFilters = ref([
     { display_name: "Payment Category", field_name: "payment_category_id", field_type: "select", api: route('paymentCategory.listChoice') },
     { display_name: "Currency", field_name: "currency_id", field_type: "select", api: route('currency.listShortCode') },
     // { field_name: "total_amount", field_type: "string" },
-    // { field_name: "Created By", field_type: "select", api: "/api/users" },
+    { display_name: "Created Date", field_name: "created_at", field_type: "date_range" },
     { field_name: "status", field_type: "select", api: route('approvalStatus.list') },
 ]);
 </script>
