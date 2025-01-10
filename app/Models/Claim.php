@@ -30,6 +30,7 @@ class Claim extends Model
 
         'payment_voucher_number',
         'payment_date',
+        'payment_voucher_receipt_file',
     ];
 
     public function currencyObject()

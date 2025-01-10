@@ -5,11 +5,15 @@
         <template #header>
             <div class="flex justify-between content-center">
                 <BreadcrumbComponent :breadcrumbs="breadcrumbs" />
-                <div>
+                <div class="flex items-center justify-center">
                     <StatusLabel v-if="apiResponse" class="text-sm inline-block" :status="fetchedData.status" />
                     <PrimaryButton
-                        v-if="fetchedData.status_id < 2 && (getUserApprovalPrivillage().value == fetchedData.next_approval_level)" class="bg-violet-500 hover:bg-violet-700 active:bg-violet-700 focus:bg-violet-700 font-bold animate-bounce"
+                        v-if="fetchedData.status_id < 2 && (getUserApprovalPrivillage().value == fetchedData.next_approval_level)"
+                        class="bg-violet-500 hover:bg-violet-700 active:bg-violet-700 focus:bg-violet-700 font-bold animate-bounce"
                         @click="approvalClaimConfirmation">Approve Payment</PrimaryButton>
+                    <PaymentVoucherForm :claimId="props.id" @createComplete="handleCreateComplete" class="rounded-md"
+                        v-if="fetchedData.status_id == 2 && isFinance().value" />
+
                 </div>
             </div>
         </template>
@@ -208,12 +212,24 @@
                             </div>
                             <p class="text-base">{{ formatDate(fetchedData.payment_date) ?? '-' }}</p>
                         </div>
+                        <div class="mb-4">
+                            <div class="flex justify-between">
+                                <p class="mb-1 text-sm text-gray-500">Receipt Document</p>
+                                <InfoCircleOutlined class="text-gray-400" />
+                            </div>
+                            <div>
+                                <DocumentViewer :src="`/${fetchedData.payment_voucher_receipt_file}`" alt="Receipt Image"
+                                    :id="fetchedData.id" />
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5 text-right"
                     v-if="fetchedData.status_id < 2 && (getUserApprovalPrivillage().value == fetchedData.next_approval_level)">
-                    <PrimaryButton class="bg-violet-500 hover:bg-violet-700 active:bg-violet-700 focus:bg-violet-700 font-bold animate-bounce" @click="approvalClaimConfirmation">Approve Payment</PrimaryButton>
+                    <PrimaryButton
+                        class="bg-violet-500 hover:bg-violet-700 active:bg-violet-700 focus:bg-violet-700 font-bold animate-bounce"
+                        @click="approvalClaimConfirmation">Approve Payment</PrimaryButton>
                 </div>
 
                 <!-- <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5 text-right"
@@ -232,7 +248,7 @@
                     <NotFound />
                     <div class="flex justify-center">
                         <Link :href="route('dashboard')">
-                            <PrimaryButton class="p-4">Back To Home Page</PrimaryButton>
+                        <PrimaryButton class="p-4">Back To Home Page</PrimaryButton>
                         </Link>
                     </div>
                 </div>

@@ -37,8 +37,8 @@ final class ApprovalStatus
         self::PENDING_APPROVAL            => "Pending Approval",
         self::APPROVED                    => "Approved",
         self::PAYMENT_COMPLETED           => "Payment Completed",
-        self::REJECTED                    => "Rejected",
-        self::CANCELLED                   => "Cancelled",
-        self::PAYMENT_FAILED              => "Payment Failed",
+        // self::REJECTED                    => "Rejected",
+        // self::CANCELLED                   => "Cancelled",
+        // self::PAYMENT_FAILED              => "Payment Failed",
     ];
 }

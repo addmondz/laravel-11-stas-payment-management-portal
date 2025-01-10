@@ -60,7 +60,6 @@ class ClaimController extends Controller
             $path = 'receipts/' . $filename;
         }
 
-
         $requestData = $request->all();
         $hasGst = filter_var($requestData['gst'], FILTER_VALIDATE_BOOLEAN);
         $gstTax = (float) $this->fetchesGstTax->execute();
@@ -420,6 +419,7 @@ class ClaimController extends Controller
         $validated = $request->validate([
             "paymentVoucherNumber" => 'required',
             "paymentDate" => 'required',
+            'receipt' => 'required|mimes:jpeg,pdf,jpg,png|max:2048',
         ]);
 
         if (!$claim) {
@@ -439,10 +439,25 @@ class ClaimController extends Controller
             return response()->json(['error' => 'Insufficient privileges for this approval level.'], 403);
         }
 
+        // store at public folder
+        if ($request->hasFile('receipt')) {
+            $file = $request->file('receipt');
+
+            // Generate a unique name for the file to avoid conflicts
+            $filename = uniqid() . '.' . $file->getClientOriginalExtension();
+
+            // Store the file directly in the public folder
+            $file->move(public_path('receipts'), $filename);
+
+            // Save the file path to the database or return the filename
+            $path = 'receipts/' . $filename;
+        }
+
         $claim->update([
-            'status'                  => ApprovalStatus::PAYMENT_COMPLETED,
-            "payment_voucher_number"  => $validated['paymentVoucherNumber'],
-            "payment_date"            => $validated['paymentDate'],
+            'status'                       => ApprovalStatus::PAYMENT_COMPLETED,
+            "payment_voucher_number"       => $validated['paymentVoucherNumber'],
+            "payment_date"                 => $validated['paymentDate'],
+            'payment_voucher_receipt_file' => $path ?? null,
         ]);
 
         ClaimStatusLog::create([

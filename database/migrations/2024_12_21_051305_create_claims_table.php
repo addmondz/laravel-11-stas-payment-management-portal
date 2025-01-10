@@ -29,6 +29,7 @@ class CreateClaimsTable extends Migration
 
             $table->string('payment_voucher_number')->nullable();
             $table->date('payment_date')->nullable();
+            $table->string('payment_voucher_receipt_file')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

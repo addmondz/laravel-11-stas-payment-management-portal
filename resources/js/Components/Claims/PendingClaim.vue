@@ -1,12 +1,13 @@
 <template>
     <div>
-        <div class="flex items-center w-full order-last lg:order-none max-lg:mx-auto p-5 rounded-xl overflow-hidden transition-all duration-500">
+        <div class="flex items-center w-full order-last lg:order-none max-lg:mx-auto p-5 rounded-xl overflow-hidden transition-all duration-500" v-if="!isFinance().value">
             <SquareBtn @click="selectAllClicked(data)" :isSelected="selectAll" class="block mr-5" v-show="allIds.length" />
             <PrimaryButton class="select-none bg-violet-500 hover:bg-violet-700 active:bg-violet-700 focus:bg-violet-700 font-bold animate-bounce" :class="{ 'invisible': !selectedIds.length }"
                 @click="groupApprovalConfirmation">
                 Approve {{ selectedIds.length }} Payment(s)
             </PrimaryButton>
         </div>
+        <div class="mb-3" v-else></div>
 
         <ListComponent :apiUrl="route('claims.listPendingApproval')" :createCompleteSignal="createCompleteSignal"
             :key="loadingKey" :allowSorting="true" :sortAndFilters="sortAndFilters" :hasPaddingTop="false">
@@ -36,6 +37,7 @@ import ListComponent from '../General/ListComponent.vue';
 import PrimaryButton from '@/Components/General/PrimaryButton.vue';
 import Swal from 'sweetalert2';
 import SquareBtn from '../Icons/SquareBtn.vue';
+import { isFinance } from '@/Composables/GlobalFuntions.vue';
 
 const emit = defineEmits(['pendingClaimsCount']);
 const props = defineProps({
