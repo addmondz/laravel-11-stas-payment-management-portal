@@ -3,130 +3,69 @@
         <div class="flex justify-between content-center pt-2 pb-3 border-b border-gray-300 mb-6">
             <p class="font-bold">Transactions Report</p>
         </div>
-        <div v-if="isLoading">
-            <LoadingComponent class="mt-20 mb-20" />
-        </div>
-        <div class="flex mb-5 flex-col" v-else>
-            <div class="mb-5">
-                <InputLabel for="receipt_date" value="Date" />
-                <div class="flex justify-center items-center w-full">
-                    <div class="flex-1">
-                        <TextInput id="date_from" v-model="date_from" type="date" class="mt-1 block w-full" required />
-                    </div>
-                    <div class="p-2">
-                        to
-                    </div>
-                    <div class="flex-1">
-                        <TextInput id="date_to" v-model="date_to" type="date" class="mt-1 block w-full" required />
-                    </div>
-                </div>
-                <!-- Display error message here -->
-                <p v-if="errorMessage" class="text-red-500 text-sm mt-2">{{ errorMessage }}</p>
+        <div v-if="!isLoading">
+            <div class="flex mb-5">
+                <DateRangeComponent v-model="dateRange" label="Date" :additionalErrorMessage="dateRangeErrorMsg" />
             </div>
             <div class="mb-5">
                 <InputLabel for="payment_to" value="Payment Receivers" />
-                <CustomSelectComponent :choices="paymentReceiverData" v-model="payment_to" :label="'Payment Receivers'" :choicesIsObject="true" :allowAllChoice="true" :allowMultiChoice="true" />
+                <CustomSelectComponent :choices="paymentReceiverData" v-model="payment_to" :label="'Payment Receivers'"
+                    :choicesIsObject="true" :allowAllChoice="true" :allowMultiChoice="true" />
             </div>
             <div class="mb-5">
                 <InputLabel for="claim_ids_filters" value="Claim IDs" />
-                <CustomSelectComponent :choices="claimids" :allowMultiChoice="true" v-model="claim_ids_filters" :label="'Claim IDs'" :allowAllChoice="true" />
+                <CustomSelectComponent :choices="claimids" :allowMultiChoice="true" v-model="claim_ids_filters"
+                    :label="'Claim IDs'" :allowAllChoice="true" />
             </div>
+            <PrimaryButton @click="generateReport">Preview</PrimaryButton>
         </div>
-        <PrimaryButton @click="generateReport">Download</PrimaryButton>
+        <LoadingComponent v-else class="mt-32 mb-32" />
     </div>
 </template>
 
 <script setup>
-import InputLabel from '@/Components/General/InputLabel.vue';
-import TextInput from '@/Components/General/TextInput.vue';
-import PrimaryButton from '@/Components/General/PrimaryButton.vue';
 import { ref, onMounted, watch } from 'vue';
-import axios from 'axios';
-import Swal from 'sweetalert2';
-import { formatId } from '@/Helpers/helpers.js';
+import PrimaryButton from '@/Components/General/PrimaryButton.vue';
 import LoadingComponent from '../General/LoadingComponent.vue';
+import DateRangeComponent from '../General/DateRangeComponent.vue';
+import InputLabel from '@/Components/General/InputLabel.vue';
 import CustomSelectComponent from '../General/CustomSelectComponent.vue';
 
-const date_from = ref('');
-const date_to = ref('');
-const payment_to = ref('');
-const claim_ids_filters = ref([]);  // Change this to an array
+const dateRange = ref([]);
+const claim_ids_filters = ref([]);
+const payment_to = ref([]);
 
-const errorMessage = ref('');
-const error = ref('');
+const dateRangeErrorMsg = ref('');
 const isLoading = ref(false);
+const error = ref('');
 
 const paymentReceiverData = ref([]);
 const claimids = ref([]);
 
+const validateDateRange = () => {
+    dateRangeErrorMsg.value = !Array.isArray(dateRange.value) || !dateRange.value.length
+        ? 'Please select a date range.'
+        : '';
+};
+
+watch(dateRange, () => {
+    validateDateRange();
+});
+
 const generateReport = async () => {
-    // Clear previous error message
-    errorMessage.value = '';
+    validateDateRange();
+    if (dateRangeErrorMsg.value) return;
 
-    // Validation
-    if (!date_from.value || !date_to.value) {
-        errorMessage.value = "Both 'Date From' and 'Date To' fields are required.";
-        return;
-    }
+    const data = btoa(JSON.stringify({
+        reportName: 'Transactions Report Preview',
+        reportType: 'transactionReport',
+        startDate: dateRange.value[0],
+        endDate: dateRange.value[1],
+        payment_to: payment_to.value.join(','),
+        claim_ids_filters: claim_ids_filters.value.join(','),
+    }));
 
-    if (new Date(date_to.value) < new Date(date_from.value)) {
-        errorMessage.value = "'Date To' cannot be earlier than 'Date From'.";
-        return;
-    }
-
-    const summaryReportUrl = route('reports.transactionsReport', {
-        dateFrom: date_from.value,
-        dateTo: date_to.value,
-    });
-
-    // Check if `payment_to` and `claim_ids_filters` are not empty and add them to the URL
-    const urlParams = new URLSearchParams();
-
-    if (payment_to.value) {
-        urlParams.append('payment_to', payment_to.value);
-    }
-    if (claim_ids_filters.value.length) { // If any claim IDs are selected
-        urlParams.append('claim_ids_filters', claim_ids_filters.value.join(',')); // Pass selected IDs as a comma-separated string
-    }
-
-    // Append the parameters to the URL
-    const finalUrl = `${summaryReportUrl}?${urlParams.toString()}`;
-
-    try {
-        // API Call to fetch the report
-        const response = await axios.post(finalUrl, {}, { responseType: 'blob' });
-
-        // Create a Blob from the response data
-        const blob = new Blob([response.data], { type: response.headers['content-type'] });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-
-        // Set filename from headers or fallback
-        const contentDisposition = response.headers['content-disposition'];
-        const filename = contentDisposition
-            ? contentDisposition.split('filename=')[1].replace(/"/g, '')
-            : 'report.pdf';
-
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-
-        Swal.fire({
-            title: "Success!",
-            text: "The report has been successfully downloaded.",
-            icon: "success",
-            confirmButtonText: "OK",
-        });
-    } catch (err) {
-        // console.error(err);
-        Swal.fire({
-            title: "Error!",
-            text: err.response?.data?.error || "An unexpected error occurred while generating the report.",
-            icon: "error",
-            confirmButtonText: "OK",
-        });
-    }
+    window.open(`${route('report.preview')}?data=${encodeURIComponent(data)}`, '_blank');
 };
 
 const listPaymentReceiverNameAndId = async () => {

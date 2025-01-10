@@ -55,8 +55,15 @@ const maxWidthClass = computed(() => {
         lg: 'sm:max-w-lg',
         xl: 'sm:max-w-xl',
         '2xl': 'sm:max-w-2xl',
+        '3xl': 'sm:max-w-3xl', // Added size
+        '4xl': 'sm:max-w-4xl', // Added size
+        '5xl': 'sm:max-w-5xl', // Added size
+        '6xl': 'sm:max-w-6xl', // Added size
+        '7xl': 'sm:max-w-7xl', // Added size
+        'max': 'sm:max-w-7xl', // Added size
     }[props.maxWidth];
 });
+
 </script>
 
 <template>
@@ -123,6 +130,10 @@ const maxWidthClass = computed(() => {
     /* Thinner scrollbar in Firefox */
     scrollbar-color: #cccccc transparent;
     /* Color of thumb and track */
+}
+
+.max-wdith {
+    width: 96%;
 }
 
 @media (max-width: 768px) {

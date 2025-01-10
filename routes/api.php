@@ -69,6 +69,7 @@ Route::prefix('api')->middleware('auth')->group(function () {
         Route::post('/summary-report/{dateFrom}/{dateTo}', [ReportsController::class, 'summaryReport'])->name('reports.newSummaryReport');
         Route::post('/transactions-report/{dateFrom}/{dateTo}', [ReportsController::class, 'transactionsReport'])->name('reports.transactionsReport');
         Route::post('/payment-detail-report/{dateFrom}/{dateTo}', [ReportsController::class, 'paymentDetailReport'])->name('reports.paymentDetailReport');
+        Route::post('/generate-report-preview/{reportType}', [ReportsController::class, 'generateReportPreview'])->name('reports.generateReportPreview');
     });
 
     Route::prefix('approval-status')->group(function () {

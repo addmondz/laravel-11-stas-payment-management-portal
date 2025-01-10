@@ -55,7 +55,6 @@
     </div>
 </template>
 
-
 <script setup>
 import { ref } from 'vue';
 import AngleRight from '@/Components/Icons/AngleRight.vue';
@@ -65,7 +64,7 @@ import StatusLabel from '@/Components/General/StatusLabel.vue';
 import { formatDate, formatString } from '@/Helpers/helpers.js';
 import SquareBtn from '../Icons/SquareBtn.vue';
 
-const emit = defineEmits();
+const emit = defineEmits(['update-selected-list']);
 const props = defineProps({
     data: {
         type: Object,
@@ -75,11 +74,14 @@ const props = defineProps({
         type: Boolean,
         required: false,
     },
+    isSelected: {
+        type: Boolean,
+        required: false,
+        default: false,
+    },
 });
 
-const isSelected = ref(false);
 const handleUpdateSelected = (value) => {
-    isSelected.value = value;
     emit('update-selected-list', { isSelected: value, id: props.data.id });
 };
 </script>

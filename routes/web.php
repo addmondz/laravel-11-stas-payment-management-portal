@@ -46,6 +46,10 @@ Route::get('/settings', function () {
     return Inertia::render('Settings');
 })->middleware(['auth', 'verified'])->name('settings');
 
+Route::get('/report/preview', function () {
+    return Inertia::render('ReportPreview');
+})->middleware(['auth', 'verified'])->name('report.preview');
+
 Route::get('/reports', function () {
     return Inertia::render('Reports');
 })->middleware(['auth', 'verified'])->name('reports');

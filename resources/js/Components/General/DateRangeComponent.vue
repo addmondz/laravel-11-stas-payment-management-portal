@@ -18,7 +18,7 @@
             </div>
         </div>
         <!-- Error Message -->
-        <p v-if="errorMessage" class="text-red-500 text-sm mt-2" v-html="errorMessage + ' ' + additionalErrorMessage">
+        <p v-if="errorMessage || additionalErrorMessage" class="text-red-500 text-sm mt-2" v-html="errorMessage + ' ' + additionalErrorMessage">
         </p>
     </div>
 </template>

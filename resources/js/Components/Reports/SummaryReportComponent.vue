@@ -3,91 +3,47 @@
         <div class="flex justify-between content-center pt-2 pb-3 border-b border-gray-300 mb-6">
             <p class="font-bold">Summary Report</p>
         </div>
-        <div class="flex mb-5">
-            <div class="w-full">
-                <InputLabel for="receipt_date" value="Date" />
-                <div class="flex justify-center items-center w-full">
-                    <div class="flex-1">
-                        <TextInput id="date_from" v-model="date_from" type="date" class="mt-1 block w-full" required />
-                    </div>
-                    <div class="p-2">
-                        to
-                    </div>
-                    <div class="flex-1">
-                        <TextInput id="date_to" v-model="date_to" type="date" class="mt-1 block w-full" required />
-                    </div>
-                </div>
-                <!-- Display error message here -->
-                <p v-if="errorMessage" class="text-red-500 text-sm mt-2">{{ errorMessage }}</p>
+        <div v-if="!isLoading">
+            <div class="flex mb-5">
+                <DateRangeComponent v-model="dateRange" label="Date" :additionalErrorMessage="dateRangeErrorMsg" />
             </div>
+            <PrimaryButton @click="generateReport">Preview</PrimaryButton>
         </div>
-        <PrimaryButton @click="generateReport">Download</PrimaryButton>
+        <LoadingComponent v-else class="mt-32 mb-32" />
     </div>
 </template>
 
 <script setup>
-import InputLabel from '@/Components/General/InputLabel.vue';
-import TextInput from '@/Components/General/TextInput.vue';
+import { ref, watch } from 'vue';
 import PrimaryButton from '@/Components/General/PrimaryButton.vue';
-import { ref } from 'vue';
-import axios from 'axios';
-import Swal from 'sweetalert2';
+import LoadingComponent from '../General/LoadingComponent.vue';
+import DateRangeComponent from '../General/DateRangeComponent.vue';
 
-const date_from = ref('');
-const date_to = ref('');
-const errorMessage = ref('');
+const dateRange = ref([]);
+const dateRangeErrorMsg = ref('');
+const isLoading = ref(false);
+
+const validateDateRange = () => {
+    dateRangeErrorMsg.value = !Array.isArray(dateRange.value) || !dateRange.value.length
+        ? 'Please select a date range.'
+        : '';
+};
+
+watch(dateRange, () => {
+    validateDateRange();
+});
 
 const generateReport = async () => {
-    // Clear previous error message
-    errorMessage.value = '';
+    validateDateRange();
+    if (dateRangeErrorMsg.value) return;
 
-    // Validation
-    if (!date_from.value || !date_to.value) {
-        errorMessage.value = "Both 'Date From' and 'Date To' fields are required.";
-        return;
-    }
+    const data = btoa(JSON.stringify({
+        reportName: 'Summary Report Preview',
+        reportType: 'summaryReport',
+        startDate: dateRange.value[0],
+        endDate: dateRange.value[1],
+    }));
 
-    if (new Date(date_to.value) < new Date(date_from.value)) {
-        errorMessage.value = "'Date To' cannot be earlier than 'Date From'.";
-        return;
-    }
-
-    const summaryReportUrl = route('reports.newSummaryReport', { dateFrom: date_from.value, dateTo: date_to.value });
-
-    try {
-        // API Call to fetch the report
-        const response = await axios.post(summaryReportUrl, {}, { responseType: 'blob' });
-
-        // Create a Blob from the response data
-        const blob = new Blob([response.data], { type: response.headers['content-type'] });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-
-        // Set filename from headers or fallback
-        const contentDisposition = response.headers['content-disposition'];
-        const filename = contentDisposition
-            ? contentDisposition.split('filename=')[1].replace(/"/g, '')
-            : 'report.pdf';
-
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-
-        Swal.fire({
-            title: "Success!",
-            text: "The report has been successfully downloaded.",
-            icon: "success",
-            confirmButtonText: "OK",
-        });
-    } catch (err) {
-        // console.error(err);
-        Swal.fire({
-            title: "Error!",
-            text: err.response?.data?.error || "An unexpected error occurred while generating the report.",
-            icon: "error",
-            confirmButtonText: "OK",
-        });
-    }
+    window.open(`${route('report.preview')}?data=${encodeURIComponent(data)}`, '_blank');
 };
 </script>
