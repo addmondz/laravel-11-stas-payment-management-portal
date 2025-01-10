@@ -149,7 +149,7 @@ onMounted(() => {
 
 <template>
     <section class="space-y-6">
-        <PrimaryButton @click="openCreateClaimModal">Create Claim</PrimaryButton>
+        <PrimaryButton @click="openCreateClaimModal">Create Payment</PrimaryButton>
 
         <Modal :show="showingCreateClaimModal" @close="closeModal">
             <form @submit.prevent="submitClaim" class="p-5">
@@ -157,7 +157,7 @@ onMounted(() => {
                     <LoadingComponent class="mt-32 mb-32 " />
                 </div>
                 <div v-else>
-                    <h2 class="text-lg font-medium text-gray-900">Create a New Claim</h2>
+                    <h2 class="text-lg font-medium text-gray-900">Create a New Payment</h2>
                     <div class="grid grid-cols-1 gap-4 mt-4">
                         <div>
                             <InputLabel for="payment_to" value="Payment To" />
@@ -263,7 +263,7 @@ onMounted(() => {
                     </button>
                     <PrimaryButton type="submit" class="ms-3" :class="{ 'opacity-25': form.processing }"
                         :disabled="form.processing">
-                        Submit Claim
+                        Submit Payment
                     </PrimaryButton>
                 </div>
             </form>

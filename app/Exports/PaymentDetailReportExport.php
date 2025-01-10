@@ -72,7 +72,7 @@ class PaymentDetailReportExport implements FromArray, ShouldAutoSize, WithStyles
             // Add table headers
             $reportData[] = [
                 "",
-                'Claim ID',
+                'Payment ID',
                 'Date',
                 'Date of expenditure',
                 'Status',

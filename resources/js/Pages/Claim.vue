@@ -1,10 +1,10 @@
 <template>
 
-    <Head title="Claims" />
+    <Head title="Payments" />
     <AuthenticatedLayout>
         <template #header>
             <div class="flex justify-between content-center">
-                <BreadcrumbComponent :breadcrumbs="[{ title: 'Claims' }]" />
+                <BreadcrumbComponent :breadcrumbs="[{ title: 'Payments' }]" />
                 <CreateClaimForm @createComplete="handleCreateComplete" />
             </div>
         </template>
@@ -58,7 +58,7 @@ const createCompleteSignal = ref(2);
 const pendingClaimCount = ref(0);
 const activeTab = ref('allClaims');
 const tabs = ref([
-    { name: 'allClaims', label: 'All Claims' },
+    { name: 'allClaims', label: 'All Payments' },
     { name: 'pendingApproval', label: 'Pending Approval' },
 ]);
 
@@ -79,7 +79,7 @@ const handlePendingClaimsCount = (value) => {
 };
 
 const sortAndFilters = ref([
-    { display_name: "Claim ID", field_name: "id", field_type: "string" },
+    { display_name: "Payment ID", field_name: "id", field_type: "string" },
     {
         field_name: "payment_type",
         field_type: "select",

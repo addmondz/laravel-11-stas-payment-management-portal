@@ -97,7 +97,16 @@ class GeneratesSummaryReportHtml
 
     private function formatDataAsHtml($data)
     {
-        $html = '<h1 class="pageTitle text-xl">Summary Report</h1> <br>';
+        // $html = '
+        // <div class="w-full justify-between items-center flex">
+        //     <img src="' . url('') . '/images/logo-new.jpg" alt="Logo" style="width: 300px; height: auto; margin-right: 20px;">
+        //     <h1 style="font-size: 2rem; font-weight: bold; margin: 0;">Summary Report</h1>
+        // </div>
+        // <br><br>';
+        
+        $html = '<img src="' . url('') . '/images/logo-new.jpg" alt="Logo" style="width: 300px; height: auto;"><br><br>';
+
+        $html .= '<h1 class="pageTitle text-xl ont-bold underline font-bold">Summary Report</h1> <br>';
 
         // Create the table structure
         $html .= '<table border-collapse: collapse;" cellpadding="5" cellspacing="0" width="100%">';

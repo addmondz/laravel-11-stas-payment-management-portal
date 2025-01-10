@@ -135,6 +135,7 @@ class DatabaseSeeder extends Seeder
                 'approval_status' => 0,
             ]);
         }
+        //  <------------------------------------------optional seeder end----------------------------------------------------> //
     }
 
     public function randomPick(array $items)

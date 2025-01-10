@@ -13,8 +13,8 @@
                     :choicesIsObject="true" :allowAllChoice="true" />
             </div>
             <div class="mb-5">
-                <InputLabel for="claim_ids_filters" value="Claim ID" />
-                <CustomSelectComponent :choices="claimids" v-model="claim_ids_filters" :label="'Claim ID'"
+                <InputLabel for="claim_ids_filters" value="Payment ID" />
+                <CustomSelectComponent :choices="claimids" v-model="claim_ids_filters" :label="'Payment ID'"
                     :allowAllChoice="true" />
             </div>
             <PrimaryButton @click="generateReport">Preview</PrimaryButton>

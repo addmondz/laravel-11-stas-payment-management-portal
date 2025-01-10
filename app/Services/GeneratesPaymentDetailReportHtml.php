@@ -70,12 +70,12 @@ class GeneratesPaymentDetailReportHtml
 
             $reportData[] = ["Pay to:", $receiverName, "", "", "", "", "", "", "", "", "", "", "", "", "Report Date:", $currentDate];
             $reportData[] = ["Bank:", $receiverBank, "", "", "", "", "", "", "", "", "", "", "", "", "Period:", "{$this->requestBody['startDate']} - {$this->requestBody['endDate']}"];
-            $reportData[] = ["Account:", $receiverAccount , "", "", "", "", "", "", "", "", "", "", "", "", "", ""];
+            $reportData[] = ["Account:", $receiverAccount, "", "", "", "", "", "", "", "", "", "", "", "", "", ""];
 
             // Add table headers
             $reportData[] = [
                 "No.",
-                'Claim ID',
+                'Payment ID',
                 'Date',
                 'Date of expenditure',
                 'Status',
@@ -147,12 +147,14 @@ class GeneratesPaymentDetailReportHtml
 
     private function formatDataAsHtml($data)
     {
-        $html = '<h1 class="pageTitle text-xl">Payment Detail Report</h1> <br>';
+        $html = '<img src="' . url('') . '/images/logo-new.jpg" alt="Logo" style="width: 300px; height: auto;"><br><br>';
+
+        $html .= '<h1 class="pageTitle text-xl underline font-bold">Payment Detail Report</h1> <br>';
 
         // Create the table structure
         $html .= '<table border-collapse: collapse;" cellpadding="5" cellspacing="0" width="100%">';
 
-        $noBorderCounter = $noBorderCounterDefault = 2; // update here no border header
+        $noBorderCounter = $noBorderCounterDefault = 3; // update here no border header
 
         // Populate the table with data
         foreach ($data as $item) {

@@ -75,7 +75,7 @@ class GeneratesTransactionsReportHtml
             // Add table headers
             $reportData[] = [
                 "No.",
-                'Claim ID',
+                'Payment ID',
                 'Date',
                 'Date of expenditure',
                 'Status',
@@ -147,7 +147,9 @@ class GeneratesTransactionsReportHtml
 
     private function formatDataAsHtml($data)
     {
-        $html = '<h1 class="pageTitle text-xl">Transactions Report</h1> <br>';
+        $html = '<img src="' . url('') . '/images/logo-new.jpg" alt="Logo" style="width: 300px; height: auto;"><br><br>';
+        
+        $html .= '<h1 class="pageTitle text-xl underline font-bold">Transactions Report</h1> <br>';
 
         // Create the table structure
         $html .= '<table border-collapse: collapse;" cellpadding="5" cellspacing="0" width="100%">';

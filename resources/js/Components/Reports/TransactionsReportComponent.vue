@@ -13,9 +13,9 @@
                     :choicesIsObject="true" :allowAllChoice="true" :allowMultiChoice="true" />
             </div>
             <div class="mb-5">
-                <InputLabel for="claim_ids_filters" value="Claim IDs" />
+                <InputLabel for="claim_ids_filters" value="Payment IDs" />
                 <CustomSelectComponent :choices="claimids" :allowMultiChoice="true" v-model="claim_ids_filters"
-                    :label="'Claim IDs'" :allowAllChoice="true" />
+                    :label="'Payment IDs'" :allowAllChoice="true" />
             </div>
             <PrimaryButton @click="generateReport">Preview</PrimaryButton>
         </div>

@@ -33,7 +33,7 @@ const logout = () => {
                         </div>
                         <div class="hidden sm:-my-px sm:flex">
                             <NavLink :href="route('dashboard')" :active="route().current('dashboard')">
-                                Claims
+                                Payments
                             </NavLink>
                         </div>
                         <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex" v-if="isAdmin().value">
@@ -96,7 +96,7 @@ const logout = () => {
                     class="sm:hidden">
                     <div class="pt-2 pb-3 space-y-1">
                         <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">
-                            Claims
+                            Payments
                         </ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('settings')" :active="route().current('settings')">
                             Settings
