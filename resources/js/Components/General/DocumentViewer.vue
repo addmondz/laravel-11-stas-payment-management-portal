@@ -64,7 +64,7 @@ const downloadFile = async () => {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = `receipt-document-claim-${formatId(props.id)}.${isPDF.value ? 'pdf' : 'jpg'}`;
+        a.download = `receipt-document-payment-${formatId(props.id)}.${isPDF.value ? 'pdf' : 'jpg'}`;
         document.body.appendChild(a);
         a.click();
         a.remove();
