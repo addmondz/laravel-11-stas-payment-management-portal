@@ -9,7 +9,7 @@
                     <StatusLabel v-if="apiResponse" class="text-sm inline-block" :status="fetchedData.status" />
                     <PrimaryButton
                         v-if="fetchedData.status_id < 2 && (getUserApprovalPrivillage().value == fetchedData.next_approval_level)" class="bg-violet-500 hover:bg-violet-700 active:bg-violet-700 focus:bg-violet-700 font-bold animate-bounce"
-                        @click="approvalClaimConfirmation">Approve Claim</PrimaryButton>
+                        @click="approvalClaimConfirmation">Approve Payment</PrimaryButton>
                 </div>
             </div>
         </template>
@@ -213,7 +213,7 @@
 
                 <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5 text-right"
                     v-if="fetchedData.status_id < 2 && (getUserApprovalPrivillage().value == fetchedData.next_approval_level)">
-                    <PrimaryButton class="bg-violet-500 hover:bg-violet-700 active:bg-violet-700 focus:bg-violet-700 font-bold animate-bounce" @click="approvalClaimConfirmation">Approve Claim</PrimaryButton>
+                    <PrimaryButton class="bg-violet-500 hover:bg-violet-700 active:bg-violet-700 focus:bg-violet-700 font-bold animate-bounce" @click="approvalClaimConfirmation">Approve Payment</PrimaryButton>
                 </div>
 
                 <!-- <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5 text-right"

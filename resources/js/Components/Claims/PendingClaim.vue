@@ -4,7 +4,7 @@
             <SquareBtn @click="selectAllClicked(data)" :isSelected="selectAll" class="block mr-5" v-show="allIds.length" />
             <PrimaryButton class="select-none" :class="{ 'invisible': !selectedIds.length }"
                 @click="groupApprovalConfirmation">
-                Approve {{ selectedIds.length }} Claim(s)
+                Approve {{ selectedIds.length }} Payment(s)
             </PrimaryButton>
         </div>
 
