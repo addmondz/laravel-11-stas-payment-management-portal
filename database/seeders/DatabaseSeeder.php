@@ -105,7 +105,7 @@ class DatabaseSeeder extends Seeder
         //  <------------------------------------------optional seeder starts----------------------------------------------------> //
 
         // create random PaymentReceiver
-        $numberOfUsers = 100;
+        $numberOfUsers = 10;
         for ($i = 0; $i < $numberOfUsers; $i++) {
             PaymentReceiver::create([
                 'name' => fake()->name(),

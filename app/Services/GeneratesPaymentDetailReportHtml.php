@@ -152,7 +152,7 @@ class GeneratesPaymentDetailReportHtml
         // Create the table structure
         $html .= '<table border-collapse: collapse;" cellpadding="5" cellspacing="0" width="100%">';
 
-        $noBorderCounter = 3; //update here no border header
+        $noBorderCounter = $noBorderCounterDefault = 2; // update here no border header
 
         // Populate the table with data
         foreach ($data as $item) {
@@ -162,7 +162,7 @@ class GeneratesPaymentDetailReportHtml
                 if (count($item) == 1) {
                     $html .= '<td style="padding: 30px"></td>';
                     $html .= '</tr>';
-                    $noBorderCounter = 2;
+                    $noBorderCounter = $noBorderCounterDefault;
                     continue;
                 }
 
