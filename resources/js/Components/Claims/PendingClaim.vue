@@ -2,7 +2,7 @@
     <div>
         <div class="flex items-center w-full order-last lg:order-none max-lg:mx-auto p-5 rounded-xl overflow-hidden transition-all duration-500">
             <SquareBtn @click="selectAllClicked(data)" :isSelected="selectAll" class="block mr-5" v-show="allIds.length" />
-            <PrimaryButton class="select-none" :class="{ 'invisible': !selectedIds.length }"
+            <PrimaryButton class="select-none bg-violet-500 hover:bg-violet-700 active:bg-violet-700 focus:bg-violet-700 font-bold animate-bounce" :class="{ 'invisible': !selectedIds.length }"
                 @click="groupApprovalConfirmation">
                 Approve {{ selectedIds.length }} Payment(s)
             </PrimaryButton>

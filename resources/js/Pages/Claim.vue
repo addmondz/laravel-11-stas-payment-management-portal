@@ -12,10 +12,10 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mt-3" style="padding-top: 20px; padding-bottom: 40px;">
             <div v-if="getUserApprovalPrivillage().value || isFinance().value">
                 <!-- Tab Headers -->
-                <div class="inline-flex bg-white rounded">
+                <div class="w-full inline-flex">
                     <span v-for="tab in tabs" :key="tab.name"
-                        :class="['tab-btn p-2 px-5 text-md rounded flex justify-center items-center', tabClasses(tab.name)]"
-                        @click="activeTab = tab.name">
+                        :class="['tab-btn p-2 px-5 text-md flex justify-center items-center', tabClasses(tab.name)]"
+                        class="flex-1 pt-5 pb-5 border border-violet-500" @click="activeTab = tab.name">
                         {{ tab.label }}
                         <span class="bg-gray-500 px-2 py-1 ml-3 text-white text-xs notification-circle rounded"
                             v-if="tab.name == 'pendingApproval' && pendingClaimCount != 0 && pendingClaimCount != null">
@@ -25,7 +25,7 @@
                 </div>
 
                 <!-- Tab Content -->
-                <div class="w-full">
+                <div class="w-full bg-black-50 p-1 rounded-xl">
                     <div v-show="activeTab === 'pendingApproval'">
                         <PendingClaim :createCompleteSignal="createCompleteSignal"
                             @pendingClaimsCount="handlePendingClaimsCount" />
@@ -65,7 +65,7 @@ const tabs = ref([
 // Compute tab classes
 const tabClasses = (tabName) => {
     return activeTab.value === tabName
-        ? 'active bg-violet-500 text-white font-bold'
+        ? 'active bg-violet-400 text-white font-bold'
         : 'hover:bg-gray-200 text-black bg-white';
 };
 
@@ -104,11 +104,11 @@ const sortAndFilters = ref([
     /* Small border radius */
     transition: background-color 0.3s ease;
     /* Smooth hover effect */
-    margin: 3px;
+    /* margin: 3px; */
 }
 
 .tab-btn.active .notification-circle {
     background-color: white;
-    color: purple;
+    color: black;
 }
 </style>
