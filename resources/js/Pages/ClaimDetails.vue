@@ -137,7 +137,7 @@
                                 <InfoCircleOutlined class="text-gray-400" />
                             </div>
                             <div>
-                                <ImageLoader :src="`/${fetchedData.receipt_file}`" alt="Receipt Image"
+                                <DocumentViewer :src="`/${fetchedData.receipt_file}`" alt="Receipt Image"
                                     :id="fetchedData.id" />
                             </div>
                         </div>
@@ -260,7 +260,7 @@ import { getUserApprovalPrivillage, isFinance } from '@/Composables/GlobalFuntio
 import PaymentVoucherForm from '@/Components/Form/PaymentVoucherForm.vue';
 import { Link } from '@inertiajs/vue3';
 import Swal from 'sweetalert2';
-import ImageLoader from '@/Components/General/ImageLoader.vue';
+import DocumentViewer from '@/Components/General/DocumentViewer.vue';
 
 const isLoading = ref(true);
 const fetchedData = ref([]);
