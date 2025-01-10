@@ -11,8 +11,20 @@
                         <CloseOutlined class="pb-2 mt-3" @click="closeModal" />
                     </div>
                     <div class="flex justify-center items-center img-loader-container">
-                        <img v-show="isLoaded" @load="onImgLoad" :src="src" :alt="alt" style="overflow: hidden;" />
-                        <LoadingComponent class="mt-32 mb-32 " v-show="!isLoaded" />
+                        <template v-if="!isImageError">
+                            <img
+                                v-show="isLoaded"
+                                @load="onImgLoad"
+                                @error="onImgError"
+                                :src="src"
+                                :alt="alt"
+                                style="overflow: hidden;"
+                            />
+                            <LoadingComponent class="mt-32 mb-32" v-show="!isLoaded" />
+                        </template>
+                        <template v-else>
+                            <NotFound />
+                        </template>
                     </div>
                 </div>
             </div>
@@ -27,6 +39,7 @@ import { CloseOutlined } from '@ant-design/icons-vue';
 import PrimaryButton from '@/Components/General/PrimaryButton.vue';
 import { formatId } from '@/Helpers/helpers.js';
 import Modal from '@/Components/General/Modal.vue';
+import NotFound from '../Icons/NotFound.vue';
 
 const props = defineProps({
     src: {
@@ -44,9 +57,14 @@ const props = defineProps({
 });
 
 const isLoaded = ref(false);
+const isImageError = ref(false); // Track if there's an error loading the image
 
 const onImgLoad = () => {
     isLoaded.value = true;
+};
+
+const onImgError = () => {
+    isImageError.value = true; // Set error flag
 };
 
 // State to manage modal visibility
@@ -63,7 +81,7 @@ const closeModal = () => {
 
 const downloadImage = async () => {
     try {
-        const imageUrl = props.src; // Replace with your image URL
+        const imageUrl = props.src;
 
         // Fetch the image as a Blob
         const response = await fetch(imageUrl);
@@ -85,7 +103,7 @@ const downloadImage = async () => {
         // Revoke the Blob URL after use
         window.URL.revokeObjectURL(url);
     } catch (error) {
-        // console.error("Error downloading the image:", error);
+        console.error("Error downloading the image:", error);
     }
 };
 </script>
