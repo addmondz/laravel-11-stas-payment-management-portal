@@ -22,7 +22,7 @@
 </template>
 
 <script setup>
-import { ref, watch, defineProps, defineEmits } from 'vue';
+import { ref, watch, defineEmits } from 'vue';
 import InputLabel from '@/Components/General/InputLabel.vue';
 import TextInput from '@/Components/General/TextInput.vue';
 
