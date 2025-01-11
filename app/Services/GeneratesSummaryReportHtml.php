@@ -10,7 +10,6 @@ use App\Models\PaymentReceiver;
 use App\Models\User;
 use Exception;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\File;
 
 class GeneratesSummaryReportHtml
 {
@@ -98,19 +97,17 @@ class GeneratesSummaryReportHtml
 
     private function formatDataAsHtml($data)
     {
-        $cssFile = $this->getCssFile();
-        Log::info($cssFile);
         // Include Tailwind CSS
-        $html = '<style>@import url("' . $cssFile . '");</style>';
+        $html = '<style>@import url("https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css");</style>';
 
         // Image path
         $imagePath = public_path('images/logo-new.jpg');
 
         $base64Image = base64_encode(file_get_contents($imagePath));
-        $html .= '<img src="data:image/jpeg;base64,' . $base64Image . '" alt="Logo" style="width: 300px; height: auto;"><br><br>';
+        $html .= '<img src="data:image/jpeg;base64,' . $base64Image . '" alt="Logo" style="width: 300px; height: auto;"><br>';
 
         // Add title
-        $html .= '<h1 class="text-2xl font-bold">Summary Report</h1>';
+        $html .= '<h1 class="text-2xl font-bold">Summary Report</h1><br>';
 
         // Create the table structure
         $html .= '<table border-collapse: collapse;" cellpadding="5" cellspacing="0" width="100%">';
@@ -151,23 +148,5 @@ class GeneratesSummaryReportHtml
     private function formatPrice($price)
     {
         return is_numeric($price) ? number_format(round($price, 2), 2, '.', ',') : (string)$price;
-    }
-
-    public function getCssFile()
-    {
-        // Path to the directory containing the CSS file
-        $cssDirectory = public_path('build/assets/');
-
-        // Get all CSS files in the directory
-        $cssFiles = glob($cssDirectory . 'app-*.css');
-
-        // If a matching file is found, return its URL
-        if (!empty($cssFiles)) {
-            // Assuming there's only one matching file, return its URL
-            return asset('build/assets/' . basename($cssFiles[0]));
-        }
-
-        // Fallback if no matching CSS file is found
-        return asset('build/assets/app.css');
     }
 }
