@@ -103,11 +103,17 @@ class GeneratesSummaryReportHtml
         // Image path
         $imagePath = public_path('images/logo-new.jpg');
 
+        // Encode the image to base64
         $base64Image = base64_encode(file_get_contents($imagePath));
-        $html .= '<img src="data:image/jpeg;base64,' . $base64Image . '" alt="Logo" style="width: 300px; height: auto;"><br>';
 
-        // Add title
-        $html .= '<h1 class="text-2xl font-bold">Summary Report</h1><br>';
+        // Build the HTML structure
+        $html .= '
+            <div class="w-full flex justify-between items-center">
+                <img src="data:image/jpeg;base64,' . $base64Image . '" alt="Logo" style="width: 300px; height: auto; margin-right: 20px;">
+                <h1 class="text-2xl font-bold m-0">Summary Report</h1>
+            </div>
+            <br><br>';
+
 
         // Create the table structure
         $html .= '<table border-collapse: collapse;" cellpadding="5" cellspacing="0" width="100%">';

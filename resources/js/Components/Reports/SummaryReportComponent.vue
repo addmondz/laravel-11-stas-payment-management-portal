@@ -29,9 +29,13 @@ const actions = ['preview', 'test', 'export'];
 const actionLabels = { preview: 'Preview', test: 'Test Display Pdf', export: 'Export PDF' };
 
 const validateDateRange = () => {
-    dateRangeErrorMsg.value = !Array.isArray(dateRange.value) || !dateRange.value.length
-        ? 'Please select a date range.'
-        : '';
+    if (!Array.isArray(dateRange.value) || !dateRange.value.length) {
+        dateRangeErrorMsg.value = 'Please select a date range.';
+    } else if (dateRange.value[0] === '' && dateRange.value[1] === '') {
+        dateRangeErrorMsg.value = 'Please select a date range.';
+    } else {
+        dateRangeErrorMsg.value = '';
+    }
 };
 
 watch(dateRange, () => {
