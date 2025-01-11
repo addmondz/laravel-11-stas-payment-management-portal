@@ -28,8 +28,14 @@ const isLoading = ref(false);
 const actions = ['preview', 'test', 'export'];
 const actionLabels = { preview: 'Preview', test: 'Test Display Pdf', export: 'Export PDF' };
 
+const validateDateRange = () => {
+    dateRangeErrorMsg.value = !Array.isArray(dateRange.value) || !dateRange.value.length
+        ? 'Please select a date range.'
+        : '';
+};
+
 watch(dateRange, () => {
-    dateRangeErrorMsg.value = !dateRange.value.length ? 'Please select a date range.' : '';
+    validateDateRange();
 });
 
 const generateReportData = () => ({
@@ -40,11 +46,12 @@ const generateReportData = () => ({
 });
 
 const actionClicked = async (action) => {
+    validateDateRange();
     if (dateRangeErrorMsg.value) return;
 
     isLoading.value = true;
 
-    const data = generateReportData(); // Call the function here
+    const data = generateReportData();
     const urlMap = {
         preview: `${route('report.preview')}?data=${encodeURIComponent(btoa(JSON.stringify(data)))}`,
         test: route('reports.generateReportPreview', 'summaryReport'),
