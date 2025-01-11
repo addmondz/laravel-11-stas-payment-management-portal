@@ -46,7 +46,7 @@ const submitPayment = async () => {
 
 <template>
     <section>
-        <PrimaryButton class="bg-violet-500 hover:bg-violet-700 active:bg-violet-700 font-bold"
+        <PrimaryButton class="bg-violet-500 hover:bg-violet-700 active:bg-violet-700 focus:bg-violet-700 font-bold"
             @click="toggleModal">
             Payment Completed
         </PrimaryButton>

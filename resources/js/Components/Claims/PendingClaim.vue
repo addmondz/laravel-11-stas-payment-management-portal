@@ -93,7 +93,7 @@ const getListIds = (list) => {
 const groupApprovalConfirmation = () => {
     Swal.fire({
         title: "Are you sure?",
-        text: "Are you sure you want to approve these Claims?",
+        text: "Are you sure you want to approve these Payments?",
         icon: "question",
         showCancelButton: true,
         confirmButtonText: 'Yes',

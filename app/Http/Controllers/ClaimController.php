@@ -203,7 +203,7 @@ class ClaimController extends Controller
                 'success' => true,
                 'data' => $datas,
                 'sum' => $sum,
-                'message' => 'Claims listed successfully',
+                'message' => 'Payments listed successfully',
             ]);
         } catch (\Exception $e) {
             // Log the error with detailed information

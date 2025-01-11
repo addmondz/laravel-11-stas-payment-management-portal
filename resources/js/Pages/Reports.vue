@@ -1,6 +1,6 @@
 <template>
 
-    <Head title="Claims" />
+    <Head title="Reports" />
     <AuthenticatedLayout>
         <template #header v-if="isAdmin().value">
             <div class="flex justify-between content-center">

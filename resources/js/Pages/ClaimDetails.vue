@@ -292,7 +292,7 @@ const apiUrl = route('claims.fetchData', props.id);
 const schemaId = ref('0');
 const returnData = ref({});
 const breadcrumbs = [
-    { title: 'Claims', link: route('dashboard') },
+    { title: 'Payments', link: route('dashboard') },
     { title: '#' + formatId(props.id), },
 ];
 const showSection = ref({
