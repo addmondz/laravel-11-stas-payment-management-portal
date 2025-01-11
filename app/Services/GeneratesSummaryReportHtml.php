@@ -103,8 +103,14 @@ class GeneratesSummaryReportHtml
         //     <h1 style="font-size: 2rem; font-weight: bold; margin: 0;">Summary Report</h1>
         // </div>
         // <br><br>';
-        
-        $html = '<img src="' . url('') . '/images/logo-new.jpg" alt="Logo" style="width: 300px; height: auto;"><br><br>';
+
+        // if (isset($this->requestBody['isPdf'])) {
+            $html = `<style>@import url('https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css');</style>`;
+        // } else {
+        //     $html = '';
+        // }
+
+        $html .= '<img src="' . url('') . '/images/logo-new.jpg" alt="Logo" style="width: 300px; height: auto;"><br><br>';
 
         $html .= '<h1 class="pageTitle text-xl ont-bold underline font-bold">Summary Report</h1> <br>';
 
@@ -128,7 +134,7 @@ class GeneratesSummaryReportHtml
                 foreach ($item as $cell) {
                     $borderClass = $noBorderCounter < 1 ? 'border: 1px solid black;' : '';
                     if ($cell == '') {
-                        $html .= "<td style='$borderClass padding: 8px;'>&nbsp</td>";
+                        $html .= "<td style='$borderClass padding: 8px;'></td>";
                     } else {
                         $html .= "<td style='$borderClass padding: 8px;'>" . htmlspecialchars($cell) . "</td>";
                     }

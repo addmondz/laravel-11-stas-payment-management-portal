@@ -11,6 +11,8 @@ use App\Services\GeneratesTransactionsReportHtml;
 use Exception;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Log;
 
 class ReportsController extends Controller
 {
@@ -40,27 +42,51 @@ class ReportsController extends Controller
 
     public function generateReportPreview(Request $request, $reportType)
     {
-        if ($reportType == 'summaryReport') {
-            $requestBody = $request->input();
-            $reportService = new GeneratesSummaryReportHtml();
-            $html = $reportService->generate($requestBody);
-            return response()->json(['html' => $html]);
+        // Map report types to their respective services
+        $reportServices = [
+            'summaryReport' => GeneratesSummaryReportHtml::class,
+            'transactionReport' => GeneratesTransactionsReportHtml::class,
+            'paymentDetailReportReport' => GeneratesPaymentDetailReportHtml::class,
+        ];
+
+        // Validate report type
+        if (!isset($reportServices[$reportType])) {
+            throw new Exception("Report Type Not Found");
         }
 
-        if ($reportType == 'transactionReport') {
-            $requestBody = $request->input();
-            $reportService = new GeneratesTransactionsReportHtml();
-            $html = $reportService->generate($requestBody);
-            return response()->json(['html' => $html]);
+        // Generate HTML using the appropriate service
+        $html = (new $reportServices[$reportType]())->generate($request->input());
+
+        // Return the generated HTML as JSON
+        return response()->json(['html' => $html]);
+    }
+
+    public function exportPDF(Request $request, $reportType)
+    {
+        // Map report types to their respective services
+        $reportServices = [
+            'summaryReport' => GeneratesSummaryReportHtml::class,
+            'transactionReport' => GeneratesTransactionsReportHtml::class,
+            'paymentDetailReportReport' => GeneratesPaymentDetailReportHtml::class,
+        ];
+
+        // Validate report type
+        if (!isset($reportServices[$reportType])) {
+            throw new Exception("Report Type Not Found");
         }
 
-        if ($reportType == 'paymentDetailReportReport') {
-            $requestBody = $request->input();
-            $reportService = new GeneratesPaymentDetailReportHtml();
-            $html = $reportService->generate($requestBody);
-            return response()->json(['html' => $html]);
-        }
+        // Generate HTML using the appropriate service
+        $html = (new $reportServices[$reportType]())->generate($request->input());
 
-        throw new Exception("Report Type Not Found");
+        // Generate and stream PDF
+        $pdf = PDF::loadHTML($html);
+
+        // Check if the PDF object is created correctly
+        if ($pdf) {
+            // Stream PDF to the browser
+            return $pdf->stream('document.pdf');
+        } else {
+            throw new Exception("Error generating PDF");
+        }
     }
 }

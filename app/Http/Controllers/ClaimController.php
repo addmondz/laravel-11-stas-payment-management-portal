@@ -24,7 +24,6 @@ class ClaimController extends Controller
     public function store(Request $request)
     {
         // dd($request->all());
-        // Log::info('');
 
         $user = auth()->user();
 

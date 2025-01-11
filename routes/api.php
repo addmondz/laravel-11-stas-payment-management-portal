@@ -70,6 +70,7 @@ Route::prefix('api')->middleware('auth')->group(function () {
         Route::post('/transactions-report/{dateFrom}/{dateTo}', [ReportsController::class, 'transactionsReport'])->name('reports.transactionsReport');
         Route::post('/payment-detail-report/{dateFrom}/{dateTo}', [ReportsController::class, 'paymentDetailReport'])->name('reports.paymentDetailReport');
         Route::post('/generate-report-preview/{reportType}', [ReportsController::class, 'generateReportPreview'])->name('reports.generateReportPreview');
+        Route::post('/export-pdf/{reportType}', [ReportsController::class, 'exportPDF'])->name('reports.exportPDF');
     });
 
     Route::prefix('approval-status')->group(function () {

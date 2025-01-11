@@ -124,8 +124,6 @@ const listPaymentReceiverNameAndId = async () => {
 watch(
     () => payment_to.value,
     (newData, oldData) => {
-        // console.log(`payment_to changed from ${oldData} to ${newData}`);
-
         if (form && 'payment_to' in form) {
             form.payment_to = newData.toString();
 

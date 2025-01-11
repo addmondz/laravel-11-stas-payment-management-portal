@@ -171,7 +171,7 @@ class GeneratesTransactionsReportHtml
                 foreach ($item as $cell) {
                     $borderClass = $noBorderCounter < 1 ? 'border: 1px solid black;' : '';
                     if ($cell == '') {
-                        $html .= "<td style='$borderClass padding: 8px;'>&nbsp</td>";
+                        $html .= "<td style='$borderClass padding: 8px;'></td>";
                     } else {
                         $html .= "<td style='$borderClass padding: 8px;'>" . htmlspecialchars($cell) . "</td>";
                     }

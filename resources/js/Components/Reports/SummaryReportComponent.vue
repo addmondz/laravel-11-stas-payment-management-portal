@@ -7,7 +7,9 @@
             <div class="flex mb-5">
                 <DateRangeComponent v-model="dateRange" label="Date" :additionalErrorMessage="dateRangeErrorMsg" />
             </div>
-            <PrimaryButton @click="generateReport">Preview</PrimaryButton>
+            <PrimaryButton v-for="action in actions" :key="action" class="mr-5" @click="actionClicked(action)">
+                {{ actionLabels[action] }}
+            </PrimaryButton>
         </div>
         <LoadingComponent v-else class="mt-32 mb-32" />
     </div>
@@ -18,32 +20,36 @@ import { ref, watch } from 'vue';
 import PrimaryButton from '@/Components/General/PrimaryButton.vue';
 import LoadingComponent from '../General/LoadingComponent.vue';
 import DateRangeComponent from '../General/DateRangeComponent.vue';
+import { handleReportAction } from '@/Helpers/helpers.js';
+import axios from 'axios';
 
 const dateRange = ref([]);
 const dateRangeErrorMsg = ref('');
 const isLoading = ref(false);
-
-const validateDateRange = () => {
-    dateRangeErrorMsg.value = !Array.isArray(dateRange.value) || !dateRange.value.length
-        ? 'Please select a date range.'
-        : '';
-};
+const actions = ['preview', 'test', 'export'];
+const actionLabels = { preview: 'Preview', test: 'Test Display Pdf', export: 'Export PDF' };
 
 watch(dateRange, () => {
-    validateDateRange();
+    dateRangeErrorMsg.value = !dateRange.value.length ? 'Please select a date range.' : '';
 });
 
-const generateReport = async () => {
-    validateDateRange();
+const generateReportData = () => ({
+    reportName: 'Summary Report Preview',
+    reportType: 'summaryReport',
+    startDate: dateRange.value[0],
+    endDate: dateRange.value[1],
+});
+
+const actionClicked = async (action) => {
     if (dateRangeErrorMsg.value) return;
 
-    const data = btoa(JSON.stringify({
-        reportName: 'Summary Report Preview',
-        reportType: 'summaryReport',
-        startDate: dateRange.value[0],
-        endDate: dateRange.value[1],
-    }));
+    const data = generateReportData(); // Call the function here
+    const urlMap = {
+        preview: `${route('report.preview')}?data=${encodeURIComponent(btoa(JSON.stringify(data)))}`,
+        test: route('reports.generateReportPreview', 'summaryReport'),
+        export: route('reports.exportPDF', 'summaryReport'),
+    };
 
-    window.open(`${route('report.preview')}?data=${encodeURIComponent(data)}`, '_blank');
+    await handleReportAction(action, data, urlMap);
 };
 </script>
