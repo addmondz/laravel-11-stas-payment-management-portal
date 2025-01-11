@@ -12,17 +12,26 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mt-3" style="padding-top: 20px; padding-bottom: 40px;">
             <div v-if="getUserApprovalPrivillage().value || isFinance().value">
                 <!-- Tab Headers -->
-                <div class="w-full inline-flex">
+                <div class="inline-flex">
                     <span v-for="tab in tabs" :key="tab.name"
                         :class="['tab-btn p-2 px-5 text-md flex justify-center items-center', tabClasses(tab.name)]"
-                        class="flex-1 pt-5 pb-5 border border-violet-500" @click="activeTab = tab.name">
-                        {{ tab.label }}
-                        <span class="bg-gray-500 px-2 py-1 ml-3 text-white text-xs notification-circle rounded"
-                            v-if="tab.name == 'pendingApproval' && pendingClaimCount != 0 && pendingClaimCount != null">
-                            {{ formatNumberToString(pendingClaimCount) }}
-                        </span>
+                        class="flex-1 pt-5 pb-5 border border-violet-500 flex flex-col min-w-60" @click="activeTab = tab.name">
+                        <div>
+                            <!-- Icon Component -->
+                            <!-- <component :is="tab.icon" class="mr-2 text-3xl mb-3" v-if="tab.icon" /> -->
+                        </div>
+                        <div class="flex">
+                            {{ tab.label }}
+
+                            <!-- Notification Circle -->
+                            <span class="bg-gray-500 px-2 py-1 ml-3 text-white text-xs notification-circle rounded"
+                                v-if="tab.name == 'pendingApproval' && pendingClaimCount != 0 && pendingClaimCount != null">
+                                {{ formatNumberToString(pendingClaimCount) }}
+                            </span>
+                        </div>
                     </span>
                 </div>
+
 
                 <!-- Tab Content -->
                 <div class="w-full bg-black-50 p-1 rounded-xl">
@@ -52,14 +61,15 @@ import CreateClaimForm from '@/Components/Form/CreateClaimForm.vue';
 import { ref } from 'vue';
 import { getUserApprovalPrivillage, isFinance } from '@/Composables/GlobalFuntions.vue';
 import { formatNumberToString } from '@/Helpers/helpers.js';
+import { FieldTimeOutlined, SwitcherOutlined } from '@ant-design/icons-vue';
 
 // Reactive data
 const createCompleteSignal = ref(2);
 const pendingClaimCount = ref(0);
 const activeTab = ref('allClaims');
 const tabs = ref([
-    { name: 'allClaims', label: 'All Payments' },
-    { name: 'pendingApproval', label: 'Pending Approval' },
+    { name: 'allClaims', label: 'All Payments', icon: SwitcherOutlined },
+    { name: 'pendingApproval', label: 'Pending Approval', icon: FieldTimeOutlined },
 ]);
 
 // Compute tab classes
