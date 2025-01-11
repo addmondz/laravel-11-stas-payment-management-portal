@@ -97,8 +97,15 @@ class GeneratesSummaryReportHtml
 
     private function formatDataAsHtml($data)
     {
-        // Include Tailwind CSS
-        $html = '<style>@import url("https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css");</style>';
+
+        $cssFile = $this->getCssFile();
+        if (!$cssFile) {
+            Log::info("failed");
+            $html = '<style>@import url("https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css");</style>';
+        } else {
+            Log::info("found: " . $cssFile);
+            $html = '<style>@import url("' . $cssFile . '");</style>';
+        }
 
         // Image path
         $imagePath = public_path('images/logo-new.jpg');
@@ -108,12 +115,11 @@ class GeneratesSummaryReportHtml
 
         // Build the HTML structure
         $html .= '
-            <div class="w-full flex justify-between items-center">
-                <img src="data:image/jpeg;base64,' . $base64Image . '" alt="Logo" style="width: 300px; height: auto; margin-right: 20px;">
-                <h1 class="text-2xl font-bold m-0">Summary Report</h1>
-            </div>
-            <br><br>';
-
+        <div style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
+            <img src="data:image/jpeg;base64,' . $base64Image . '" alt="Logo" style="width: 300px; height: auto; margin-right: 20px;">
+            <h1 style="font-size: 1.5rem; font-weight: bold; margin: 0;">Summary Report</h1>
+        </div>
+        <br><br>';
 
         // Create the table structure
         $html .= '<table border-collapse: collapse;" cellpadding="5" cellspacing="0" width="100%">';
@@ -154,5 +160,23 @@ class GeneratesSummaryReportHtml
     private function formatPrice($price)
     {
         return is_numeric($price) ? number_format(round($price, 2), 2, '.', ',') : (string)$price;
+    }
+
+    public function getCssFile()
+    {
+        // Path to the directory containing the CSS file
+        $cssDirectory = public_path('build/assets/');
+
+        // Get all CSS files in the directory
+        $cssFiles = glob($cssDirectory . 'app-*.css');
+
+        // If a matching file is found, return its URL
+        if (!empty($cssFiles)) {
+            // Assuming there's only one matching file, return its URL
+            return asset('build/assets/' . basename($cssFiles[0]));
+        }
+
+        // Fallback if no matching CSS file is found
+        return false;
     }
 }
