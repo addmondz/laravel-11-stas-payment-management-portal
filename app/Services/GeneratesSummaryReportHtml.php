@@ -97,22 +97,17 @@ class GeneratesSummaryReportHtml
 
     private function formatDataAsHtml($data)
     {
-        // $html = '
-        // <div class="w-full justify-between items-center flex">
-        //     <img src="' . url('') . '/images/logo-new.jpg" alt="Logo" style="width: 300px; height: auto; margin-right: 20px;">
-        //     <h1 style="font-size: 2rem; font-weight: bold; margin: 0;">Summary Report</h1>
-        // </div>
-        // <br><br>';
+        // Include Tailwind CSS
+        $html = '<style>@import url("https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css");</style>';
+    
+        // Image path
+        $imagePath = public_path('images/logo-new.jpg');
 
-        // if (isset($this->requestBody['isPdf'])) {
-            $html = `<style>@import url('https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css');</style>`;
-        // } else {
-        //     $html = '';
-        // }
-
-        $html .= '<img src="' . url('') . '/images/logo-new.jpg" alt="Logo" style="width: 300px; height: auto;"><br><br>';
-
-        $html .= '<h1 class="pageTitle text-xl ont-bold underline font-bold">Summary Report</h1> <br>';
+        $base64Image = base64_encode(file_get_contents($imagePath));
+        $html .= '<img src="data:image/jpeg;base64,' . $base64Image . '" alt="Logo" style="width: 300px; height: auto;"><br><br>';
+    
+        // Add title
+        $html .= '<h1 class="text-2xl font-bold">Summary Report</h1>';
 
         // Create the table structure
         $html .= '<table border-collapse: collapse;" cellpadding="5" cellspacing="0" width="100%">';

@@ -43,6 +43,8 @@ const generateReportData = () => ({
 const actionClicked = async (action) => {
     if (dateRangeErrorMsg.value) return;
 
+    isLoading.value = true;
+
     const data = generateReportData(); // Call the function here
     const urlMap = {
         preview: `${route('report.preview')}?data=${encodeURIComponent(btoa(JSON.stringify(data)))}`,
@@ -51,5 +53,7 @@ const actionClicked = async (action) => {
     };
 
     await handleReportAction(action, data, urlMap);
+
+    isLoading.value = false;
 };
 </script>
