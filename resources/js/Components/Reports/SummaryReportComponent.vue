@@ -21,7 +21,6 @@ import PrimaryButton from '@/Components/General/PrimaryButton.vue';
 import LoadingComponent from '../General/LoadingComponent.vue';
 import DateRangeComponent from '../General/DateRangeComponent.vue';
 import { handleReportAction } from '@/Helpers/helpers.js';
-import axios from 'axios';
 
 const dateRange = ref([]);
 const dateRangeErrorMsg = ref('');
