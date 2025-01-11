@@ -1,25 +1,27 @@
 <template>
     <div>
         <div class="text-base cursor-pointer inline text-violet-700 font-bold" @click="openModal">Open</div>
-        <Modal :show="isModalOpen" @close="closeModal" :maxWidth="isPDF ? '7xl' : '2xl'">
-            <div class="bg-white p-4 pt-2 rounded-lg img-modal">
+        <Modal :show="isModalOpen" @close="closeModal" :maxWidth="isPDF ? '7xl' : '2xl'" :showMaxHeight="isPDF">
+            <div class="bg-white p-4 pt-2 rounded-lg img-modal h-full flex flex-col w-full mx-auto">
                 <div class="flex justify-between">
-                    <PrimaryButton class="m-3 ml-0" :class="{ invisible: src == '/null' || isFileError }" @click="downloadFile">
+                    <PrimaryButton class="m-3 ml-0" :class="{ invisible: src == '/null' || isFileError }"
+                        @click="downloadFile">
                         Download Receipt
                     </PrimaryButton>
 
                     <CloseOutlined class="pb-2 mt-3" @click="closeModal" />
                 </div>
-                <div class="flex justify-center items-center img-loader-container">
+                <div class="flex-grow overflow-hidden flex justify-center items-center img-loader-container">
                     <NotFound v-if="src == '/null'" />
                     <template v-else-if="!isFileError">
                         <template v-if="isImage">
-                            <img v-show="isLoaded" @load="onFileLoad" @error="onFileError" :src="src" :alt="alt" />
+                            <img v-show="isLoaded" @load="onFileLoad" @error="onFileError" :src="src" :alt="alt"
+                                class="max-h-full max-w-full object-contain" />
                             <LoadingComponent v-show="!isLoaded" class="mt-32 mb-32" />
                         </template>
                         <template v-if="isPDF">
-                            <iframe v-show="isLoaded" :src="src" width="100%" :height="pdfHeight" @load="onFileLoad"
-                                @error="onFileError" />
+                            <iframe v-show="isLoaded" :src="src" class="w-full h-full" @load="onFileLoad"
+                                @error="onFileError"></iframe>
                             <LoadingComponent v-show="!isLoaded" class="mt-32 mb-32" />
                         </template>
                     </template>
