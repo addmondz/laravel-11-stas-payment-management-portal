@@ -22,7 +22,7 @@ import LoadingComponent from '../General/LoadingComponent.vue';
 import DateRangeComponent from '../General/DateRangeComponent.vue';
 import { handleReportAction } from '@/Helpers/helpers.js';
 
-const dateRange = ref([]);
+const dateRange = ref(['', '']);
 const dateRangeErrorMsg = ref('');
 const isLoading = ref(false);
 const actions = ['preview', 'test', 'export'];

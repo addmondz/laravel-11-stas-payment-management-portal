@@ -31,7 +31,7 @@ import DateRangeComponent from '../General/DateRangeComponent.vue';
 import InputLabel from '@/Components/General/InputLabel.vue';
 import CustomSelectComponent from '../General/CustomSelectComponent.vue';
 
-const dateRange = ref([]);
+const dateRange = ref(['', '']);
 const claim_ids_filters = ref([]);
 const payment_to = ref([]);
 
