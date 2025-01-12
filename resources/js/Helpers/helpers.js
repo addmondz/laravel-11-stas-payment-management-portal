@@ -90,10 +90,24 @@ export const handleReportAction = async (action, generateReportData, urlMap, rep
                 document.body.appendChild(a);
                 a.click();
                 URL.revokeObjectURL(url);
+
+                Swal.fire({
+                    title: "Success!",
+                    text: "The report has been successfully downloaded.",
+                    icon: "success",
+                    confirmButtonText: "OK",
+                });
             }
         }
     } catch (error) {
         console.error('Error during action:', action, error);
+
+        Swal.fire({
+            title: "Error!",
+            text: err.response?.data?.error || "An unexpected error occurred while generating the report.",
+            icon: "error",
+            confirmButtonText: "OK",
+        });
     }
 };
 
@@ -127,7 +141,7 @@ export const downloadExcel = async (apiUrl, requestBody) => {
             confirmButtonText: "OK",
         });
     } catch (err) {
-        console.error(err);
+        // console.error(err);
         Swal.fire({
             title: "Error!",
             text: err.response?.data?.error || "An unexpected error occurred while generating the report.",
