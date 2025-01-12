@@ -3,171 +3,314 @@
 namespace App\Services;
 
 use App\Classes\ValueObjects\Constants\ApprovalStatus;
-use App\Models\Claim;
-use App\Models\ClaimStatusLog;
-use App\Models\PaymentCategory;
-use App\Models\PaymentReceiver;
-use App\Models\User;
+use App\Models\{Claim, ClaimStatusLog, PaymentCategory, PaymentReceiver, User};
 use Exception;
-use Illuminate\Support\Facades\Log;
 
 class GeneratesSummaryReportHtml
 {
-    private $requestBody;
+    private array $requestBody;
+    private const REQUIRED_FIELDS = ['startDate', 'endDate'];
+    private const NOT_AVAILABLE = '-';
 
-    public function generate($requestBody)
+    public function generate(array $requestBody): string
     {
         $this->validateRequest($requestBody);
         return $this->generateReport();
     }
 
-    private function validateRequest($requestBody)
+    private function validateRequest(array $requestBody): void
     {
-        $requiredFields = [
-            'startDate',
-            'endDate',
-        ];
-
-        foreach ($requiredFields as $field) {
+        foreach (self::REQUIRED_FIELDS as $field) {
             if (!isset($requestBody[$field])) {
                 throw new Exception("The field '{$field}' is required.");
             }
         }
-
         $this->requestBody = $requestBody;
     }
 
-    private function generateReport()
+    private function generateReport(): string
     {
-        $startDate = date('Y-m-d 00:00:00', strtotime($this->requestBody['startDate']));
-        $endDate = date('Y-m-d 23:59:59', strtotime($this->requestBody['endDate']));
-        $currentDate = date('m/d/y');
+        $dateRange = $this->getDateRange();
+        $claims = $this->getClaims($dateRange);
+        $receivers = PaymentReceiver::whereIn('id', $claims->keys())->pluck('name', 'id');
 
-        $claims = Claim::whereBetween('created_at', [$startDate, $endDate])
+        return $this->buildHtml($claims, $receivers);
+    }
+
+    private function getDateRange(): array
+    {
+        return [
+            'start' => date('Y-m-d 00:00:00', strtotime($this->requestBody['startDate'])),
+            'end' => date('Y-m-d 23:59:59', strtotime($this->requestBody['endDate']))
+        ];
+    }
+
+    private function getClaims(array $dateRange)
+    {
+        return Claim::whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
             ->get()
             ->groupBy('payment_receiver_id');
+    }
 
-        $receivers = PaymentReceiver::whereIn('id', $claims->keys())->pluck('name', 'id');
-        $notAvailable = '-';
-
-        // Start HTML generation
-        $html = '<link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />';
-        $cssFile = $this->getCssFile();
-        if (!$cssFile) {
-            $html .= '<style>@import url("https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css");</style>';
-        } else {
-            $html .= '<style>@import url("' . $cssFile . '");</style>';
+    private function buildHtml($claims, $receivers): string
+    {
+        $html = $this->getHeaderHtml();
+        
+        foreach ($claims as $receiverId => $categories) {
+            $html .= $this->buildReceiverSection(
+                $receivers[$receiverId] ?? self::NOT_AVAILABLE,
+                $categories
+            );
         }
 
-        $imagePath = public_path('images/logo-new.jpg');
-        $base64Image = base64_encode(file_get_contents($imagePath));
+        return $html . '</table>';
+    }
 
-        $html .= '
-            <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
+    private function getHeaderHtml(): string
+    {
+        $styles = '
+            <style>
+                @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+                
+                @page {
+                    size: landscape;
+                    margin: 15mm 10mm;
+                }
+                
+                body {
+                    font-family: "Inter", sans-serif;
+                    line-height: 1.4;
+                    color: #1f2937;
+                    font-size: 9pt;
+                    margin: 0;
+                    padding: 0;
+                }
+                
+                .report-title {
+                    font-size: 1.5rem;
+                    font-weight: 700;
+                    color: #111827;
+                    letter-spacing: -0.025em;
+                    line-height: 1.2;
+                }
+                
+                .table-container {
+                    margin-top: 1rem;
+                    width: 100%;
+                    overflow-x: visible;
+                }
+                
+                .data-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    background-color: #ffffff;
+                    font-size: 8.5pt; /* Slightly smaller table text */
+                }
+                
+                .data-table th {
+                    background-color: #f3f4f6;
+                    padding: 0.5rem;
+                    font-weight: 600;
+                    text-align: center;
+                    color: #374151;
+                    border: 1px solid #e5e7eb;
+                    white-space: nowrap;
+                }
+                
+                .data-table td {
+                    padding: 0.5rem;
+                    border: 1px solid #e5e7eb;
+                    vertical-align: top;
+                }
+                
+                .section-header {
+                    background-color: #f9fafb;
+                    padding: 0.75rem;
+                    border-bottom: 2px solid #e5e7eb;
+                }
+                
+                .total-row {
+                    background-color: #f3f4f6;
+                    font-weight: 600;
+                }
+                
+                .amount-cell {
+                    text-align: right;
+                    font-family: "Monaco", monospace;
+                    white-space: nowrap;
+                }
+                
+                .meta-info {
+                    color: #6b7280;
+                    font-size: 0.75rem;
+                }
+                
+                .approver-cell {
+                    max-width: 150px;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+                
+                /* Optimize column widths for landscape */
+                .col-no { width: 3%; }
+                .col-category { width: 15%; }
+                .col-transactions { width: 8%; }
+                .col-currency { width: 6%; }
+                .col-amount { width: 12%; }
+                .col-approver { width: 18%; }
+            </style>
+        ';
+
+        $logo = $this->getEncodedLogo();
+        return $styles . $this->getTableHeader($logo);
+    }
+
+    private function getTableHeader(string $logo): string
+    {
+        return '
+            <table style="width: 100%; margin-bottom: 20px; border-collapse: collapse;">
                 <tr>
-                    <td style="width: 300px; padding-right: 20px; vertical-align: middle;">
-                        <img src="data:image/jpeg;base64,' . $base64Image . '" alt="Logo" style="width: 100%; height: auto;">
+                    <td style="width: 180px; vertical-align: middle; padding: 0;">
+                        <img src="data:image/jpeg;base64,' . $logo . '" 
+                            alt="Logo" 
+                            style="width: 180px; height: auto; display: block;">
                     </td>
-                    <td style="vertical-align: middle; text-align: left;">
-                        <h1 style="font-size: 2rem; margin: 0; text-align:right;">Summary Report</h1>
+                    <td style="vertical-align: middle; padding: 0 0 0 20px;">
+                        <table style="width: 100%;">
+                            <tr>
+                                <td style="text-align: right;">
+                                    <h1 class="report-title" style="margin: 0; padding: 0;">Summary Report</h1>
+                                    <div class="meta-info" style="margin-top: 5px;">Generated on: ' . date('F j, Y') . '</div>
+                                </td>
+                            </tr>
+                        </table>
                     </td>
                 </tr>
             </table>
-            <br><br>
-            <table style="border-collapse: collapse; width: 100%;" cellpadding="5" cellspacing="0">';
-
-        foreach ($claims as $receiverId => $categories) {
-            $receiverName = $receivers[$receiverId] ?? $notAvailable;
-
-            $html .= '
-            <tr>
-                <!--<td colspan="8"><strong>Pay to:</strong> ' . htmlspecialchars($receiverName) . ' ( ' . $receiverId . ' )</td> -->
-                <td colspan="8"><strong>Pay to:</strong> ' . htmlspecialchars($receiverName) . '</td>
-            </tr>
-            <tr>
-                <td colspan="8"><strong>Period:</strong> ' . htmlspecialchars("{$this->requestBody['startDate']} - {$this->requestBody['endDate']}") . '</td>
-            </tr>
-            <tr>
-                <th style="border: 1px solid black;">No.</th>
-                <th style="border: 1px solid black;">Category</th>
-                <th style="border: 1px solid black;">Total Transaction</th>
-                <th style="border: 1px solid black;">Currency</th>
-                <th style="border: 1px solid black;">Total Amount</th>
-                <th style="border: 1px solid black;">Reviewed by</th>
-                <th style="border: 1px solid black;">Approved by</th>
-                <th style="border: 1px solid black;">Approved by</th>
-            </tr>';
-
-            $totalTransactions = $totalAmount = 0;
-            $categoryCounter = 1;
-
-            foreach ($categories->groupBy('payment_category_id') as $categoryId => $categoryClaims) {
-                foreach ($categoryClaims->groupBy('currency_id') as $currencyId => $currencyClaims) {
-                    $transactionCount = $currencyClaims->count();
-                    $amount = $currencyClaims->sum('amount');
-                    $currency = $currencyClaims->first()->currencyObject->short_code ?? $notAvailable;
-                    $categoryName = ucwords(PaymentCategory::find($categoryId)->name);
-
-                    $approvalLogs = ClaimStatusLog::whereIn('claim_id', $currencyClaims->pluck('id'))->get();
-                    $l1Approvers = User::whereIn('id', $approvalLogs->where('status', ApprovalStatus::L1_APPROVAL)->pluck('causer_id'))->pluck('name')->toArray();
-                    $l2Approvers = User::whereIn('id', $approvalLogs->where('status', ApprovalStatus::L2_APPROVAL)->pluck('causer_id'))->pluck('name')->toArray();
-                    $l3Approvers = User::whereIn('id', $approvalLogs->where('status', ApprovalStatus::L3_APPROVAL)->pluck('causer_id'))->pluck('name')->toArray();
-
-                    $html .= '
-                    <tr>
-                        <td style="border: 1px solid black;">' . $categoryCounter++ . '</td>
-                        <td style="border: 1px solid black;">' . htmlspecialchars($categoryName) . '</td>
-                        <td style="border: 1px solid black;">' . $transactionCount . '</td>
-                        <td style="border: 1px solid black;">' . htmlspecialchars($currency) . '</td>
-                        <td style="border: 1px solid black;">' . $this->formatPrice($amount) . '</td>
-                        <td style="border: 1px solid black;">' . htmlspecialchars(implode(', ', $l1Approvers)) . '</td>
-                        <td style="border: 1px solid black;">' . htmlspecialchars(implode(', ', $l2Approvers)) . '</td>
-                        <td style="border: 1px solid black;">' . htmlspecialchars(implode(', ', $l3Approvers)) . '</td>
-                    </tr>';
-
-                    $totalTransactions += $transactionCount;
-                    $totalAmount += $amount;
-                }
-            }
-
-            $html .= '
-            <tr>
-                <td style="border: 1px solid black;"></td>
-                <td style="border: 1px solid black;"><strong>TOTAL</strong></td>
-                <td style="border: 1px solid black;" >' . $totalTransactions . '</td>
-                <td style="border: 1px solid black;" ></td>
-                <td style="border: 1px solid black;" >' . $this->formatPrice($totalAmount) . '</td>
-                <td style="border: 1px solid black;"></td>
-                <td style="border: 1px solid black;"></td>
-                <td style="border: 1px solid black;"></td>
-            </tr>
-            <tr><td colspan="8" style="padding: 30px;"></td></tr>';
-        }
-
-        $html .= '</table>';
-        return $html;
+            <div class="table-container">
+                <table class="data-table">';
     }
 
-    private function formatPrice($price)
+    private function getReceiverHeader(string $receiverName): string
+    {
+        return '
+            <tr>
+                <td colspan="8" class="section-header">
+                    <div style="font-weight: 600;">Pay to: ' . htmlspecialchars($receiverName) . '</div>
+                    <div class="meta-info">Period: ' . 
+                    htmlspecialchars("{$this->requestBody['startDate']} - {$this->requestBody['endDate']}") . 
+                    '</div>
+                </td>
+            </tr>
+            <tr>
+                <th class="col-no">No.</th>
+                <th class="col-category">Category</th>
+                <th class="col-transactions">Total Transactions</th>
+                <th class="col-currency">Currency</th>
+                <th class="col-amount">Total Amount</th>
+                <th class="col-approver">Reviewed by</th>
+                <th class="col-approver">Approved by</th>
+                <th class="col-approver">Approved by</th>
+            </tr>';
+    }
+
+    private function buildTableRow(int $counter, array $rowData): string
+    {
+        return '
+            <tr>
+                <td style="text-align: center;">' . $counter . '</td>
+                <td>' . htmlspecialchars($rowData['category']) . '</td>
+                <td style="text-align: center;">' . $rowData['transactions'] . '</td>
+                <td style="text-align: center;">' . htmlspecialchars($rowData['currency']) . '</td>
+                <td class="amount-cell">' . $this->formatPrice($rowData['amount']) . '</td>
+                <td class="approver-cell" title="' . htmlspecialchars(implode(', ', $rowData['approvers']['l1'])) . '">' 
+                    . htmlspecialchars(implode(', ', $rowData['approvers']['l1'])) . '</td>
+                <td class="approver-cell" title="' . htmlspecialchars(implode(', ', $rowData['approvers']['l2'])) . '">' 
+                    . htmlspecialchars(implode(', ', $rowData['approvers']['l2'])) . '</td>
+                <td class="approver-cell" title="' . htmlspecialchars(implode(', ', $rowData['approvers']['l3'])) . '">' 
+                    . htmlspecialchars(implode(', ', $rowData['approvers']['l3'])) . '</td>
+            </tr>';
+    }
+
+    private function buildTotalRow(array $totals): string
+    {
+        return '
+            <tr class="total-row">
+                <td></td>
+                <td>TOTAL</td>
+                <td style="text-align: center;">' . $totals['transactions'] . '</td>
+                <td></td>
+                <td class="amount-cell">' . $this->formatPrice($totals['amount']) . '</td>
+                <td colspan="3"></td>
+            </tr>';
+    }
+
+    private function updateTotals(array $totals, array $rowData): array
+    {
+        return [
+            'transactions' => $totals['transactions'] + $rowData['transactions'],
+            'amount' => $totals['amount'] + $rowData['amount']
+        ];
+    }
+
+    private function getEncodedLogo(): string
+    {
+        $imagePath = public_path('images/logo-new.jpg');
+        return base64_encode(file_get_contents($imagePath));
+    }
+
+    private function buildReceiverSection(string $receiverName, $categories): string
+    {
+        $html = $this->getReceiverHeader($receiverName);
+        $categoryCounter = 1;
+        $totals = ['transactions' => 0, 'amount' => 0];
+
+        foreach ($categories->groupBy('payment_category_id') as $categoryId => $categoryClaims) {
+            foreach ($categoryClaims->groupBy('currency_id') as $currencyId => $currencyClaims) {
+                $rowData = $this->processClaimGroup($categoryId, $currencyClaims);
+                $html .= $this->buildTableRow($categoryCounter++, $rowData);
+                $totals = $this->updateTotals($totals, $rowData);
+            }
+        }
+
+        return $html . $this->buildTotalRow($totals) . '<tr><td colspan="8" style="padding: 30px;"></td></tr>';
+    }
+
+    private function processClaimGroup($categoryId, $claims): array
+    {
+        $approvalLogs = ClaimStatusLog::whereIn('claim_id', $claims->pluck('id'))->get();
+
+        return [
+            'category' => ucwords(PaymentCategory::find($categoryId)->name),
+            'transactions' => $claims->count(),
+            'currency' => $claims->first()->currencyObject->short_code ?? self::NOT_AVAILABLE,
+            'amount' => $claims->sum('amount'),
+            'approvers' => $this->getApprovers($approvalLogs)
+        ];
+    }
+
+    private function getApprovers($logs): array
+    {
+        $getNames = fn($status) => User::whereIn('id', $logs->where('status', $status)->pluck('causer_id'))
+            ->pluck('name')
+            ->toArray();
+
+        return [
+            'l1' => $getNames(ApprovalStatus::L1_APPROVAL),
+            'l2' => $getNames(ApprovalStatus::L2_APPROVAL),
+            'l3' => $getNames(ApprovalStatus::L3_APPROVAL)
+        ];
+    }
+
+    private function formatPrice($price): string
     {
         return is_numeric($price) ? number_format(round($price, 2), 2, '.', ',') : (string)$price;
     }
 
-    public function getCssFile()
+    private function getCssFile()
     {
-        // Path to the directory containing the CSS file
-        $cssDirectory = public_path('build/assets/');
-
-        // Get all CSS files in the directory
-        $cssFiles = glob($cssDirectory . 'app-*.css');
-
-        // If a matching file is found, return its URL
-        if (!empty($cssFiles)) {
-            // Assuming there's only one matching file, return its URL
-            return asset('build/assets/' . basename($cssFiles[0]));
-        }
-
-        // Fallback if no matching CSS file is found
-        return false;
+        $cssFiles = glob(public_path('build/assets/') . 'app-*.css');
+        return !empty($cssFiles) ? asset('build/assets/' . basename($cssFiles[0])) : false;
     }
 }
