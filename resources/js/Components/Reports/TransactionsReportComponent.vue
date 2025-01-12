@@ -47,8 +47,8 @@ const paymentReceiverData = ref([]);
 const claimidsArray = ref([]);
 const claimids = ref([]);
 const actionsWithLabels = [
-    { name: 'preview', label: 'Preview' },
-    { name: 'test', label: 'Test Display Pdf' },
+    // { name: 'preview', label: 'Preview' },
+    { name: 'test', label: 'Preview' },
     { name: 'export', label: 'Export PDF' },
     { name: 'exportExcel', label: 'Export Excel' },
 ];

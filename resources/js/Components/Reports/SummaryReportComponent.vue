@@ -27,8 +27,8 @@ const dateRange = ref(['', '']);
 const dateRangeErrorMsg = ref('');
 const isLoading = ref(false);
 const actionsWithLabels = [
-    { name: 'preview', label: 'Preview' },
-    { name: 'test', label: 'Test Display Pdf' },
+    // { name: 'preview', label: 'Preview' },
+    { name: 'test', label: 'Preview' },
     { name: 'export', label: 'Export PDF' },
     { name: 'exportExcel', label: 'Export Excel' },
 ];

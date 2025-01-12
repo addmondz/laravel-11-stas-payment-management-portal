@@ -63,7 +63,7 @@ class PaymentDetailReportExport implements FromArray, ShouldAutoSize, WithStyles
 
             $reportData[] = [''];
             $reportData[] = [''];
-            $reportData[] = ["Pay to:", $receiverName, "", "", "", "", "", "", "", "", "", "", "", "", "Date:", $currentDate];
+            $reportData[] = ["Pay To:", $receiverName, "", "", "", "", "", "", "", "", "", "", "", "", "Date:", $currentDate];
             $reportData[] = ["Bank:", $receiverBank, "", "", "", "", "", "", "", "", "", "", "", "", "Period:", "{$this->fromDate} - {$this->toDate}"];
             $reportData[] = ["Account:", $receiverAccount];
 

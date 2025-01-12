@@ -197,7 +197,7 @@ class GeneratesSummaryReportHtml
         return '
             <tr>
                 <td colspan="8" class="section-header">
-                    <div style="font-weight: 600;">Pay to: ' . htmlspecialchars($receiverName) . '</div>
+                    <div style="font-weight: 600;">Pay To: ' . htmlspecialchars($receiverName) . '</div>
                     <div class="meta-info">Period: ' . 
                     htmlspecialchars("{$this->requestBody['startDate']} - {$this->requestBody['endDate']}") . 
                     '</div>

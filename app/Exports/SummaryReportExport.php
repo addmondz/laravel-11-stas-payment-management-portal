@@ -52,7 +52,7 @@ class SummaryReportExport implements FromArray, ShouldAutoSize, WithStyles
             // Add header information for each receiver
             $reportData[] = [''];
             $reportData[] = [''];
-            $reportData[] = ["Pay to:", $receiverName, "", "", "", "", "Date:", $currentDate];
+            $reportData[] = ["Pay To:", $receiverName, "", "", "", "", "Date:", $currentDate];
             $reportData[] = ["Period:", "{$this->fromDate} - {$this->toDate}"];
             $currentRow += 2;
 
