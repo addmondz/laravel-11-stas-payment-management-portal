@@ -128,11 +128,13 @@ class DatabaseSeeder extends Seeder
                 'amount' => rand(1000, 10000),
                 'gst_amount' => rand(50, 500),
                 'gst_percent' => rand(5, 15),
-                'purpose' => fake()->sentence(),
+                'purpose' => fake()->sentence() . ' ' . fake()->sentence(),
                 'receipt_date' => Carbon::today()->subDays(rand(1, 30)),
                 'receipt_file' => null,
                 'status' => ApprovalStatus::PENDING_APPROVAL,
                 'approval_status' => 0,
+
+                'created_at' => fake()->dateTimeThisYear,
             ]);
         }
         //  <------------------------------------------optional seeder end----------------------------------------------------> //

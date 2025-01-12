@@ -18,7 +18,7 @@ class GeneratesSummaryReportHtml
     public function generate($requestBody)
     {
         $this->validateRequest($requestBody);
-        return $this->formatDataAsHtml($this->getData());
+        return $this->generateReport();
     }
 
     private function validateRequest($requestBody)
@@ -37,124 +37,115 @@ class GeneratesSummaryReportHtml
         $this->requestBody = $requestBody;
     }
 
-    private function getData()
+    private function generateReport()
     {
         $startDate = date('Y-m-d 00:00:00', strtotime($this->requestBody['startDate']));
         $endDate = date('Y-m-d 23:59:59', strtotime($this->requestBody['endDate']));
         $currentDate = date('m/d/y');
 
-        // Fetch claims grouped by payment_receiver_id
-        $claims = Claim::whereBetween('created_at', [$startDate, $endDate]);
-        $claims = $claims->get()->groupBy('payment_receiver_id');
+        $claims = Claim::whereBetween('created_at', [$startDate, $endDate])
+            ->get()
+            ->groupBy('payment_receiver_id');
+
         $receivers = PaymentReceiver::whereIn('id', $claims->keys())->pluck('name', 'id');
-        $reportData = [];
         $notAvailable = '-';
+
+        // Start HTML generation
+        $html = '<link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />';
+        $cssFile = $this->getCssFile();
+        if (!$cssFile) {
+            $html .= '<style>@import url("https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css");</style>';
+        } else {
+            $html .= '<style>@import url("' . $cssFile . '");</style>';
+        }
+
+        $imagePath = public_path('images/logo-new.jpg');
+        $base64Image = base64_encode(file_get_contents($imagePath));
+
+        $html .= '
+            <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
+                <tr>
+                    <td style="width: 300px; padding-right: 20px; vertical-align: middle;">
+                        <img src="data:image/jpeg;base64,' . $base64Image . '" alt="Logo" style="width: 100%; height: auto;">
+                    </td>
+                    <td style="vertical-align: middle; text-align: left;">
+                        <h1 style="font-size: 2rem; margin: 0; text-align:right;">Summary Report</h1>
+                    </td>
+                </tr>
+            </table>
+            <br><br>
+            <table style="border-collapse: collapse; width: 100%;" cellpadding="5" cellspacing="0">';
 
         foreach ($claims as $receiverId => $categories) {
             $receiverName = $receivers[$receiverId] ?? $notAvailable;
-            $reportData[] = ["Pay to:", $receiverName, "", "", "", "", "Report Date:", $currentDate];
-            $reportData[] = ["Period:", "{$this->requestBody['startDate']} - {$this->requestBody['endDate']}", "", "", "", "", "", ""];
 
-            // Table headers
-            $reportData[] = ["No.", "Category", "Total Transaction", "Currency", "Total Amount", "Reviewed by", "Approved by", "Approved by"];
+            $html .= '
+            <tr>
+                <!--<td colspan="8"><strong>Pay to:</strong> ' . htmlspecialchars($receiverName) . ' ( ' . $receiverId . ' )</td> -->
+                <td colspan="8"><strong>Pay to:</strong> ' . htmlspecialchars($receiverName) . '</td>
+            </tr>
+            <tr>
+                <td colspan="8"><strong>Period:</strong> ' . htmlspecialchars("{$this->requestBody['startDate']} - {$this->requestBody['endDate']}") . '</td>
+            </tr>
+            <tr>
+                <th style="border: 1px solid black;">No.</th>
+                <th style="border: 1px solid black;">Category</th>
+                <th style="border: 1px solid black;">Total Transaction</th>
+                <th style="border: 1px solid black;">Currency</th>
+                <th style="border: 1px solid black;">Total Amount</th>
+                <th style="border: 1px solid black;">Reviewed by</th>
+                <th style="border: 1px solid black;">Approved by</th>
+                <th style="border: 1px solid black;">Approved by</th>
+            </tr>';
 
             $totalTransactions = $totalAmount = 0;
             $categoryCounter = 1;
 
             foreach ($categories->groupBy('payment_category_id') as $categoryId => $categoryClaims) {
-                $transactionCount = $categoryClaims->count();
-                $amount = $categoryClaims->sum('amount');
-                $currency = $categoryClaims->first()->currencyObject->short_code ?? $notAvailable;
-                $categoryName = ucwords(PaymentCategory::find($categoryId)->name);
+                foreach ($categoryClaims->groupBy('currency_id') as $currencyId => $currencyClaims) {
+                    $transactionCount = $currencyClaims->count();
+                    $amount = $currencyClaims->sum('amount');
+                    $currency = $currencyClaims->first()->currencyObject->short_code ?? $notAvailable;
+                    $categoryName = ucwords(PaymentCategory::find($categoryId)->name);
 
-                $approvalLogs = ClaimStatusLog::whereIn('claim_id', $categoryClaims->pluck('id'))->get();
-                $l1Approvers = User::whereIn('id', $approvalLogs->where('status', ApprovalStatus::L1_APPROVAL)->pluck('causer_id'))->pluck('name')->toArray();
-                $l2Approvers = User::whereIn('id', $approvalLogs->where('status', ApprovalStatus::L2_APPROVAL)->pluck('causer_id'))->pluck('name')->toArray();
-                $l3Approvers = User::whereIn('id', $approvalLogs->where('status', ApprovalStatus::L3_APPROVAL)->pluck('causer_id'))->pluck('name')->toArray();
+                    $approvalLogs = ClaimStatusLog::whereIn('claim_id', $currencyClaims->pluck('id'))->get();
+                    $l1Approvers = User::whereIn('id', $approvalLogs->where('status', ApprovalStatus::L1_APPROVAL)->pluck('causer_id'))->pluck('name')->toArray();
+                    $l2Approvers = User::whereIn('id', $approvalLogs->where('status', ApprovalStatus::L2_APPROVAL)->pluck('causer_id'))->pluck('name')->toArray();
+                    $l3Approvers = User::whereIn('id', $approvalLogs->where('status', ApprovalStatus::L3_APPROVAL)->pluck('causer_id'))->pluck('name')->toArray();
 
-                $reportData[] = [
-                    $categoryCounter++,
-                    $categoryName,
-                    $transactionCount,
-                    $currency,
-                    $this->formatPrice($amount),
-                    implode(', ', $l1Approvers),
-                    implode(', ', $l2Approvers),
-                    implode(', ', $l3Approvers)
-                ];
+                    $html .= '
+                    <tr>
+                        <td style="border: 1px solid black;">' . $categoryCounter++ . '</td>
+                        <td style="border: 1px solid black;">' . htmlspecialchars($categoryName) . '</td>
+                        <td style="border: 1px solid black;">' . $transactionCount . '</td>
+                        <td style="border: 1px solid black;">' . htmlspecialchars($currency) . '</td>
+                        <td style="border: 1px solid black;">' . $this->formatPrice($amount) . '</td>
+                        <td style="border: 1px solid black;">' . htmlspecialchars(implode(', ', $l1Approvers)) . '</td>
+                        <td style="border: 1px solid black;">' . htmlspecialchars(implode(', ', $l2Approvers)) . '</td>
+                        <td style="border: 1px solid black;">' . htmlspecialchars(implode(', ', $l3Approvers)) . '</td>
+                    </tr>';
 
-                $totalTransactions += $transactionCount;
-                $totalAmount += $amount;
+                    $totalTransactions += $transactionCount;
+                    $totalAmount += $amount;
+                }
             }
 
-            // Total row
-            $reportData[] = ["", "TOTAL", $totalTransactions, "", $this->formatPrice($totalAmount), "", "", ""];
-            $reportData[] = ['']; // Blank row for spacing
+            $html .= '
+            <tr>
+                <td style="border: 1px solid black;"></td>
+                <td style="border: 1px solid black;"><strong>TOTAL</strong></td>
+                <td style="border: 1px solid black;" >' . $totalTransactions . '</td>
+                <td style="border: 1px solid black;" ></td>
+                <td style="border: 1px solid black;" >' . $this->formatPrice($totalAmount) . '</td>
+                <td style="border: 1px solid black;"></td>
+                <td style="border: 1px solid black;"></td>
+                <td style="border: 1px solid black;"></td>
+            </tr>
+            <tr><td colspan="8" style="padding: 30px;"></td></tr>';
         }
 
-        return $reportData;
-    }
-
-    private function formatDataAsHtml($data)
-    {
-
-        $cssFile = $this->getCssFile();
-        if (!$cssFile) {
-            Log::info("failed");
-            $html = '<style>@import url("https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css");</style>';
-        } else {
-            Log::info("found: " . $cssFile);
-            $html = '<style>@import url("' . $cssFile . '");</style>';
-        }
-
-        // Image path
-        $imagePath = public_path('images/logo-new.jpg');
-
-        // Encode the image to base64
-        $base64Image = base64_encode(file_get_contents($imagePath));
-
-        // Build the HTML structure
-        $html .= '
-        <div style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
-            <img src="data:image/jpeg;base64,' . $base64Image . '" alt="Logo" style="width: 300px; height: auto; margin-right: 20px;">
-            <h1 style="font-size: 1.5rem; font-weight: bold; margin: 0;">Summary Report</h1>
-        </div>
-        <br><br>';
-
-        // Create the table structure
-        $html .= '<table border-collapse: collapse;" cellpadding="5" cellspacing="0" width="100%">';
-
-        $noBorderCounter = $noBorderCounterDefault = 2; // update here no border header
-
-        // Populate the table with data
-        foreach ($data as $item) {
-            if (isset($item[0]) && is_array($item)) {
-                $html .= '<tr>';
-
-                if (count($item) == 1) {
-                    $html .= '<td style="padding: 30px"></td>';
-                    $html .= '</tr>';
-                    $noBorderCounter = $noBorderCounterDefault;
-                    continue;
-                }
-
-                foreach ($item as $cell) {
-                    $borderClass = $noBorderCounter < 1 ? 'border: 1px solid black;' : '';
-                    if ($cell == '') {
-                        $html .= "<td style='$borderClass padding: 8px;'></td>";
-                    } else {
-                        $html .= "<td style='$borderClass padding: 8px;'>" . htmlspecialchars($cell) . "</td>";
-                    }
-                }
-                $noBorderCounter--;
-                $html .= '</tr>';
-            }
-        }
-
-        // Close the table
         $html .= '</table>';
-
-        return $html; // Return the formatted HTML
+        return $html;
     }
 
     private function formatPrice($price)

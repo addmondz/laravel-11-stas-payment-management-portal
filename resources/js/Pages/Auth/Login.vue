@@ -34,7 +34,18 @@ const submit = () => {
 <template>
     <div class="min-h-screen flex flex-col justify-center items-center sm:pt-0 bg-gray-100 p-5 sm:p-0">
 
-        <h1 class="text-black mb-[20px] text-center" style="font-size: 30px;">STAS Payment Management Portal</h1>
+        <!-- Logo and Title Section -->
+        <div class="w-full flex flex-col items-center mb-8">
+            <img 
+                src="/images/logo-new.jpg" 
+                alt="Logo" 
+                class="w-[280px] h-auto mb-8" 
+            />
+            <h1 class="text-2xl sm:text-3xl text-gray-900 text-center">
+                STAS Payment Management Portal
+            </h1>
+        </div>
+        
         <div>
             <Link href="/">
             <ApplicationLogo class="w-20 h-20 fill-current text-gray-500" />
