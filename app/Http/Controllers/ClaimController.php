@@ -474,18 +474,15 @@ class ClaimController extends Controller
 
     public function listIds(Request $request)
     {
-        $paymentTo = $request->query('payment_to');
-        $query = Claim::query();
-
-        if (!empty($paymentTo) && $paymentTo !== ['All']) {
-            $query->whereIn('payment_receiver_id', explode(',', $paymentTo));
-        }
-
-        return response()->json([
-            'All' => $query->pluck('id'),
-            ...$query->get()->groupBy('payment_receiver_id')
-                ->map->pluck('id')
-                ->toArray()
-        ]);
+        $claims = Claim::query()->select('payment_receiver_id', 'id')->get()->groupBy('payment_receiver_id');
+    
+        $returnAry = $claims->mapWithKeys(function ($claimGroup, $paymentReceiverId) {
+            return [$paymentReceiverId => $claimGroup->pluck('id')->toArray()];
+        });
+    
+        // Add 'All' group with all claim IDs
+        $returnAry['All'] = Claim::pluck('id')->toArray();
+    
+        return response()->json($returnAry);
     }
 }

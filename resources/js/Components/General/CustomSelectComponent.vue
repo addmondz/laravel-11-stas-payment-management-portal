@@ -76,6 +76,11 @@ export default {
             );
         }
     },
+    watch: {
+        choices(newValue, oldValue) {
+            this.selectedFruits = [];
+        }
+    },
     methods: {
         handleClickOutside(event) {
             // Check if the dropdown element and input element are present

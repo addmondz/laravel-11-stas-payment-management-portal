@@ -146,11 +146,11 @@ const updateClaimIdList = async () => {
     console.log(returnList.length);
     claimids.value = returnList;
     isLoading.value = false;
+    claim_ids_filters.value = [];
 };
 
 watch(payment_to, (newValue, oldValue) => {
     updateClaimIdList();
-    claim_ids_filters.value = [];
 }, { deep: true });
 
 onMounted(() => {
