@@ -143,7 +143,7 @@ const updateClaimIdList = async () => {
     isLoading.value = true;
     let selectedPaymentReceiver = payment_to.value.length === 0 ? ['All'] : payment_to.value;
     const returnList = selectedPaymentReceiver.flatMap(data => claimidsArray.value[data] || []);
-    console.log(returnList.length);
+    // console.log(returnList.length);
     claimids.value = returnList;
     isLoading.value = false;
     claim_ids_filters.value = [];
