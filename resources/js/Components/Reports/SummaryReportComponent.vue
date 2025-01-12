@@ -7,8 +7,9 @@
             <div class="flex mb-5">
                 <DateRangeComponent v-model="dateRange" label="Date" :additionalErrorMessage="dateRangeErrorMsg" />
             </div>
-            <PrimaryButton v-for="action in actions" :key="action" class="mr-5" @click="actionClicked(action)">
-                {{ actionLabels[action] }}
+            <PrimaryButton v-for="action in actionsWithLabels" :key="action.name" class="mr-5"
+                @click="actionClicked(action.name)">
+                {{ action.label }}
             </PrimaryButton>
         </div>
         <LoadingComponent v-else class="mt-32 mb-32" />
@@ -20,13 +21,17 @@ import { ref, watch } from 'vue';
 import PrimaryButton from '@/Components/General/PrimaryButton.vue';
 import LoadingComponent from '../General/LoadingComponent.vue';
 import DateRangeComponent from '../General/DateRangeComponent.vue';
-import { handleReportAction } from '@/Helpers/helpers.js';
+import { handleReportAction, downloadExcel } from '@/Helpers/helpers.js';
 
 const dateRange = ref(['', '']);
 const dateRangeErrorMsg = ref('');
 const isLoading = ref(false);
-const actions = ['preview', 'test', 'export'];
-const actionLabels = { preview: 'Preview', test: 'Test Display Pdf', export: 'Export PDF' };
+const actionsWithLabels = [
+    { name: 'preview', label: 'Preview' },
+    { name: 'test', label: 'Test Display Pdf' },
+    { name: 'export', label: 'Export PDF' },
+    { name: 'exportExcel', label: 'Export Excel' },
+];
 
 const validateDateRange = () => {
     if (!Array.isArray(dateRange.value) || !dateRange.value.length) {
@@ -56,13 +61,24 @@ const actionClicked = async (action) => {
     isLoading.value = true;
 
     const data = generateReportData();
-    const urlMap = {
-        preview: `${route('report.preview')}?data=${encodeURIComponent(btoa(JSON.stringify(data)))}`,
-        test: route('reports.generateReportPreview', 'summaryReport'),
-        export: route('reports.exportPDF', 'summaryReport'),
-    };
 
-    await handleReportAction(action, data, urlMap);
+    console.log(action);
+
+    if (action == 'exportExcel') {
+        const dateFrom = dateRange.value[0];
+        const dateTo = dateRange.value[1];
+        const apiUrl = route('reports.newSummaryReport', { dateFrom: dateFrom, dateTo: dateTo });
+
+        await downloadExcel(apiUrl, data, 'summary_report', dateFrom, dateTo);
+
+    } else {
+        const urlMap = {
+            preview: `${route('report.preview')}?data=${encodeURIComponent(btoa(JSON.stringify(data)))}`,
+            test: route('reports.generateReportPreview', 'summaryReport'),
+            export: route('reports.exportPDF', 'summaryReport'),
+        };
+        await handleReportAction(action, data, urlMap);
+    }
 
     isLoading.value = false;
 };

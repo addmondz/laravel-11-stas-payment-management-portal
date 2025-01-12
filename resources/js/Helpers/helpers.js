@@ -1,5 +1,6 @@
 import axios from 'axios';
 import moment from 'moment';
+import Swal from 'sweetalert2';
 
 export const fetchUserDetails = async () => {
     try {
@@ -95,3 +96,43 @@ export const handleReportAction = async (action, generateReportData, urlMap) => 
         console.error('Error during action:', action, error);
     }
 };
+
+export const downloadExcel = async (apiUrl, requestBody) => {
+    try {
+        const response = await axios.post(apiUrl, requestBody, { responseType: 'blob' });
+
+        // Create a Blob from the response data
+        const blob = new Blob([response.data], { type: response.headers['content-type'] });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+
+        // Set filename from headers or fallback
+        const contentDisposition = response.headers['content-disposition'];
+        const filename = contentDisposition
+            ? contentDisposition.split('filename=')[1].replace(/"/g, '')
+            : 'report.pdf';
+
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        // Cleanup
+        link.remove();
+
+        Swal.fire({
+            title: "Success!",
+            text: "The report has been successfully downloaded.",
+            icon: "success",
+            confirmButtonText: "OK",
+        });
+    } catch (err) {
+        console.error(err);
+        Swal.fire({
+            title: "Error!",
+            text: err.response?.data?.error || "An unexpected error occurred while generating the report.",
+            icon: "error",
+            confirmButtonText: "OK",
+        });
+    }
+}
