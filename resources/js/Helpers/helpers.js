@@ -68,7 +68,7 @@ export const toUcWords = (input) => {
         .join(' ');
 }
 
-export const handleReportAction = async (action, generateReportData, urlMap) => {
+export const handleReportAction = async (action, generateReportData, urlMap, reportName) => {
     try {
         let response;
         const config = { headers: { 'Content-Type': 'application/json' } };
@@ -86,7 +86,7 @@ export const handleReportAction = async (action, generateReportData, urlMap) => 
                 URL.revokeObjectURL(url);
             } else if (action === 'export') {
                 const url = URL.createObjectURL(response.data);
-                const a = Object.assign(document.createElement('a'), { href: url, download: 'summary_report.pdf', style: { display: 'none' } });
+                const a = Object.assign(document.createElement('a'), { href: url, download: reportName + '.pdf', style: { display: 'none' } });
                 document.body.appendChild(a);
                 a.click();
                 URL.revokeObjectURL(url);

@@ -62,8 +62,6 @@ const actionClicked = async (action) => {
 
     const data = generateReportData();
 
-    console.log(action);
-
     if (action == 'exportExcel') {
         const dateFrom = dateRange.value[0];
         const dateTo = dateRange.value[1];
@@ -75,9 +73,9 @@ const actionClicked = async (action) => {
         const urlMap = {
             preview: `${route('report.preview')}?data=${encodeURIComponent(btoa(JSON.stringify(data)))}`,
             test: route('reports.generateReportPreview', 'summaryReport'),
-            export: route('reports.exportPDF', 'summaryReport'),
+            export: route('reports.exportPDF', data.reportType),
         };
-        await handleReportAction(action, data, urlMap);
+        await handleReportAction(action, data, urlMap, 'summary_report');
     }
 
     isLoading.value = false;

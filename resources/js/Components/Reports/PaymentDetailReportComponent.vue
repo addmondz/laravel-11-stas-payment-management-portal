@@ -17,7 +17,10 @@
                 <CustomSelectComponent :choices="claimids" v-model="claim_ids_filters" :label="'Payment ID'"
                     :allowAllChoice="true" />
             </div>
-            <PrimaryButton @click="generateReport">Preview</PrimaryButton>
+            <PrimaryButton v-for="action in actionsWithLabels" :key="action.name" class="mr-5"
+                @click="actionClicked(action.name)">
+                {{ action.label }}
+            </PrimaryButton>
         </div>
         <LoadingComponent v-else class="mt-32 mb-32" />
     </div>
@@ -30,6 +33,7 @@ import LoadingComponent from '../General/LoadingComponent.vue';
 import DateRangeComponent from '../General/DateRangeComponent.vue';
 import InputLabel from '@/Components/General/InputLabel.vue';
 import CustomSelectComponent from '../General/CustomSelectComponent.vue';
+import { handleReportAction, downloadExcel } from '@/Helpers/helpers.js';
 
 const dateRange = ref(['', '']);
 const claim_ids_filters = ref([]);
@@ -40,32 +44,63 @@ const isLoading = ref(false);
 const error = ref('');
 
 const paymentReceiverData = ref([]);
+const claimidsArray = ref([]);
 const claimids = ref([]);
+const actionsWithLabels = [
+    { name: 'preview', label: 'Preview' },
+    { name: 'test', label: 'Test Display Pdf' },
+    { name: 'export', label: 'Export PDF' },
+    { name: 'exportExcel', label: 'Export Excel' },
+];
 
 const validateDateRange = () => {
-    dateRangeErrorMsg.value = !Array.isArray(dateRange.value) || !dateRange.value.length
-        ? 'Please select a date range.'
-        : '';
+    if (!Array.isArray(dateRange.value) || !dateRange.value.length) {
+        dateRangeErrorMsg.value = 'Please select a date range.';
+    } else if (dateRange.value[0] === '' && dateRange.value[1] === '') {
+        dateRangeErrorMsg.value = 'Please select a date range.';
+    } else {
+        dateRangeErrorMsg.value = '';
+    }
 };
 
 watch(dateRange, () => {
     validateDateRange();
 });
 
-const generateReport = async () => {
+const generateReportData = () => ({
+    reportName: 'Payment Detail Report',
+    reportType: 'paymentDetailReport',
+    startDate: dateRange.value[0],
+    endDate: dateRange.value[1],
+    payment_to: payment_to.value.join(','),
+    claim_ids_filters: claim_ids_filters.value.join(','),
+});
+
+const actionClicked = async (action) => {
     validateDateRange();
     if (dateRangeErrorMsg.value) return;
 
-    const data = btoa(JSON.stringify({
-        reportName: 'Payment Detail Report Preview',
-        reportType: 'paymentDetailReportReport',
-        startDate: dateRange.value[0],
-        endDate: dateRange.value[1],
-        payment_to: payment_to.value.join(','),
-        claim_ids_filters: claim_ids_filters.value.join(','),
-    }));
+    isLoading.value = true;
 
-    window.open(`${route('report.preview')}?data=${encodeURIComponent(data)}`, '_blank');
+    const data = generateReportData();
+
+    if (action == 'exportExcel') {
+        const dateFrom = dateRange.value[0];
+        const dateTo = dateRange.value[1];
+        const apiUrl = route('reports.paymentDetailReport', { dateFrom: dateFrom, dateTo: dateTo });
+
+        await downloadExcel(apiUrl, data, 'payment_detail', dateFrom, dateTo);
+
+    } else {
+        const urlMap = {
+            preview: `${route('report.preview')}?data=${encodeURIComponent(btoa(JSON.stringify(data)))}`,
+            test: route('reports.generateReportPreview', data.reportType),
+            export: route('reports.exportPDF', data.reportType),
+        };
+        await handleReportAction(action, data, urlMap, 'payment_detail');
+    }
+
+    isLoading.value = false;
 };
 
 const listPaymentReceiverNameAndId = async () => {
@@ -94,7 +129,8 @@ const listClaimIds = async () => {
 
     try {
         const { data } = await axios.get(url);
-        claimids.value = data;
+        claimidsArray.value = data;
+        updateClaimIdList();
     } catch (err) {
         error.value = err;
     }
@@ -103,11 +139,18 @@ const listClaimIds = async () => {
     }
 };
 
+const updateClaimIdList = async () => {
+    isLoading.value = true;
+    let selectedPaymentReceiver = payment_to.value.length === 0 ? ['All'] : payment_to.value;
+    const returnList = selectedPaymentReceiver.flatMap(data => claimidsArray.value[data] || []);
+    // console.log(returnList.length);
+    claimids.value = returnList;
+    isLoading.value = false;
+};
+
 watch(payment_to, (newValue, oldValue) => {
-    if (JSON.stringify(newValue) !== JSON.stringify(oldValue)) {
-        listClaimIds();
-        claim_ids_filters.value = [];
-    }
+    updateClaimIdList();
+    claim_ids_filters.value = [];
 }, { deep: true });
 
 onMounted(() => {
