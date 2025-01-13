@@ -9,10 +9,12 @@ use App\Models\PaymentReceiver;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithDrawings;
 use Maatwebsite\Excel\Concerns\WithStyles;
+use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class TransactionsReportExport implements FromArray, ShouldAutoSize, WithStyles
+class TransactionsReportExport implements FromArray, ShouldAutoSize, WithStyles, WithDrawings
 {
     private $request;
     private $fromDate;
@@ -31,6 +33,12 @@ class TransactionsReportExport implements FromArray, ShouldAutoSize, WithStyles
         $reportData = [];
         $notAvailable = '-';
 
+        $reportData[] = [''];
+        $reportData[] = [''];
+        $reportData[] = [''];
+        $reportData[] = [''];
+        $reportData[] = [''];
+        $reportData[] = [''];
         $reportData[] = ["Transactions Report"];
 
         $formattedFromDate = date('Y-m-d 00:00:00', strtotime($this->fromDate));
@@ -50,7 +58,7 @@ class TransactionsReportExport implements FromArray, ShouldAutoSize, WithStyles
 
         $claims = $claims->get();
         $groupedClaims = $claims->groupBy('payment_receiver_id');
-        $currentRow = 2; // Start from row 2 after the title
+        $currentRow = 8; // Start from row 2 after the title
         $approvalStatus = ApprovalStatus::APPROVAL_STATUS_ID;
         $notAvalable = '-';
         // $notAvalable = 'N/A';
@@ -181,5 +189,18 @@ class TransactionsReportExport implements FromArray, ShouldAutoSize, WithStyles
     public function getReceiptFileUrl($url)
     {
         return $url ? url((app()->environment('local') ? '' : 'public/') . $url) : null;
+    }
+
+    public function drawings()
+    {
+        $drawing = new Drawing();
+        $drawing->setName('Logo');
+        $drawing->setDescription('This is the company logo.');
+        $drawing->setPath(public_path('images/logo-new.jpg'));
+        $drawing->setWidth(2);
+        $drawing->setHeight(100);
+        $drawing->setCoordinates('A1');
+
+        return [$drawing];
     }
 }

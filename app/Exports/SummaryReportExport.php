@@ -12,9 +12,11 @@ use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Concerns\WithDrawings;
+use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class SummaryReportExport implements FromArray, ShouldAutoSize, WithStyles
+class SummaryReportExport implements FromArray, ShouldAutoSize, WithStyles, WithDrawings
 {
     private $fromDate;
     private $toDate;
@@ -31,6 +33,12 @@ class SummaryReportExport implements FromArray, ShouldAutoSize, WithStyles
         $reportData = [];
         $notAvailable = '-';
 
+        $reportData[] = [''];
+        $reportData[] = [''];
+        $reportData[] = [''];
+        $reportData[] = [''];
+        $reportData[] = [''];
+        $reportData[] = [''];
         $reportData[] = ["Summary Report"];
 
         $formattedFromDate = date('Y-m-d 00:00:00', strtotime($this->fromDate));
@@ -43,7 +51,7 @@ class SummaryReportExport implements FromArray, ShouldAutoSize, WithStyles
         // Retrieve all receiver names in one go for efficiency
         $receivers = PaymentReceiver::whereIn('id', $groupedClaims->keys())->pluck('name', 'id');
 
-        $currentRow = 2; // Start from row 2 after the title
+        $currentRow = 8; // Start from row 2 after the title
 
         foreach ($groupedClaims as $receiverId => $categories) {
             // Use pre-fetched receiver names
@@ -144,6 +152,19 @@ class SummaryReportExport implements FromArray, ShouldAutoSize, WithStyles
         }
 
         return $styles;
+    }
+
+    public function drawings()
+    {
+        $drawing = new Drawing();
+        $drawing->setName('Logo');
+        $drawing->setDescription('This is the company logo.');
+        $drawing->setPath(public_path('images/logo-new.jpg'));
+        $drawing->setWidth(2);
+        $drawing->setHeight(100);
+        $drawing->setCoordinates('A1');
+
+        return [$drawing];
     }
 
     public function formatPrice($price)
