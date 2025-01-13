@@ -28,7 +28,7 @@ const logout = () => {
                         <!-- Logo -->
                         <div class="shrink-0 flex items-center">
                             <Link :href="route('dashboard')">
-                                <img src="/images/logo-new.jpg" alt="Logo" style="width: 210px; height:50px; margin-right: 35px;" />
+                                <img src="/images/logo-new.jpg" alt="Logo" style="width: 210px; height:50px; margin-right: 34px;" />
                             </Link>
                         </div>
                         <div class="hidden sm:-my-px sm:flex">

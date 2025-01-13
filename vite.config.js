@@ -22,8 +22,8 @@ export default defineConfig({
         }),
     ],
     server: {
-        proxy: {
-            '/@vite': baseUrl, // Proxy the build folder correctly
+        hmr: {
+            host: 'localhost',
         },
     },
 });
