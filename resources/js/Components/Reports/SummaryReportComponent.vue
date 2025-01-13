@@ -7,10 +7,8 @@
             <div class="flex mb-5">
                 <DateRangeComponent v-model="dateRange" label="Date" :additionalErrorMessage="dateRangeErrorMsg" />
             </div>
-            <PrimaryButton v-for="action in actionsWithLabels" :key="action.name" class="mr-5"
-                @click="actionClicked(action.name)">
-                {{ action.label }}
-            </PrimaryButton>
+            
+            <ExportButtons @action="actionClicked" />
         </div>
         <LoadingComponent v-else class="mt-32 mb-32" />
     </div>
@@ -18,20 +16,14 @@
 
 <script setup>
 import { ref, watch } from 'vue';
-import PrimaryButton from '@/Components/General/PrimaryButton.vue';
 import LoadingComponent from '../General/LoadingComponent.vue';
 import DateRangeComponent from '../General/DateRangeComponent.vue';
+import ExportButtons from './ExportButtons.vue';
 import { handleReportAction, downloadExcel } from '@/Helpers/helpers.js';
 
 const dateRange = ref(['', '']);
 const dateRangeErrorMsg = ref('');
 const isLoading = ref(false);
-const actionsWithLabels = [
-    // { name: 'preview', label: 'Preview' },
-    { name: 'test', label: 'Preview' },
-    { name: 'export', label: 'Export PDF' },
-    { name: 'exportExcel', label: 'Export Excel' },
-];
 
 const validateDateRange = () => {
     if (!Array.isArray(dateRange.value) || !dateRange.value.length) {

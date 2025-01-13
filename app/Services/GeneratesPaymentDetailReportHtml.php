@@ -202,7 +202,7 @@ class GeneratesPaymentDetailReportHtml
                         <table style="width: 100%;">
                             <tr>
                                 <td style="text-align: right;">
-                                    <h1 class="report-title" style="margin: 0; padding: 0;">Transactions Report</h1>
+                                    <h1 class="report-title" style="margin: 0; padding: 0;">Payment Detail Report</h1>
                                     <div class="meta-info" style="margin-top: 5px;">Generated on: ' . date('F j, Y') . '</div>
                                 </td>
                             </tr>

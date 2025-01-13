@@ -17,10 +17,8 @@
                 <CustomSelectComponent :choices="claimids" v-model="claim_ids_filters" :label="'Payment ID'"
                     :allowAllChoice="true" />
             </div>
-            <PrimaryButton v-for="action in actionsWithLabels" :key="action.name" class="mr-5"
-                @click="actionClicked(action.name)">
-                {{ action.label }}
-            </PrimaryButton>
+
+            <ExportButtons @action="actionClicked" />
         </div>
         <LoadingComponent v-else class="mt-32 mb-32" />
     </div>
@@ -33,6 +31,7 @@ import LoadingComponent from '../General/LoadingComponent.vue';
 import DateRangeComponent from '../General/DateRangeComponent.vue';
 import InputLabel from '@/Components/General/InputLabel.vue';
 import CustomSelectComponent from '../General/CustomSelectComponent.vue';
+import ExportButtons from './ExportButtons.vue';
 import { handleReportAction, downloadExcel } from '@/Helpers/helpers.js';
 
 const dateRange = ref(['', '']);
@@ -46,12 +45,6 @@ const error = ref('');
 const paymentReceiverData = ref([]);
 const claimidsArray = ref([]);
 const claimids = ref([]);
-const actionsWithLabels = [
-    // { name: 'preview', label: 'Preview' },
-    { name: 'test', label: 'Preview' },
-    { name: 'export', label: 'Export PDF' },
-    { name: 'exportExcel', label: 'Export Excel' },
-];
 
 const validateDateRange = () => {
     if (!Array.isArray(dateRange.value) || !dateRange.value.length) {
