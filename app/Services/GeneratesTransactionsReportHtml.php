@@ -84,7 +84,7 @@ class GeneratesTransactionsReportHtml
                 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
                 
                 @page {
-                    size: landscape;
+                    size: A3 landscape;
                     margin: 15mm 10mm;
                 }
                 
@@ -92,7 +92,7 @@ class GeneratesTransactionsReportHtml
                     font-family: "Inter", sans-serif;
                     line-height: 1.4;
                     color: #1f2937;
-                    font-size: 9pt;
+                    font-size: 8pt;
                     margin: 0;
                     padding: 0;
                 }
@@ -115,12 +115,12 @@ class GeneratesTransactionsReportHtml
                     width: 100%;
                     border-collapse: collapse;
                     background-color: #ffffff;
-                    font-size: 8.5pt; /* Slightly smaller table text */
+                    font-size: 7pt;
                 }
                 
                 .data-table th {
                     background-color: #f3f4f6;
-                    padding: 0.5rem;
+                    padding: 4px;
                     font-weight: 600;
                     text-align: center;
                     color: #374151;
@@ -129,7 +129,7 @@ class GeneratesTransactionsReportHtml
                 }
                 
                 .data-table td {
-                    padding: 0.5rem;
+                    padding: 4px;
                     border: 1px solid #e5e7eb;
                     vertical-align: top;
                 }
@@ -157,19 +157,29 @@ class GeneratesTransactionsReportHtml
                 }
                 
                 .approver-cell {
-                    max-width: 150px;
+                    max-width: 100px;
                     overflow: hidden;
                     text-overflow: ellipsis;
                     white-space: nowrap;
                 }
                 
-                /* Optimize column widths for landscape */
-                .col-no { width: 3%; }
-                .col-category { width: 15%; }
-                .col-transactions { width: 8%; }
-                .col-currency { width: 6%; }
-                .col-amount { width: 12%; }
-                .col-approver { width: 18%; }
+                /* Column widths */
+                .data-table th:nth-child(1) { width: 3%; }
+                .data-table th:nth-child(2) { width: 5%; }
+                .data-table th:nth-child(3) { width: 5%; }
+                .data-table th:nth-child(4) { width: 5%; }
+                .data-table th:nth-child(5) { width: 5%; }
+                .data-table th:nth-child(6) { width: 12%; }
+                .data-table th:nth-child(7) { width: 4%; }
+                .data-table th:nth-child(8) { width: 5%; }
+                .data-table th:nth-child(9) { width: 7%; }
+                .data-table th:nth-child(10) { width: 8%; }
+                .data-table th:nth-child(11) { width: 8%; }
+                .data-table th:nth-child(12) { width: 8%; }
+                .data-table th:nth-child(13) { width: 8%; }
+                .data-table th:nth-child(14) { width: 5%; }
+                .data-table th:nth-child(15) { width: 6%; }
+                .data-table th:nth-child(16) { width: 6%; }
             </style>
         ';
 
@@ -182,10 +192,10 @@ class GeneratesTransactionsReportHtml
         return '
             <table style="width: 100%; margin-bottom: 20px; border-collapse: collapse;">
                 <tr>
-                    <td style="width: 180px; vertical-align: middle; padding: 0;">
+                    <td style="width: 280px; vertical-align: middle; padding: 0;">
                         <img src="data:image/jpeg;base64,' . $logo . '" 
                             alt="Logo" 
-                            style="width: 180px; height: auto; display: block;">
+                            style="width: 280px; height: 70px; display: block; object-fit: contain;">
                     </td>
                     <td style="vertical-align: middle; padding: 0 0 0 20px;">
                         <table style="width: 100%;">
@@ -207,12 +217,11 @@ class GeneratesTransactionsReportHtml
     {
         return '
             <tr>
-                <td colspan="16" class="section-header">
+                <td colspan="17" class="section-header">
                     <div style="font-weight: 600;">Pay To: ' . htmlspecialchars($receiver->name) . '</div>
-                    <div">Bank: ' . htmlspecialchars($receiver->bank_name ?? self::NOT_AVAILABLE) . '</div><br>
-                    <div">Account: ' . htmlspecialchars($receiver->bank_account_no ?? self::NOT_AVAILABLE) . '</div>
-                    <div class="meta-info">Period: ' . htmlspecialchars("{$this->requestBody['startDate']} - {$this->requestBody['endDate']}") .
-            '</div>
+                    <div>Bank: ' . htmlspecialchars($receiver->bank_name ?? self::NOT_AVAILABLE) . '</div>
+                    <div>Account: ' . htmlspecialchars($receiver->bank_account_no ?? self::NOT_AVAILABLE) . '</div>
+                    <div class="meta-info">Period: ' . htmlspecialchars("{$this->requestBody['startDate']} - {$this->requestBody['endDate']}") . '</div>
                 </td>
             </tr>
             <tr>
@@ -229,7 +238,8 @@ class GeneratesTransactionsReportHtml
                 <th>Reviewed by</th>
                 <th>Approved by</th>
                 <th>Approved by</th>
-                <th>Receipts</th>
+                <th>Receipt File</th>
+                <th>Payment Receipt</th>
                 <th>Payment Voucher No</th>
                 <th>Payment Made</th>
             </tr>';
@@ -252,7 +262,7 @@ class GeneratesTransactionsReportHtml
             }
         }
 
-        return $html . $this->buildTotalRow($totals) . '<tr><td colspan="16" style="padding: 30px;"></td></tr>';
+        return $html . $this->buildTotalRow($totals) . '<tr><td colspan="17" style="padding: 30px;"></td></tr>';
     }
 
     private function getEncodedLogo(): string
@@ -278,6 +288,7 @@ class GeneratesTransactionsReportHtml
             'category' => ucwords(PaymentCategory::find($categoryId)->name),
             'approvers' => $this->getApprovers($approvalLogs),
             'receipt_file' => $claim->receipt_file,
+            'payment_voucher_receipt_file' => $claim->payment_voucher_receipt_file,
             'payment_voucher_number' => $claim->payment_voucher_number,
             'payment_date' => $claim->payment_date,
         ];
@@ -301,6 +312,7 @@ class GeneratesTransactionsReportHtml
                 <td>' . htmlspecialchars(implode(', ', $rowData['approvers']['l2'])) . '</td>
                 <td>' . htmlspecialchars(implode(', ', $rowData['approvers']['l3'])) . '</td>
                 <td style="text-align: center;">' . $this->getReceiptFileUrl($rowData['receipt_file']) . '</td>
+                <td style="text-align: center;">' . $this->getReceiptFileUrl($rowData['payment_voucher_receipt_file']) . '</td>
                 <td style="text-align: center;">' . htmlspecialchars($rowData['payment_voucher_number']) . '</td>
                 <td style="text-align: center;">' . htmlspecialchars($rowData['payment_date']) . '</td>
             </tr>';
@@ -313,7 +325,7 @@ class GeneratesTransactionsReportHtml
                 <td colspan="7"></td>
                 <td class="amount-cell">' . $this->formatPrice($totals['gst']) . '</td>
                 <td class="amount-cell">' . $this->formatPrice($totals['amount']) . '</td>
-                <td colspan="7"></td>
+                <td colspan="8"></td>
             </tr>';
     }
 

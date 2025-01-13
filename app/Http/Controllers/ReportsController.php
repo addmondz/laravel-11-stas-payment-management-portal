@@ -46,7 +46,7 @@ class ReportsController extends Controller
         $reportServices = [
             'summaryReport' => GeneratesSummaryReportHtml::class,
             'transactionReport' => GeneratesTransactionsReportHtml::class,
-            'paymentDetailReportReport' => GeneratesPaymentDetailReportHtml::class,
+            'paymentDetailReport' => GeneratesPaymentDetailReportHtml::class,
         ];
 
         // Validate report type
@@ -67,7 +67,7 @@ class ReportsController extends Controller
         $reportServices = [
             'summaryReport' => GeneratesSummaryReportHtml::class,
             'transactionReport' => GeneratesTransactionsReportHtml::class,
-            'paymentDetailReportReport' => GeneratesPaymentDetailReportHtml::class,
+            'paymentDetailReport' => GeneratesPaymentDetailReportHtml::class,
         ];
 
         // Validate report type
