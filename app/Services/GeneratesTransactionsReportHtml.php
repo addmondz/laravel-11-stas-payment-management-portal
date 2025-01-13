@@ -245,36 +245,27 @@ class GeneratesTransactionsReportHtml
             </tr>';
     }
 
-    private function buildReceiverSection(string $receiverName, $categories): string
+    private function buildReceiverSection(string $receiverName, $claims): string
     {
-        $firstClaim = $categories->first();
+        $firstClaim = $claims->first();
         $receiver = PaymentReceiver::find($firstClaim->payment_receiver_id);
 
         $html = $this->getReceiverHeader($receiverName, $receiver);
-        $categoryCounter = 1;
+        $counter = 1;
         $totals = ['transactions' => 0, 'amount' => 0, 'gst' => 0];
 
-        foreach ($categories->groupBy('payment_category_id') as $categoryId => $categoryClaims) {
-            foreach ($categoryClaims->groupBy('currency_id') as $currencyId => $currencyClaims) {
-                $rowData = $this->processClaimGroup($categoryId, $currencyClaims);
-                $html .= $this->buildTableRow($categoryCounter++, $rowData);
-                $totals = $this->updateTotals($totals, $rowData);
-            }
+        foreach ($claims as $claim) {
+            $rowData = $this->processClaimData($claim);
+            $html .= $this->buildTableRow($counter++, $rowData);
+            $totals = $this->updateTotals($totals, $rowData);
         }
 
         return $html . $this->buildTotalRow($totals) . '<tr><td colspan="17" style="padding: 30px;"></td></tr>';
     }
 
-    private function getEncodedLogo(): string
+    private function processClaimData(Claim $claim): array
     {
-        $imagePath = public_path('images/logo-new.jpg');
-        return base64_encode(file_get_contents($imagePath));
-    }
-
-    private function processClaimGroup($categoryId, $claims): array
-    {
-        $approvalLogs = ClaimStatusLog::whereIn('claim_id', $claims->pluck('id'))->get();
-        $claim = $claims->first();
+        $approvalLogs = $claim->statusLogs;
 
         return [
             'id' => str_pad($claim->id, 5, '0', STR_PAD_LEFT),
@@ -285,13 +276,19 @@ class GeneratesTransactionsReportHtml
             'currency' => $claim->currencyObject->short_code ?? self::NOT_AVAILABLE,
             'gst_amount' => $claim->gst_amount,
             'amount' => $claim->amount,
-            'category' => ucwords(PaymentCategory::find($categoryId)->name),
+            'category' => ucwords(PaymentCategory::find($claim->payment_category_id)->name),
             'approvers' => $this->getApprovers($approvalLogs),
             'receipt_file' => $claim->receipt_file,
             'payment_voucher_receipt_file' => $claim->payment_voucher_receipt_file,
             'payment_voucher_number' => $claim->payment_voucher_number,
             'payment_date' => $claim->payment_date,
         ];
+    }
+
+    private function getEncodedLogo(): string
+    {
+        $imagePath = public_path('images/logo-new.jpg');
+        return base64_encode(file_get_contents($imagePath));
     }
 
     private function buildTableRow(int $counter, array $rowData): string
