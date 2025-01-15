@@ -592,6 +592,10 @@ class ClaimController extends Controller
             // Attempt to find the claim by ID
             $claim = Claim::find($id);
 
+            if ($claim->status >= 2) {
+                throw new Exception("Claim has been approved. It can not be updated");
+            }
+
             // Check if the claim exists
             if (!$claim) {
                 return response()->json(['error' => 'Claim not found.'], 404);

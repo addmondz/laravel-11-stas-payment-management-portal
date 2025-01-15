@@ -45,7 +45,7 @@
                 </div>
             </div>
             <div class="flex justify-center items-center space-x-4">
-                <DeleteOutlined @click="deletePaymentConfirmation" class="mb-3 mr-2" :class="{ 'invisible': isApproved }" :disabled="isApproved"/>
+                <DeleteOutlined @click="deletePaymentConfirmation" class="mb-3 mr-2" :class="{ 'invisible': isApproved }" :disabled="isApproved" v-if="canDeletePayments().value"/>
                 <div
                     :class="{ 'invisible': isApproved }" :disabled="isApproved">
                     <CreateClaimForm :claimData="data" />
@@ -70,6 +70,7 @@ import { formatDate, formatString } from '@/Helpers/helpers.js';
 import SquareBtn from '../Icons/SquareBtn.vue';
 import CreateClaimForm from '@/Components/Form/CreateClaimForm.vue';
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons-vue';
+import { canDeletePayments } from '@/Composables/GlobalFuntions.vue';
 import Swal from 'sweetalert2';
 
 const emit = defineEmits(['update-selected-list']);
@@ -94,6 +95,7 @@ const handleUpdateSelected = (value) => {
 };
 
 const isApproved = computed(() => props.data.status_id >= 2);
+// const isApproved = ref(false);
 
 const deletePaymentConfirmation = () => {
     Swal.fire({

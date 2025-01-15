@@ -12,6 +12,11 @@ export function isFinance() {
     return computed(() => props?.auth?.user?.role === 'finance');
 }
 
+export function canDeletePayments() {
+    const { props } = usePage();
+    return computed(() => props?.auth?.user?.can_delete_claim === 1 ?? false);
+}
+
 export function getUserApprovalPrivillage() {
     const { props } = usePage();
     return computed(() => {
