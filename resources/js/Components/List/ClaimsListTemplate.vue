@@ -44,7 +44,10 @@
                     </div>
                 </div>
             </div>
-            <div class="flex justify-center items-center">
+            <div class="flex justify-center items-center space-x-4">
+                <button class="cursor-pointer hover:text-violet-600 transition-all">
+                    <CreateClaimForm :claimData="data" />
+                </button>
                 <button class="cursor-pointer hover:text-violet-600 transition-all">
                     <Link :href="route('claim.details', data.id)">
                     <AngleRight class="text-violet-700" />
@@ -63,6 +66,7 @@ import { Link } from '@inertiajs/vue3';
 import StatusLabel from '@/Components/General/StatusLabel.vue';
 import { formatDate, formatString } from '@/Helpers/helpers.js';
 import SquareBtn from '../Icons/SquareBtn.vue';
+import CreateClaimForm from '@/Components/Form/CreateClaimForm.vue';
 
 const emit = defineEmits(['update-selected-list']);
 const props = defineProps({

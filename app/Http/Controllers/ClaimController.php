@@ -4,13 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Classes\ValueObjects\Constants\ApprovalRoles;
 use App\Classes\ValueObjects\Constants\ApprovalStatus;
-use App\Models\ApprovalLog;
-use Illuminate\Http\Request;
 use App\Models\Claim;
 use App\Models\ClaimStatusLog;
 use App\Services\FetchesGstTax;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class ClaimController extends Controller
@@ -21,6 +18,7 @@ class ClaimController extends Controller
     {
         $this->fetchesGstTax = $fetchesGstTax;
     }
+
     public function store(Request $request)
     {
         // dd($request->all());
@@ -35,6 +33,7 @@ class ClaimController extends Controller
             'currency' => 'required',
             'amount' => 'required|numeric',
             'gst' => 'required|in:1,0',
+            'gst_value' => 'nullable',
             'purpose' => 'required|string',
             'receipt_date' => 'required|date',
             'receipt' => 'required|mimes:jpeg,pdf,jpg,png|max:2048',
@@ -50,13 +49,13 @@ class ClaimController extends Controller
             $file = $request->file('receipt');
 
             // Generate a unique name for the file to avoid conflicts
-            $filename = uniqid() . '.' . $file->getClientOriginalExtension();
+            $filename = uniqid().'.'.$file->getClientOriginalExtension();
 
             // Store the file directly in the public folder
             $file->move(public_path('receipts'), $filename);
 
             // Save the file path to the database or return the filename
-            $path = 'receipts/' . $filename;
+            $path = 'receipts/'.$filename;
         }
 
         $requestData = $request->all();
@@ -64,20 +63,21 @@ class ClaimController extends Controller
         $gstTax = (float) $this->fetchesGstTax->execute();
 
         $claim = [
-            'created_by'            => $user->id,
-            'payment_type'          => $requestData['payment_type'],
-            'payment_category_id'   => $requestData['payment_category'],
-            'currency_id'           => $requestData['currency'],
-            'amount'                => $requestData['amount'],
-            'purpose'               => $requestData['purpose'],
-            'receipt_date'          => $requestData['receipt_date'],
-            'receipt_file'          => $path ?? null,
-            'payment_receiver_id'   => $requestData['payment_to'],
+            'created_by' => $user->id,
+            'payment_type' => $requestData['payment_type'],
+            'payment_category_id' => $requestData['payment_category'],
+            'currency_id' => $requestData['currency'],
+            'amount' => $requestData['amount'],
+            'purpose' => $requestData['purpose'],
+            'receipt_date' => $requestData['receipt_date'],
+            'receipt_file' => $path ?? null,
+            'payment_receiver_id' => $requestData['payment_to'],
 
             // field to update later
-            'gst_amount'            => $hasGst ? ($requestData['amount'] * $gstTax / 100) : 0,
-            'gst_percent'           => $gstTax,
-            'status'                => ApprovalStatus::PENDING_APPROVAL,
+            // 'gst_amount' => $hasGst ? ($requestData['amount'] * $gstTax / 100) : 0,
+            'gst_amount' => $hasGst ? $requestData['gst_value'] : 0,
+            'gst_percent' => $gstTax,
+            'status' => ApprovalStatus::PENDING_APPROVAL,
         ];
 
         // check user roles, if created by user with higer role, then dont need approval for lower role
@@ -94,7 +94,8 @@ class ClaimController extends Controller
         try {
             $claim = Claim::create($claim);
         } catch (\Exception $e) {
-            Log::error('Error creating claim: ' . $e->getMessage());
+            Log::error('Error creating claim: '.$e->getMessage());
+
             return response()->json([
                 'error' => 'An error occurred while creating the claim.',
             ], 500);
@@ -102,21 +103,123 @@ class ClaimController extends Controller
 
         if ($userPrivilage == ApprovalRoles::L3_APPROVAL_MEMBERS) {
             ClaimStatusLog::create([
-                'claim_id'      => $claim->id,
-                'status'        => ApprovalStatus::L3_APPROVAL,
-                'causer_id'     => $user->id,
+                'claim_id' => $claim->id,
+                'status' => ApprovalStatus::L3_APPROVAL,
+                'causer_id' => $user->id,
             ]);
         }
 
         ClaimStatusLog::create([
-            'claim_id'      => $claim->id,
-            'status'        => $claim->status,
-            'causer_id'     => $user->id,
+            'claim_id' => $claim->id,
+            'status' => $claim->status,
+            'causer_id' => $user->id,
         ]);
 
         // Return success in JSON
         return response()->json([
             'success' => 'Claim created successfully!',
+        ], 201);
+    }
+
+    public function update(Request $request, Claim $claim)
+    {
+        // dd($request->all());
+
+        $user = auth()->user();
+
+        // Validate the incoming request
+        $validated = $request->validate([
+            'payment_to' => 'required',
+            'payment_type' => 'required|in:reimbursement,external_payment',
+            'payment_category' => 'required|string',
+            'currency' => 'required',
+            'amount' => 'required|numeric',
+            'gst' => 'required|in:1,0',
+            'gst_value' => 'nullable',
+            'purpose' => 'required|string',
+            'receipt_date' => 'required|date',
+            'receipt' => 'nullable|mimes:jpeg,pdf,jpg,png|max:2048',
+        ]);
+
+        // // Handle the file upload if it exists
+        // if ($request->hasFile('receipt')) {
+        //     $path = $request->file('receipt')->store('receipts', 'public');
+        // }
+
+        // store at public folder
+        if ($request->hasFile('receipt')) {
+            $file = $request->file('receipt');
+
+            // Generate a unique name for the file to avoid conflicts
+            $filename = uniqid().'.'.$file->getClientOriginalExtension();
+
+            // Store the file directly in the public folder
+            $file->move(public_path('receipts'), $filename);
+
+            // Save the file path to the database or return the filename
+            $path = 'receipts/'.$filename;
+        }
+
+        $requestData = $request->all();
+        $hasGst = filter_var($requestData['gst'], FILTER_VALIDATE_BOOLEAN);
+        $gstTax = (float) $this->fetchesGstTax->execute();
+
+        $data = [
+            'created_by' => $user->id,
+            'payment_type' => $requestData['payment_type'],
+            'payment_category_id' => $requestData['payment_category'],
+            'currency_id' => $requestData['currency'],
+            'amount' => $requestData['amount'],
+            'purpose' => $requestData['purpose'],
+            'receipt_date' => $requestData['receipt_date'],
+            'receipt_file' => $path ?? null,
+            'payment_receiver_id' => $requestData['payment_to'],
+
+            // field to update later
+            // 'gst_amount' => $hasGst ? ($requestData['amount'] * $gstTax / 100) : 0,
+            'gst_amount' => $hasGst ? $requestData['gst_value'] : 0,
+            'gst_percent' => $gstTax,
+            'status' => ApprovalStatus::PENDING_APPROVAL,
+        ];
+
+        // check user roles, if created by user with higer role, then dont need approval for lower role
+        $userPrivilage = $user->privileges->first()->approval_role_id ?? null;
+        if ($userPrivilage) {
+            $data['approval_status'] = $userPrivilage; // adjust the approval_status here on created
+        }
+
+        if ($userPrivilage == ApprovalRoles::L3_APPROVAL_MEMBERS) {
+            $data['status'] = ApprovalStatus::APPROVED;
+        }
+
+        // Update claim record
+        try {
+            $claim->update($data);
+        } catch (\Exception $e) {
+            Log::error('Error creating claim: '.$e->getMessage());
+
+            return response()->json([
+                'error' => 'An error occurred while creating the claim.',
+            ], 500);
+        }
+
+        if ($userPrivilage == ApprovalRoles::L3_APPROVAL_MEMBERS) {
+            ClaimStatusLog::create([
+                'claim_id' => $claim->id,
+                'status' => ApprovalStatus::L3_APPROVAL,
+                'causer_id' => $user->id,
+            ]);
+        }
+
+        ClaimStatusLog::create([
+            'claim_id' => $claim->id,
+            'status' => $claim->status,
+            'causer_id' => $user->id,
+        ]);
+
+        // Return success in JSON
+        return response()->json([
+            'success' => 'Claim updated successfully!',
         ], 201);
     }
 
@@ -132,7 +235,7 @@ class ClaimController extends Controller
             if ($isAdmin || $hasPrivillageRoles || $isFinance) {
                 $query = Claim::with('createdUser');
             } else {
-                // if is normal user, can only show what they have submitted 
+                // if is normal user, can only show what they have submitted
                 $query = Claim::with('createdUser')->where('created_by', $user->id);
             }
 
@@ -162,7 +265,7 @@ class ClaimController extends Controller
                 $searchValue = $request->input('paymentType');
                 $query->where(function ($query) use ($queryParam, $searchValue) {
                     foreach ($queryParam as $q) {
-                        $query->orWhere($q, 'like', '%' . $searchValue . '%');
+                        $query->orWhere($q, 'like', '%'.$searchValue.'%');
                     }
                 });
             }
@@ -194,6 +297,7 @@ class ClaimController extends Controller
                 $data->status = ApprovalStatus::APPROVAL_STATUS_ID[$data->status];
                 $data->payment_category_name = $data->paymentCategory->name;
                 $data->receipt_file = $this->getReceiptFileUrl($data->receipt_file);
+
                 return $data;
             });
 
@@ -227,7 +331,7 @@ class ClaimController extends Controller
             $privilegeRoleId = $user->privileges->first()->approval_role_id ?? null;
 
             // Step 1: Check if the user lacks privilege roles
-            if (!$privilegeRoleId && !$user->role === 'finance') {
+            if (! $privilegeRoleId && ! $user->role === 'finance') {
                 return response()->json([
                     'success' => true,
                     'data' => [],
@@ -276,6 +380,7 @@ class ClaimController extends Controller
                 $data->status = ApprovalStatus::APPROVAL_STATUS_ID[$data->status];
                 $data->payment_category_name = $data->paymentCategory->name;
                 $data->receipt_file = $this->getReceiptFileUrl($data->receipt_file);
+
                 return $data;
             });
 
@@ -307,7 +412,7 @@ class ClaimController extends Controller
         $data = Claim::with('currencyObject', 'createdUser', 'paymentToUser', 'statusLogs', 'paymentCategory')->find($id);
 
         // Check if data exists
-        if (!$data) {
+        if (! $data) {
             return response()->json([
                 'success' => false,
                 'message' => 'Data not found',
@@ -317,11 +422,12 @@ class ClaimController extends Controller
         $data->status_id = $data->status;
         // Format the status field (assuming ApprovalStatus::APPROVAL_STATUS_ID holds the status names)
         $data->status = ApprovalStatus::APPROVAL_STATUS_ID[$data->status] ?? 'Unknown Status';
-        $data->next_approval_level =  $data->approval_status + 1;
+        $data->next_approval_level = $data->approval_status + 1;
         $data->receipt_file = $this->getReceiptFileUrl($data->receipt_file);
 
         $data->status_log = $data->statusLogs->map(function ($log) {
             $logStatus = ApprovalStatus::APPROVAL_STATUS_ID[$log->status] ?? 'Unknown Status';
+
             return [
                 'id' => $log->id,
                 'status' => $logStatus,  // Human-readable status name
@@ -342,7 +448,7 @@ class ClaimController extends Controller
     {
         $claim = Claim::find($id);
 
-        if (!$claim) {
+        if (! $claim) {
             return response()->json(['error' => 'Claim not found.'], 404);
         }
 
@@ -353,6 +459,7 @@ class ClaimController extends Controller
             if ($claim->status !== ApprovalStatus::APPROVED) {
                 $claim->update(['status' => ApprovalStatus::APPROVED]);
             }
+
             return response()->json(['message' => 'Claim fully approved.'], 200);
         }
 
@@ -376,9 +483,9 @@ class ClaimController extends Controller
         }
         if ($claimLogStatus) {
             ClaimStatusLog::create([
-                'claim_id'      => $claim->id,
-                'status'        => $claimLogStatus,
-                'causer_id'     => auth()->id(),
+                'claim_id' => $claim->id,
+                'status' => $claimLogStatus,
+                'causer_id' => auth()->id(),
             ]);
         }
         $claim->update(['approval_status' => $nextApprovalLevel]);
@@ -386,10 +493,11 @@ class ClaimController extends Controller
         if ($nextApprovalLevel >= ApprovalRoles::L3_APPROVAL_MEMBERS) {
             $claim->update(['status' => ApprovalStatus::APPROVED]);
             ClaimStatusLog::create([
-                'claim_id'      => $claim->id,
-                'status'        => ApprovalStatus::APPROVED,
-                'causer_id'     => auth()->id(),
+                'claim_id' => $claim->id,
+                'status' => ApprovalStatus::APPROVED,
+                'causer_id' => auth()->id(),
             ]);
+
             return response()->json(['message' => 'Claim approved at all levels.'], 200);
         }
 
@@ -416,12 +524,12 @@ class ClaimController extends Controller
         $claim = Claim::find($id);
 
         $validated = $request->validate([
-            "paymentVoucherNumber" => 'required',
-            "paymentDate" => 'required',
+            'paymentVoucherNumber' => 'required',
+            'paymentDate' => 'required',
             'receipt' => 'required|mimes:jpeg,pdf,jpg,png|max:2048',
         ]);
 
-        if (!$claim) {
+        if (! $claim) {
             return response()->json(['error' => 'Claim not found.'], 404);
         }
 
@@ -443,46 +551,47 @@ class ClaimController extends Controller
             $file = $request->file('receipt');
 
             // Generate a unique name for the file to avoid conflicts
-            $filename = uniqid() . '.' . $file->getClientOriginalExtension();
+            $filename = uniqid().'.'.$file->getClientOriginalExtension();
 
             // Store the file directly in the public folder
             $file->move(public_path('receipts'), $filename);
 
             // Save the file path to the database or return the filename
-            $path = 'receipts/' . $filename;
+            $path = 'receipts/'.$filename;
         }
 
         $claim->update([
-            'status'                       => ApprovalStatus::PAYMENT_COMPLETED,
-            "payment_voucher_number"       => $validated['paymentVoucherNumber'],
-            "payment_date"                 => $validated['paymentDate'],
+            'status' => ApprovalStatus::PAYMENT_COMPLETED,
+            'payment_voucher_number' => $validated['paymentVoucherNumber'],
+            'payment_date' => $validated['paymentDate'],
             'payment_voucher_receipt_file' => $path ?? null,
         ]);
 
         ClaimStatusLog::create([
-            'claim_id'      => $claim->id,
-            'status'        => ApprovalStatus::PAYMENT_COMPLETED,
-            'causer_id'     => auth()->id(),
+            'claim_id' => $claim->id,
+            'status' => ApprovalStatus::PAYMENT_COMPLETED,
+            'causer_id' => auth()->id(),
         ]);
+
         return response()->json(['message' => 'Claim has been updated.'], 200);
     }
 
     public function getReceiptFileUrl($url)
     {
-        return $url ? (app()->environment('production') ? 'public/' : '') . $url : null;
+        return $url ? (app()->environment('production') ? 'public/' : '').$url : null;
     }
 
     public function listIds(Request $request)
     {
         $claims = Claim::query()->select('payment_receiver_id', 'id')->get()->groupBy('payment_receiver_id');
-    
+
         $returnAry = $claims->mapWithKeys(function ($claimGroup, $paymentReceiverId) {
             return [$paymentReceiverId => $claimGroup->pluck('id')->toArray()];
         });
-    
+
         // Add 'All' group with all claim IDs
         $returnAry['All'] = Claim::pluck('id')->toArray();
-    
+
         return response()->json($returnAry);
     }
 }

@@ -5,7 +5,7 @@
             <div class="p-2">
                 {{ selectedFruits.length
                     ? selectedFruits.map(fruitId => getFruitName(fruitId)).join(", ")
-                    : "Select " + label }}
+                    : isEdit ? label : ("Select " + label) }}
             </div>
             <div v-if="showDropdown"
                 class="absolute w-full bg-white border border-black rounded mt-1 z-10 rounded-md shadow-2xl">
@@ -57,6 +57,7 @@ export default {
         label: { type: String, default: '' },
         choicesIsObject: { type: Boolean, default: false },
         allowAllChoice: { type: Boolean, default: false },
+        isEdit: { type: Boolean, default: false },
     },
     data() {
         return {

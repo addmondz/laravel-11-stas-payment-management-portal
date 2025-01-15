@@ -5,13 +5,20 @@ import Modal from '@/Components/General/Modal.vue';
 import PrimaryButton from '@/Components/General/PrimaryButton.vue';
 import TextInput from '@/Components/General/TextInput.vue';
 import { useForm } from '@inertiajs/vue3';
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, ref, watch, nextTick } from 'vue';
 import Swal from 'sweetalert2';
 import LoadingComponent from '@/Components/General/LoadingComponent.vue';
 import CustomSelectComponent from '../General/CustomSelectComponent.vue';
 
+const props = defineProps({
+    claimData: {
+        type: Object,
+        default: null
+    }
+});
 const showingCreateClaimModal = ref(false);
 const formIsLoading = ref(false);
+const showGSTValueField = ref(false);
 const emit = defineEmits();
 const currencyData = ref([]);
 const paymentReceiverData = ref([]);
@@ -25,10 +32,37 @@ const form = useForm({
     currency: '',
     amount: '',
     gst: '',
+    gst_value: '',
     purpose: '',
     receipt_date: '',
     receipt: null,
 });
+const gst = ref(0);
+const customSelect = ref()
+const selectedReceiverName = ref();
+
+const showGSTValue = () => {
+    if (form.gst == 1) {
+        calGSTValue()
+        showGSTValueField.value = true;
+    } else {
+        showGSTValueField.value = false;
+    }
+};
+
+const fetchGST = async (page = 1) => {
+    try {
+        const { data } = await axios.get(route('variables.fetchesGst'));
+        gst.value = data;
+    } catch (err) {
+        error.value = err;
+    }
+};
+
+const calGSTValue = () => {
+    console.debug('123')
+    form.gst_value = (form.amount * gst.value) / 100
+};
 
 const openCreateClaimModal = () => {
     showingCreateClaimModal.value = true;
@@ -43,14 +77,20 @@ const submitClaim = async () => {
     try {
         // Create FormData to handle file uploads
         const formData = new FormData();
-        formData.append('receipt', form.receipt);  // Attach file
+        if (form.receipt != null) {
+            formData.append('receipt', form.receipt);  // Attach file
+        }
         // Append other form data fields as necessary
         for (const [key, value] of Object.entries(form.data())) {
+            if (key == 'receipt') {
+                continue
+            }
             formData.append(key, value);
         }
 
         // Make the API request using axios with FormData
-        const response = await axios.post(route('claims.store'), formData, {
+        const url = props.claimData ? route('claims.update', props.claimData.id) : route('claims.store');
+        const response = await axios.post(url, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data'  // Important for file uploads
             }
@@ -64,6 +104,9 @@ const submitClaim = async () => {
             confirmButtonText: 'OK',
             customClass: {
                 confirmButton: 'w-32'
+            },
+            willClose: () => {
+                location.reload()
             }
         });
 
@@ -116,6 +159,13 @@ const listPaymentReceiverNameAndId = async () => {
     try {
         const { data } = await axios.get(route('paymentReceiver.listNameAndId'));
         paymentReceiverData.value = data;
+
+        for (let i = 0; i < paymentReceiverData.value.length; i++) {
+            if (paymentReceiverData.value[i].id == form.payment_to) {
+                selectedReceiverName.value = paymentReceiverData.value[i].name
+                break
+            }
+        }
     } catch (err) {
         error.value = err;
     }
@@ -136,9 +186,35 @@ watch(
     },
     { immediate: true }
 );
+// populate form with userdata if editing
+watch(() => props.claimData, (newData) => {
+    if (newData) {
+        nextTick(()=>{
+            form.payment_to = newData.payment_receiver_id
+        })
+        form.payment_type = newData.payment_type
+        form.payment_category = newData.payment_category_id
+        form.currency = newData.currency_id
+        form.amount = newData.amount
+        form.gst = newData.gst_amount != 0 ? '1' : '0'
+        form.gst_value = newData.gst_amount
+        form.purpose = newData.purpose
+        form.receipt_date = newData.receipt_date
+
+        if (newData.gst_amount != 0) {
+            showGSTValueField.value = true;
+        }
+    } else {
+        form.reset(); // reset if no userdata
+    }
+}, { immediate: true });
+
+
+
 
 // On component mount, load data
 onMounted(() => {
+    fetchGST();
     fetchCurrencies();
     fetchPaymentCategory();
     listPaymentReceiverNameAndId();
@@ -147,7 +223,7 @@ onMounted(() => {
 
 <template>
     <section class="space-y-6">
-        <PrimaryButton @click="openCreateClaimModal">Create Payment</PrimaryButton>
+        <PrimaryButton @click="openCreateClaimModal">{{ props.claimData != null ? 'Edit' : 'Create Payment' }}</PrimaryButton>
 
         <Modal :show="showingCreateClaimModal" @close="closeModal">
             <form @submit.prevent="submitClaim" class="p-5">
@@ -155,12 +231,12 @@ onMounted(() => {
                     <LoadingComponent class="mt-32 mb-32 " />
                 </div>
                 <div v-else>
-                    <h2 class="text-lg font-medium text-gray-900">Create a New Payment</h2>
+                    <h2 class="text-lg font-medium text-gray-900">{{ props.claimData != null ? 'Edit Payment' : 'Create New Payment' }}</h2>
                     <div class="grid grid-cols-1 gap-4 mt-4">
                         <div>
                             <InputLabel for="payment_to" value="Payment To" />
-                            <CustomSelectComponent :choices="paymentReceiverData" v-model="payment_to"
-                                :label="'Payment Receiver'" :choicesIsObject="true" />
+                            <CustomSelectComponent :choices="paymentReceiverData" v-model="payment_to" :isEdit="props.claimData != null"
+                            :label="props.claimData != null ? selectedReceiverName : 'Payment Receiver'" :choicesIsObject="true" ref="customSelect" />
                             <InputError :message="form.errors.payment_to" class="mt-2" />
                         </div>
 
@@ -203,7 +279,7 @@ onMounted(() => {
                         <div>
                             <InputLabel for="amount" value="Amount (incl. GST if any)" />
                             <TextInput id="amount" v-model="form.amount" type="number" step="0.01"
-                                placeholder="Enter amount" class="mt-1 block w-full" required />
+                                placeholder="Enter amount" class="mt-1 block w-full" required @keyup="calGSTValue" />
                             <InputError :message="form.errors.amount" class="mt-2" />
                         </div>
 
@@ -211,19 +287,24 @@ onMounted(() => {
                             <div class="col-span-2">
                                 <InputLabel value="GST" />
                                 <div class="flex items-center space-x-4 mt-1">
+                                    <div class="flex space-x-4">
                                     <label class="inline-flex items-center">
-                                        <input type="radio" v-model="form.gst" value="1" class="form-radio" />
+                                        <input type="radio" v-model="form.gst" value="1" class="form-radio" @change="showGSTValue" />
                                         <span class="ml-2">Yes</span>
                                     </label>
                                     <label class="inline-flex items-center">
-                                        <input type="radio" v-model="form.gst" value="0" class="form-radio" />
+                                        <input type="radio" v-model="form.gst" value="0" class="form-radio" @change="showGSTValue" />
                                         <span class="ml-2">No</span>
                                     </label>
+                                    </div>
+                                    <div v-if="showGSTValueField">
+                                        <TextInput id="gst_value" v-model="form.gst_value" type="number" step="0.01"
+                                        placeholder="Enter GST amount" class="mt-1 block w-full" required />
+                                    </div>
                                 </div>
                                 <InputError :message="form.errors.gst" class="mt-2" />
                             </div>
                         </div>
-
                         <div>
                             <div class="col-span-2">
                                 <InputLabel for="purpose" value="Purpose of Payment" />
@@ -247,7 +328,7 @@ onMounted(() => {
                                 <input id="receipt" type="file" @change="(e) => (form.receipt = e.target.files[0])"
                                     accept=".jpeg,.jpg,.pdf,.png"
                                     class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 cursor-pointer"
-                                    required />
+                                     />
                                 <InputError :message="form.errors.receipt" class="mt-2" />
                             </div>
                         </div>

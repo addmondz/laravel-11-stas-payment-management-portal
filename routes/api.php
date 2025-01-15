@@ -26,6 +26,7 @@ Route::prefix('api')->middleware('auth')->group(function () {
         Route::post('/{id}/approve', [ClaimController::class, 'approveClaim'])->name('claims.approveClaim');
         Route::post('/{id}/payment-completed', [ClaimController::class, 'paymentCompleted'])->name('claims.paymentCompleted');
         Route::post('/group-approve-claims/{ids}', [ClaimController::class, 'groupApprove'])->name('claims.groupApprove');
+        Route::post('/update/{claim}', [ClaimController::class, 'update'])->name('claims.update');
     });
 
     Route::prefix('currency')->group(function () {
