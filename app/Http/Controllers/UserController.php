@@ -111,6 +111,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $id, // Ignore the email check for the user being updated
             'password' => 'nullable|string|min:8|confirmed', // Password is nullable
+            'can_delete_claim' => 'boolean',
             'role' => 'string',
             'status' => 'string',
         ]);
@@ -121,6 +122,7 @@ class UserController extends Controller
             'email' => $validatedData['email'],
             'role' => $validatedData['role'],
             'status' => $validatedData['status'],
+            'can_delete_claim' => $validatedData['can_delete_claim'],
         ];
 
         // Check if a password was provided and hash it if necessary

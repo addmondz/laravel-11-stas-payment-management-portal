@@ -24,6 +24,7 @@ class User extends Authenticatable
         'password',
         'status',
         'role',
+        'can_delete_claim',
     ];
 
     /**

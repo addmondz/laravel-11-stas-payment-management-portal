@@ -37,15 +37,15 @@
                 <div class="w-full bg-black-50 p-1 rounded-xl">
                     <div v-show="activeTab === 'pendingApproval'">
                         <PendingClaim :createCompleteSignal="createCompleteSignal"
-                            @pendingClaimsCount="handlePendingClaimsCount" />
+                            @pendingClaimsCount="handlePendingClaimsCount" @createComplete="handleCreateComplete" />
                     </div>
                     <div v-show="activeTab === 'allClaims'">
-                        <AllClaim :createCompleteSignal="createCompleteSignal" :sortAndFilters="sortAndFilters" />
+                        <AllClaim :createCompleteSignal="createCompleteSignal" :sortAndFilters="sortAndFilters" @createComplete="handleCreateComplete" />
                     </div>
                 </div>
             </div>
             <div v-else>
-                <AllClaim :createCompleteSignal="createCompleteSignal" :sortAndFilters="sortAndFilters" />
+                <AllClaim :createCompleteSignal="createCompleteSignal" :sortAndFilters="sortAndFilters" @createComplete="handleCreateComplete" />
             </div>
         </div>
     </AuthenticatedLayout>

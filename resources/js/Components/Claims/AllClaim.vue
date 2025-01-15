@@ -24,6 +24,7 @@
                 </div>
 
                 <ClaimsListTemplate :createComplete="createCompleteSignal"
+                @createComplete="handleCreateComplete"
                     @update-selected-list="handleUpdateSelectedList" v-for="product in data" :key="product.id"
                     :data="product" />
             </template>
@@ -56,4 +57,7 @@ const handleUpdateSelectedList = ({ isSelected, id }) => {
         : selectedIds.value.filter(item => item !== id);
 };
 
+const handleCreateComplete = (value) => {
+    emit('createComplete', true);
+};
 </script>

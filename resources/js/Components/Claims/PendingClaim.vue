@@ -23,6 +23,7 @@
                     :data="product" 
                     :isSelected="selectedIds.includes(product.id)" 
                     @update-selected-list="handleUpdateSelectedList"
+                    @createComplete="handleCreateComplete"
                 />
 
             </template>
@@ -120,7 +121,7 @@ const callApiToGroupApproveClaim = async () => {
         reloadComponent();
         Swal.fire({
             title: "Success!",
-            text: "The claim has been successfully approved.",
+            text: "The Payment has been successfully approved.",
             icon: "success",
             confirmButtonText: "OK"
         });
@@ -132,5 +133,9 @@ const callApiToGroupApproveClaim = async () => {
             confirmButtonText: "OK"
         });
     }
+};
+
+const handleCreateComplete = (value) => {
+    emit('createComplete', true);
 };
 </script>

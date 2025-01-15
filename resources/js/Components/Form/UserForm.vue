@@ -9,6 +9,7 @@ import { ref, watch } from 'vue';
 import Swal from 'sweetalert2';
 import { onMounted } from 'vue';
 import LoadingComponent from '@/Components/General/LoadingComponent.vue';
+import Checkbox from '@/Components/General/Checkbox.vue';
 
 // Accept userData prop for editing existing user
 const props = defineProps({
@@ -34,6 +35,7 @@ const form = useForm({
     // isAdmin: '0',
     role: '',
     approvalRole: '',
+    can_delete_claim: 0,
 });
 
 // Populate form with userData if editing
@@ -45,6 +47,7 @@ watch(() => props.userData, (newUserData) => {
         form.role = newUserData.role;
         form.status = newUserData.status;
         form.approvalRole = newUserData.approval_role_id;
+        form.can_delete_claim = newUserData.can_delete_claim;
     } else {
         form.reset(); // Reset if no userData
     }
@@ -225,6 +228,16 @@ onMounted(() => {
                                     class="capitalize">
                                     {{ name }}
                                 </option>
+                            </select>
+                            <InputError :message="form.errors.payment_category" class="mt-2" />
+                        </div>
+
+                        <div>
+                            <InputLabel for="can_delete_claim" value="Has Privilege to Delete Payment" />
+                            <select id="status" v-model="form.can_delete_claim"
+                                class="mt-1 payment_category w-full border-gray-300 rounded-md shadow-sm">
+                                <option value=1>True</option>
+                                <option value=0>False</option>
                             </select>
                             <InputError :message="form.errors.payment_category" class="mt-2" />
                         </div>

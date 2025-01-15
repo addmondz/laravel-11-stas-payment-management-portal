@@ -18,11 +18,17 @@
                     <div class="flex flex-col md:flex-row m-h-10 bg-gray-100">
                         <div class="w-full md:w-1/4 mb-6 md:mb-0">
                             <div class="space-y-4">
+                                <div class="tab-btn border-4 border-white" tab-name="paymentReceiver">
+                                    <div class="flex items-center">
+                                        <div class="flex-1 p-4">
+                                            <p class="font-semibold">Payment Receiver</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="space-y-4">
                                 <div class="tab-btn border-4 border-white" tab-name="paymentCategory">
                                     <div class="flex items-center">
-                                        <!-- <div class="p-4 border-r border-gray-300">
-                                        <div class="w-8 h-8 bg-gray-400"></div>
-                                    </div> -->
                                         <div class="flex-1 p-4">
                                             <p class="font-semibold">Payment Category</p>
                                         </div>
@@ -47,17 +53,17 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                        <div class="w-full md:w-3/4 bg-white">
                             <div class="space-y-4">
-                                <div class="tab-btn border-4 border-white" tab-name="paymentReceiver">
+                                <div class="tab-display" tab-name="paymentReceiver">
                                     <div class="flex items-center">
                                         <div class="flex-1 p-4">
-                                            <p class="font-semibold">Payment Receiver</p>
+                                            <PaymentReceverComponent />
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="w-full md:w-3/4 bg-white">
                             <div class="space-y-4">
                                 <div class="tab-display" tab-name="paymentCategory">
                                     <div class="flex items-center">
@@ -81,15 +87,6 @@
                                     <div class="flex items-center">
                                         <div class="flex-1 p-4">
                                             <TeamComponent />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="space-y-4">
-                                <div class="tab-display" tab-name="paymentReceiver">
-                                    <div class="flex items-center">
-                                        <div class="flex-1 p-4">
-                                            <PaymentReceverComponent />
                                         </div>
                                     </div>
                                 </div>

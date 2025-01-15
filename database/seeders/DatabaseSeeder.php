@@ -35,6 +35,7 @@ class DatabaseSeeder extends Seeder
             'email_verified_at' => now(),
             'password' => Hash::make('12345678'), // You can set the password as per your choice
             'role' => 'admin', // Assign the admin role
+            'can_delete_claim' => true,
         ]);
 
         // create l1 approval

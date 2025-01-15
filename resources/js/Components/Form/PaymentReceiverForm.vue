@@ -10,20 +10,27 @@ import Swal from 'sweetalert2';
 import { onMounted } from 'vue';
 import LoadingComponent from '@/Components/General/LoadingComponent.vue';
 
-// Accept userData prop for editing existing user
 const props = defineProps({
     userData: {
         type: Object,
-        default: null
-    }
+        default: null,
+    },
+    canView: {
+        type: Boolean,
+        default: false,
+    },
+    hasTopSpacing: {
+        type: Boolean,
+        default: false,
+    },
 });
 const isLoading = ref(false);
 const showingCreateUserModal = ref(false);
+const showingViewUserModal = ref(false); // New state for View modal
 const emit = defineEmits();
 const currencies = ref([]);
 const error = ref(null);
 
-// Form setup with default values (used for create)
 const form = useForm({
     name: '',
     bank_name: '',
@@ -32,18 +39,21 @@ const form = useForm({
     currency_id: '',
 });
 
-// Populate form with userData if editing
-watch(() => props.userData, (newUserData) => {
-    if (newUserData) {
-        form.name = newUserData.name;
-        form.bank_name = newUserData.bank_name;
-        form.bank_account_no = newUserData.bank_account_no;
-        form.swift_code = newUserData.swift_code;
-        form.currency_id = newUserData.currency_id;
-    } else {
-        form.reset(); // Reset if no userData
-    }
-}, { immediate: true });
+watch(
+    () => props.userData,
+    (newUserData) => {
+        if (newUserData) {
+            form.name = newUserData.name;
+            form.bank_name = newUserData.bank_name;
+            form.bank_account_no = newUserData.bank_account_no;
+            form.swift_code = newUserData.swift_code;
+            form.currency_id = newUserData.currency_id;
+        } else {
+            form.reset();
+        }
+    },
+    { immediate: true }
+);
 
 const closeModal = () => {
     showingCreateUserModal.value = false;
@@ -51,6 +61,10 @@ const closeModal = () => {
 
 const toggleModal = () => {
     showingCreateUserModal.value = !showingCreateUserModal.value;
+};
+
+const toggleViewModal = () => {
+    showingViewUserModal.value = !showingViewUserModal.value; // Toggle View modal
 };
 
 const submitUser = async () => {
@@ -61,7 +75,9 @@ const submitUser = async () => {
             formData.append(key, value);
         }
 
-        const url = props.userData ? route('paymentReceiver.update', props.userData.id) : route('paymentReceiver.create');
+        const url = props.userData
+            ? route('paymentReceiver.update', props.userData.id)
+            : route('paymentReceiver.create');
         const method = 'post';
 
         const response = await axios[method](url, formData);
@@ -107,9 +123,11 @@ onMounted(() => {
 </script>
 
 <template>
-    <section class="space-y-6">
-        <PrimaryButton @click="toggleModal">{{ props.userData ? 'Edit' : 'Create' }}</PrimaryButton>
+    <section :class="{ 'space-y-6': hasTopSpacing }">
+        <PrimaryButton class="mr-2" v-if="canView" @click="toggleViewModal">View</PrimaryButton>
+        <PrimaryButton class="mr-2" @click="toggleModal">{{ props.userData ? 'Edit' : 'Create' }}</PrimaryButton>
 
+        <!-- Create/Edit Modal -->
         <Modal :show="showingCreateUserModal" @close="toggleModal">
             <form @submit.prevent="submitUser" class="p-6 space-y-4">
                 <div v-if="!isLoading">
@@ -174,5 +192,53 @@ onMounted(() => {
                 </div>
             </form>
         </Modal>
+
+        <!-- View Modal -->
+        <Modal :show="showingViewUserModal" @close="toggleViewModal">
+            <div class="p-6 space-y-4">
+                <h2 class="text-lg font-medium text-gray-900">View Bank Details</h2>
+
+                <div class="grid grid-cols-1 gap-4">
+                    <div>
+                        <InputLabel for="name" value="Name" />
+                        <p id="name" class="mt-1 block w-full border-gray-300 focus:ring-indigo-500 rounded-md shadow-sm mt-1 block w-full p-2 border-1px-solid">{{ props.userData?.name || 'N/A' }}</p>
+                    </div>
+
+                    <div>
+                        <InputLabel for="bank_name" value="Bank Name" />
+                        <p id="bank_name" class="mt-1 block w-full border-gray-300 focus:ring-indigo-500 rounded-md shadow-sm mt-1 block w-full p-2 border-1px-solid">{{ props.userData?.bank_name || 'N/A' }}</p>
+                    </div>
+
+                    <div>
+                        <InputLabel for="bank_account_no" value="Bank Account Number" />
+                        <p id="bank_account_no" class="mt-1 block w-full border-gray-300 focus:ring-indigo-500 rounded-md shadow-sm mt-1 block w-full p-2 border-1px-solid">{{ props.userData?.bank_account_no || 'N/A' }}
+                        </p>
+                    </div>
+
+                    <div>
+                        <InputLabel for="swift_code" value="SWIFT Code" />
+                        <p id="swift_code" class="mt-1 block w-full border-gray-300 focus:ring-indigo-500 rounded-md shadow-sm mt-1 block w-full p-2 border-1px-solid">{{ props.userData?.swift_code || 'N/A' }}</p>
+                    </div>
+
+                    <div>
+                        <InputLabel for="currency_id" value="Currency" />
+                        <p id="currency_id" class="mt-1 block w-full border-gray-300 focus:ring-indigo-500 rounded-md shadow-sm mt-1 block w-full p-2 border-1px-solid">{{ props.userData?.currency?.short_code || 'N/A' }}</p>
+                    </div>
+                </div>
+
+                <div class="text-right mt-6">
+                    <button type="button" @click="toggleViewModal"
+                        class="bg-white hover:bg-gray-100 text-black inline-flex items-center px-4 py-2 border rounded-md font-semibold text-xs uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </Modal>
     </section>
 </template>
+
+<style>
+.border-1px-solid {
+    border: 1px solid rgb(209 213 219 / var(--tw-border-opacity, 1));
+}
+</style>

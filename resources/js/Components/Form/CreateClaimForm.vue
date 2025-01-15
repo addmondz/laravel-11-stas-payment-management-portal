@@ -9,6 +9,7 @@ import { onMounted, ref, watch, nextTick } from 'vue';
 import Swal from 'sweetalert2';
 import LoadingComponent from '@/Components/General/LoadingComponent.vue';
 import CustomSelectComponent from '../General/CustomSelectComponent.vue';
+import {  EditOutlined } from '@ant-design/icons-vue';
 
 const props = defineProps({
     claimData: {
@@ -60,7 +61,7 @@ const fetchGST = async (page = 1) => {
 };
 
 const calGSTValue = () => {
-    console.debug('123')
+    //console.debug('123')
     form.gst_value = (form.amount * gst.value) / 100
 };
 
@@ -223,7 +224,8 @@ onMounted(() => {
 
 <template>
     <section class="space-y-6">
-        <PrimaryButton @click="openCreateClaimModal">{{ props.claimData != null ? 'Edit' : 'Create Payment' }}</PrimaryButton>
+        <PrimaryButton @click="openCreateClaimModal" v-if="props.claimData == null">Create Payment</PrimaryButton>
+        <EditOutlined class="mb-4 mr-2" @click="openCreateClaimModal" v-else/>
 
         <Modal :show="showingCreateClaimModal" @close="closeModal">
             <form @submit.prevent="submitClaim" class="p-5">

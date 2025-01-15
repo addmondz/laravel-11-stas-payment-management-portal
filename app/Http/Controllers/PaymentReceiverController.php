@@ -9,7 +9,8 @@ class PaymentReceiverController extends Controller
 {
     public function listNameAndId(Request $request)
     {
-        return PaymentReceiver::all()
+        return PaymentReceiver::orderBy('name')
+            ->get()
             ->map(function ($receiver) {
                 $receiver->name = ucwords($receiver->name);
                 return [
@@ -22,7 +23,7 @@ class PaymentReceiverController extends Controller
 
     public function list(Request $request)
     {
-        $query = PaymentReceiver::with('currency');
+        $query = PaymentReceiver::with('currency')->orderBy('name');
 
         // Apply dynamic filters
         foreach (['name', 'bank_name', 'currency_id'] as $filter) {

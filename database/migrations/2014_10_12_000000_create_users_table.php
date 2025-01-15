@@ -21,6 +21,7 @@ class CreateUsersTable extends Migration
             $table->string('password');
             $table->enum('role', ['user', 'admin', 'finance']);
             $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->boolean('can_delete_claim')->default(false);
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();

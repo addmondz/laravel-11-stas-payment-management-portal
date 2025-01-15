@@ -9,6 +9,7 @@ use App\Models\ClaimStatusLog;
 use App\Services\FetchesGstTax;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Exception;
 
 class ClaimController extends Controller
 {
@@ -49,13 +50,13 @@ class ClaimController extends Controller
             $file = $request->file('receipt');
 
             // Generate a unique name for the file to avoid conflicts
-            $filename = uniqid().'.'.$file->getClientOriginalExtension();
+            $filename = uniqid() . '.' . $file->getClientOriginalExtension();
 
             // Store the file directly in the public folder
             $file->move(public_path('receipts'), $filename);
 
             // Save the file path to the database or return the filename
-            $path = 'receipts/'.$filename;
+            $path = 'receipts/' . $filename;
         }
 
         $requestData = $request->all();
@@ -94,7 +95,7 @@ class ClaimController extends Controller
         try {
             $claim = Claim::create($claim);
         } catch (\Exception $e) {
-            Log::error('Error creating claim: '.$e->getMessage());
+            Log::error('Error creating claim: ' . $e->getMessage());
 
             return response()->json([
                 'error' => 'An error occurred while creating the claim.',
@@ -123,6 +124,9 @@ class ClaimController extends Controller
 
     public function update(Request $request, Claim $claim)
     {
+        if ($claim->status >= 2) {
+            throw new Exception("Claim has been approved. It can not be updated");
+        }
         // dd($request->all());
 
         $user = auth()->user();
@@ -151,13 +155,13 @@ class ClaimController extends Controller
             $file = $request->file('receipt');
 
             // Generate a unique name for the file to avoid conflicts
-            $filename = uniqid().'.'.$file->getClientOriginalExtension();
+            $filename = uniqid() . '.' . $file->getClientOriginalExtension();
 
             // Store the file directly in the public folder
             $file->move(public_path('receipts'), $filename);
 
             // Save the file path to the database or return the filename
-            $path = 'receipts/'.$filename;
+            $path = 'receipts/' . $filename;
         }
 
         $requestData = $request->all();
@@ -196,26 +200,12 @@ class ClaimController extends Controller
         try {
             $claim->update($data);
         } catch (\Exception $e) {
-            Log::error('Error creating claim: '.$e->getMessage());
+            Log::error('Error creating claim: ' . $e->getMessage());
 
             return response()->json([
                 'error' => 'An error occurred while creating the claim.',
             ], 500);
         }
-
-        if ($userPrivilage == ApprovalRoles::L3_APPROVAL_MEMBERS) {
-            ClaimStatusLog::create([
-                'claim_id' => $claim->id,
-                'status' => ApprovalStatus::L3_APPROVAL,
-                'causer_id' => $user->id,
-            ]);
-        }
-
-        ClaimStatusLog::create([
-            'claim_id' => $claim->id,
-            'status' => $claim->status,
-            'causer_id' => $user->id,
-        ]);
 
         // Return success in JSON
         return response()->json([
@@ -265,7 +255,7 @@ class ClaimController extends Controller
                 $searchValue = $request->input('paymentType');
                 $query->where(function ($query) use ($queryParam, $searchValue) {
                     foreach ($queryParam as $q) {
-                        $query->orWhere($q, 'like', '%'.$searchValue.'%');
+                        $query->orWhere($q, 'like', '%' . $searchValue . '%');
                     }
                 });
             }
@@ -294,6 +284,7 @@ class ClaimController extends Controller
 
                 // Add transformed properties
                 $data->currency = $data->currencyObject->short_code;
+                $data->status_id = $data->status;
                 $data->status = ApprovalStatus::APPROVAL_STATUS_ID[$data->status];
                 $data->payment_category_name = $data->paymentCategory->name;
                 $data->receipt_file = $this->getReceiptFileUrl($data->receipt_file);
@@ -551,13 +542,13 @@ class ClaimController extends Controller
             $file = $request->file('receipt');
 
             // Generate a unique name for the file to avoid conflicts
-            $filename = uniqid().'.'.$file->getClientOriginalExtension();
+            $filename = uniqid() . '.' . $file->getClientOriginalExtension();
 
             // Store the file directly in the public folder
             $file->move(public_path('receipts'), $filename);
 
             // Save the file path to the database or return the filename
-            $path = 'receipts/'.$filename;
+            $path = 'receipts/' . $filename;
         }
 
         $claim->update([
@@ -578,7 +569,7 @@ class ClaimController extends Controller
 
     public function getReceiptFileUrl($url)
     {
-        return $url ? (app()->environment('production') ? 'public/' : '').$url : null;
+        return $url ? (app()->environment('production') ? 'public/' : '') . $url : null;
     }
 
     public function listIds(Request $request)
@@ -593,5 +584,26 @@ class ClaimController extends Controller
         $returnAry['All'] = Claim::pluck('id')->toArray();
 
         return response()->json($returnAry);
+    }
+
+    public function delete(Request $request, $id)
+    {
+        try {
+            // Attempt to find the claim by ID
+            $claim = Claim::find($id);
+
+            // Check if the claim exists
+            if (!$claim) {
+                return response()->json(['error' => 'Claim not found.'], 404);
+            }
+
+            // Delete the claim
+            $claim->delete();
+
+            return response()->json(['message' => 'Claim has been deleted.'], 200);
+        } catch (\Exception $e) {
+            // Handle any unexpected errors
+            return response()->json(['error' => 'An error occurred while deleting the claim.'], 500);
+        }
     }
 }

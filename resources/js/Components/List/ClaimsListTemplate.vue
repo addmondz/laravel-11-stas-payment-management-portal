@@ -1,9 +1,9 @@
 <template>
-    <div
-        class="w-full flex flex-col justify-center order-last lg:order-none max-lg:mx-auto border p-5 rounded-xl overflow-hidden bg-white hover:border-violet-600 transition-all duration-500" :class="{ 'bg-violet-50 border-violet-900': isSelected }">
+    <div class="w-full flex flex-col justify-center order-last lg:order-none max-lg:mx-auto border p-5 rounded-xl overflow-hidden bg-white hover:border-violet-600 transition-all duration-500"
+        :class="{ 'bg-violet-50 border-violet-900': isSelected }">
         <div class="flex">
             <div class="flex justify-center items-center" v-if="showGroupActions">
-                <SquareBtn @update-selected="handleUpdateSelected" :isSelected="isSelected" class="block mr-5"/>
+                <SquareBtn @update-selected="handleUpdateSelected" :isSelected="isSelected" class="block mr-5" />
             </div>
             <div class="flex-1">
                 <div class="grid lg:grid-cols-7 grid-cols-2 gap-x-4 gap-y-4">
@@ -45,9 +45,11 @@
                 </div>
             </div>
             <div class="flex justify-center items-center space-x-4">
-                <button class="cursor-pointer hover:text-violet-600 transition-all">
+                <DeleteOutlined @click="deletePaymentConfirmation" class="mb-3 mr-2" :class="{ 'invisible': isApproved }" :disabled="isApproved"/>
+                <div
+                    :class="{ 'invisible': isApproved }" :disabled="isApproved">
                     <CreateClaimForm :claimData="data" />
-                </button>
+                </div>
                 <button class="cursor-pointer hover:text-violet-600 transition-all">
                     <Link :href="route('claim.details', data.id)">
                     <AngleRight class="text-violet-700" />
@@ -59,7 +61,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import AngleRight from '@/Components/Icons/AngleRight.vue';
 import { formatPrice } from '@/Helpers/helpers.js';
 import { Link } from '@inertiajs/vue3';
@@ -67,6 +69,8 @@ import StatusLabel from '@/Components/General/StatusLabel.vue';
 import { formatDate, formatString } from '@/Helpers/helpers.js';
 import SquareBtn from '../Icons/SquareBtn.vue';
 import CreateClaimForm from '@/Components/Form/CreateClaimForm.vue';
+import { DeleteOutlined, EditOutlined } from '@ant-design/icons-vue';
+import Swal from 'sweetalert2';
 
 const emit = defineEmits(['update-selected-list']);
 const props = defineProps({
@@ -88,6 +92,47 @@ const props = defineProps({
 const handleUpdateSelected = (value) => {
     emit('update-selected-list', { isSelected: value, id: props.data.id });
 };
+
+const isApproved = computed(() => props.data.status_id >= 2);
+
+const deletePaymentConfirmation = () => {
+    Swal.fire({
+        title: "Are you sure?",
+        text: "Are you sure you want to delete this Payment?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: 'Yes',
+        cancelButtonText: 'No',
+        allowOutsideClick: false,
+        stopKeydownPropagation: true,
+        preConfirm: () => {
+            return new Promise((resolve, reject) => {
+                deletePayment(resolve, reject);
+            });
+        }
+    });
+};
+
+const deletePayment = async () => {
+    try {
+        const response = await axios.post(route('claims.delete', props.data.id));
+        emit('createComplete', true);
+        Swal.fire({
+            title: "Success!",
+            text: "The Payment has been successfully deleted.",
+            icon: "success",
+            confirmButtonText: "OK"
+        });
+    } catch (err) {
+        console.log(err);
+        Swal.fire({
+            title: "Error!",
+            text: err.response?.data?.error || "An unexpected error occurred while deleteing the payment.",
+            icon: "error",
+            confirmButtonText: "OK"
+        });
+    }
+};
 </script>
 
 <style>
@@ -96,6 +141,7 @@ const handleUpdateSelected = (value) => {
 }
 
 .bg-violet-50 {
-    background-color: #F5F3FF; /* bg-violet-50 */
+    background-color: #F5F3FF;
+    /* bg-violet-50 */
 }
 </style>

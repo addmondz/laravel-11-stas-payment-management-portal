@@ -1,6 +1,6 @@
 <template>
 
-    <Head title="Claim Details" />
+    <Head title="Payment Details" />
     <AuthenticatedLayout>
         <template #header>
             <div class="flex justify-between content-center">
@@ -310,7 +310,7 @@ const toggleShowSection = (name) => {
 const approvalClaimConfirmation = () => {
     Swal.fire({
         title: "Are you sure?",
-        text: "Are you sure you want to approve this Claim?",
+        text: "Are you sure you want to approve this Payment?",
         icon: "question",
         showCancelButton: true,
         confirmButtonText: 'Yes',
@@ -332,14 +332,14 @@ const callApiToApproveClaim = async () => {
         fetchData();
         Swal.fire({
             title: "Success!",
-            text: "The claim has been successfully approved.",
+            text: "The payment has been successfully approved.",
             icon: "success",
             confirmButtonText: "OK"
         });
     } catch (err) {
         Swal.fire({
             title: "Error!",
-            text: err.response ? err.response.data.error || "There was an error while approving the claim. Please try again." : "An unexpected error occurred.",
+            text: err.response ? err.response.data.error || "There was an error while approving the payment. Please try again." : "An unexpected error occurred.",
             icon: "error",
             confirmButtonText: "OK"
         });
@@ -349,7 +349,7 @@ const callApiToApproveClaim = async () => {
 const paymentCompletedConfirmation = () => {
     Swal.fire({
         title: "Are you sure?",
-        text: "Are you sure you want to approve this Claim?",
+        text: "Are you sure you want to approve this Payment?",
         icon: "question",
         showCancelButton: true,
         confirmButtonText: 'Yes',
@@ -370,14 +370,14 @@ const callApiToCompleteClaim = async () => {
         fetchData();
         Swal.fire({
             title: "Success!",
-            text: "The claim has been successfully approved.",
+            text: "The payment has been successfully approved.",
             icon: "success",
             confirmButtonText: "OK"
         });
     } catch (err) {
         Swal.fire({
             title: "Error!",
-            text: err.response ? err.response.data.error || "There was an error while approving the claim. Please try again." : "An unexpected error occurred.",
+            text: err.response ? err.response.data.error || "There was an error while approving the payment. Please try again." : "An unexpected error occurred.",
             icon: "error",
             confirmButtonText: "OK"
         });
