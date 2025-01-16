@@ -12,7 +12,7 @@ class PaymentCategoryController extends Controller
     {
         try {
             // Define the base query
-            $query = PaymentCategory::query();
+            $query = PaymentCategory::query()->orderBy('name');
 
             // if ($request->input('paymentType')) {
             //     $query->where('payment_type', $request->input('paymentType'));
