@@ -99,6 +99,7 @@ const sortAndFilters = ref([
         }
     },
     { display_name: "Payment Category", field_name: "payment_category_id", field_type: "select", api: route('paymentCategory.listChoice') },
+    { display_name: "Payment Receiver", field_name: "payment_receiver_id", field_type: "select", api: route('paymentReceiver.listIdToName') },
     { display_name: "Currency", field_name: "currency_id", field_type: "select", api: route('currency.listShortCode') },
     // { field_name: "total_amount", field_type: "string" },
     { display_name: "Created Date", field_name: "created_at", field_type: "date_range" },

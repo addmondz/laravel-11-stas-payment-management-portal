@@ -11,9 +11,13 @@
                         <div class="mb-1 text-xs text-gray-500">ID</div>
                         <div class="">{{ data.id }}</div>
                     </div>
-                    <div class="col">
+                    <!-- <div class="col">
                         <div class="mb-1 text-xs text-gray-500">Payment Type</div>
                         <div class="">{{ formatString(data.payment_type) }}</div>
+                    </div> -->
+                    <div class="col">
+                        <div class="mb-1 text-xs text-gray-500">Payment Receiver</div>
+                        <div class="">{{ data.payment_receiver?.name }}</div>
                     </div>
                     <div class="col">
                         <div class="mb-1 text-xs text-gray-500">Payment Category</div>

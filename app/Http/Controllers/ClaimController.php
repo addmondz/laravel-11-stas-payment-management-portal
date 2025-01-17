@@ -250,6 +250,14 @@ class ClaimController extends Controller
                 }
             }
 
+            $payment_receiver = $request->input('payment_receiver_id');
+            if ($payment_receiver) {
+                if (strpos($payment_receiver, 'id-') === 0) {
+                    $payment_receiver = substr($payment_receiver, strlen('id-'));
+                }
+                $query->where('payment_receiver_id', $payment_receiver);
+            }
+
             if ($request->input('searchValue')) {
                 $queryParam = ['payment_category', 'purpose'];
                 $searchValue = $request->input('paymentType');
@@ -288,6 +296,7 @@ class ClaimController extends Controller
                 $data->status = ApprovalStatus::APPROVAL_STATUS_ID[$data->status];
                 $data->payment_category_name = $data->paymentCategory->name;
                 $data->receipt_file = $this->getReceiptFileUrl($data->receipt_file);
+                $data->payment_receiver = $data->paymentToUser;
 
                 return $data;
             });

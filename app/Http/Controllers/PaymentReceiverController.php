@@ -21,6 +21,14 @@ class PaymentReceiverController extends Controller
             });
     }
 
+    public function listIdToName(Request $request)
+    {
+        return PaymentReceiver::orderBy('name')
+            ->get()
+            ->pluck('name', 'id')
+            ->mapWithKeys(fn($name, $id) => ['id-' . $id => $name]);
+    }
+
     public function list(Request $request)
     {
         $query = PaymentReceiver::with('currency')->orderBy('name');
