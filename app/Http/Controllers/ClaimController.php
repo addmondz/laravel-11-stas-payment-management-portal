@@ -169,7 +169,7 @@ class ClaimController extends Controller
         $gstTax = (float) $this->fetchesGstTax->execute();
 
         $data = [
-            'created_by' => $user->id,
+            // 'created_by' => $user->id,
             'payment_type' => $requestData['payment_type'],
             'payment_category_id' => $requestData['payment_category'],
             'currency_id' => $requestData['currency'],
@@ -260,7 +260,7 @@ class ClaimController extends Controller
 
             if ($request->input('searchValue')) {
                 $queryParam = ['payment_category', 'purpose'];
-                $searchValue = $request->input('paymentType');
+                $searchValue = $request->input('searchValue');
                 $query->where(function ($query) use ($queryParam, $searchValue) {
                     foreach ($queryParam as $q) {
                         $query->orWhere($q, 'like', '%' . $searchValue . '%');
@@ -268,7 +268,29 @@ class ClaimController extends Controller
                 });
             }
 
-            // Apply sorting if provided
+            // Calculate the total sum for filtered data
+            $totalSumQuery = clone $query;
+
+            // Fetch all filtered results
+            $totalSumData = $totalSumQuery->get();
+
+            // Calculate totals by country
+            $totalSumByCountry = [];
+            $totalSumData->each(function ($data) use (&$totalSumByCountry) {
+                $currency = $data->currencyObject;
+                $country = $currency->country;
+                $variable = $country->short_code;
+
+                if (isset($totalSumByCountry[$variable])) {
+                    $totalSumByCountry[$variable]['amount'] += $data->amount;
+                } else {
+                    $totalSumByCountry[$variable]['amount'] = $data->amount;
+                    $totalSumByCountry[$variable]['country_name'] = $country->name;
+                    $totalSumByCountry[$variable]['currency'] = $currency->short_code;
+                }
+            });
+
+            // Apply sorting
             $sortColumn = $request->input('sort_by', 'id');
             $sortDirection = $request->input('sort_order', $sortColumn === 'id' ? 'desc' : 'asc');
             $query->orderBy($sortColumn, $sortDirection);
@@ -278,6 +300,7 @@ class ClaimController extends Controller
             $datas = $query->paginate($perPage);
             $sum = [];
 
+            // Transform the data
             $datas->getCollection()->transform(function ($data) use (&$sum) {
                 $currency = $data->currencyObject;
                 $country = $currency->country;
@@ -301,11 +324,12 @@ class ClaimController extends Controller
                 return $data;
             });
 
-            // Return the response in a structured format
+            // Return the response with the total sum and paginated data
             return response()->json([
                 'success' => true,
                 'data' => $datas,
                 'sum' => $sum,
+                'total_sum_by_country' => $totalSumByCountry,
                 'message' => 'Payments listed successfully',
             ]);
         } catch (\Exception $e) {
@@ -380,6 +404,7 @@ class ClaimController extends Controller
                 $data->status = ApprovalStatus::APPROVAL_STATUS_ID[$data->status];
                 $data->payment_category_name = $data->paymentCategory->name;
                 $data->receipt_file = $this->getReceiptFileUrl($data->receipt_file);
+                $data->payment_receiver = $data->paymentToUser;
 
                 return $data;
             });

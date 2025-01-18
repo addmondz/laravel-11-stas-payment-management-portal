@@ -9,7 +9,7 @@
                     <h2 class="mb-4">Total Amount</h2>
                     <!-- <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"> -->
                     <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-6">
-                        <div v-for="(data, countryCode) in fullApiResponse.sum" :key="countryCode"
+                        <div v-for="(data, countryCode) in fullApiResponse.total_sum_by_country" :key="countryCode"
                             class="bg-gray-100 p-6 rounded-xl shadow-md transition-all duration-500 border">
                             <p class="mb-2">{{ data.country_name }} ({{ countryCode }})</p>
                             <div class="flex justify-between">
