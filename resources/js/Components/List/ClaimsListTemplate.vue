@@ -1,12 +1,12 @@
 <template>
-    <div class="w-full flex flex-col justify-center order-last lg:order-none max-lg:mx-auto border p-5 rounded-xl overflow-hidden bg-white hover:border-violet-600 transition-all duration-500"
+    <div class="w-full flex flex-col justify-center order-last lg:order-none max-lg:mx-auto border p-5 rounded-xl overflow-visible bg-white hover:border-violet-600 transition-all duration-500"
         :class="{ 'bg-violet-50 border-violet-900': isSelected }">
         <div class="flex">
-            <div class="flex justify-center items-center" v-if="showGroupActions">
+            <div class="flex justify-center items-center" v-if="showGroupActions && !isFinance().value">
                 <SquareBtn @update-selected="handleUpdateSelected" :isSelected="isSelected" class="block mr-5" />
             </div>
             <div class="flex-1">
-                <div class="grid lg:grid-cols-8 grid-cols-2 gap-x-4 gap-y-4">
+                <div class="grid lg:grid-cols-8 grid-cols-2 gap-x-4 gap-y-4 relative isolate">
                     <div class="col">
                         <div class="mb-1 text-xs text-gray-500">ID</div>
                         <div class="">{{ data.id }}</div>
@@ -29,15 +29,29 @@
                         <div class="whitespace-nowrap overflow-hidden text-ellipsis">{{ data.currency }} {{
                             formatPrice(data.amount) }}</div>
                     </div>
-                    <div class="col cursor pointer">
-                        <div class="mb-1 text-xs text-gray-500 cursor pointer">Purpose</div>
+                    <div class="col">
+                        <div class="mb-1 text-xs text-gray-500">Purpose</div>
                         <div class="relative group">
-                            <div class="whitespace-nowrap overflow-hidden text-ellipsis max-w-xs cursor pointer">
+                            <div class="truncate cursor-pointer">
                                 {{ data.purpose }}
                             </div>
-                            <div
-                                class="absolute left-0 bottom-full mb-2 w-max bg-gray-700 text-white text-md rounded p-1 opacity-0 group-hover:opacity-100 transition-opacity cursor pointer">
-                                {{ data.purpose }}
+
+                            <!-- Enhanced Tooltip with Better Positioning -->
+                            <div class="absolute invisible group-hover:visible 
+                                        left-0 -top-2 transform -translate-y-full
+                                        w-max max-w-xs px-4 py-3
+                                        bg-gray-900/95 backdrop-blur-sm
+                                        text-white text-sm font-medium
+                                        rounded-lg shadow-xl
+                                        transform-gpu scale-95 opacity-0 
+                                        group-hover:scale-100 group-hover:opacity-100
+                                        transition-all duration-200 ease-out
+                                        before:content-[''] before:absolute 
+                                        before:left-4 before:top-full
+                                        before:border-8 before:border-x-transparent 
+                                        before:border-b-transparent before:border-t-gray-900/95
+                                        z-[9999]">
+                                <div class="break-words">{{ data.purpose }}</div>
                             </div>
                         </div>
                     </div>
@@ -89,6 +103,7 @@ import CreateClaimForm from '@/Components/Form/CreateClaimForm.vue';
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons-vue';
 import { canDeletePayments } from '@/Composables/GlobalFuntions.vue';
 import Swal from 'sweetalert2';
+import { isFinance } from '@/Composables/GlobalFuntions.vue';
 
 const emit = defineEmits(['update-selected-list']);
 const props = defineProps({
@@ -152,6 +167,8 @@ const deletePayment = async () => {
         });
     }
 };
+
+const showTooltip = ref(false);
 </script>
 
 <style>
