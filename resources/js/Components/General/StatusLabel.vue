@@ -1,5 +1,5 @@
 <template>
-	<span :class="statusClass" class="block text-center capitalize px-4 py-1 me-2 text-sm font-medium rounded">{{ statusText }}</span>
+	<span :class="statusClass" class="block text-center capitalize px-3 py-1 me-2 text-sm font-medium rounded">{{ name ? name :statusText }}</span>
 </template>
 
 <script setup>
@@ -8,6 +8,10 @@ import { computed } from 'vue'
 // Props
 const props = defineProps({
 	status: {
+		type: String,
+		required: true,
+	},
+	name: {
 		type: String,
 		required: true,
 	}

@@ -36,11 +36,19 @@
                 <!-- Tab Content -->
                 <div class="w-full bg-black-50 p-1 rounded-xl">
                     <div v-show="activeTab === 'pendingApproval'">
-                        <PendingClaim :createCompleteSignal="createCompleteSignal"
-                            @pendingClaimsCount="handlePendingClaimsCount" @createComplete="handleCreateComplete" />
+                        <PendingClaim 
+                            :createCompleteSignal="createCompleteSignal" 
+                            @pendingClaimsCount="handlePendingClaimsCount" 
+                            @createComplete="handleCreateComplete"
+                            :sortAndFilters="sortAndFilters"
+                         />
                     </div>
                     <div v-show="activeTab === 'allClaims'">
-                        <AllClaim :createCompleteSignal="createCompleteSignal" :sortAndFilters="sortAndFilters" @createComplete="handleCreateComplete" />
+                        <AllClaim 
+                            :createCompleteSignal="createCompleteSignal" 
+                            @createComplete="handleCreateComplete"
+                            :sortAndFilters="sortAndFilters"
+                         />
                     </div>
                 </div>
             </div>

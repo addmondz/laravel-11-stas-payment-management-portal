@@ -215,22 +215,48 @@ class ClaimController extends Controller
 
     public function list(Request $request)
     {
-        try {
-            $user = auth()->user();
+        return $this->listFunction($request, false);
+    }
 
-            // if is admin show all
-            $isAdmin = $user->role == 'admin';
-            $isFinance = $user->role == 'finance';
-            $hasPrivillageRoles = $user->privileges->first()->approval_role_id ?? null;
-            if ($isAdmin || $hasPrivillageRoles || $isFinance) {
-                $query = Claim::with('createdUser');
+    public function listPendingApproval(Request $request)
+    {
+        return $this->listFunction($request, true);
+    }
+
+    public function listFunction(Request $request, $isPendingApproval = false)
+    {
+        try {
+            $user = $request->user();
+            $isAdmin = $user->role === 'admin';
+            $isFinance = $user->role === 'finance';
+            $privilegeRoleId = $user->privileges->first()->approval_role_id ?? null;
+
+            // Initialize query
+            $query = Claim::with(['createdUser', 'currencyObject', 'paymentCategory']);
+
+            if ($isPendingApproval) {
+                if (!$privilegeRoleId && !$isFinance) {
+                    return response()->json([
+                        'success' => true,
+                        'data' => [],
+                        'message' => 'Pending Approval Payments listed successfully',
+                    ]);
+                }
+
+                if ($isFinance) {
+                    $query->where('status', ApprovalStatus::APPROVED);
+                }
+
+                if ($privilegeRoleId) {
+                    $query->orWhere('approval_status', $privilegeRoleId - 1);
+                }
             } else {
-                // if is normal user, can only show what they have submitted
-                $query = Claim::with('createdUser')->where('created_by', $user->id);
+                if (!$isAdmin && !$privilegeRoleId && !$isFinance) {
+                    $query->where('created_by', $user->id);
+                }
             }
 
-            // dd($request->input());
-
+            // Apply filters
             $filters = ['id', 'payment_type', 'payment_category_id', 'currency_id', 'status'];
             foreach ($filters as $filter) {
                 if ($request->has($filter)) {
@@ -238,169 +264,67 @@ class ClaimController extends Controller
                 }
             }
 
-            $created_at = $request->input('created_at');
-            if ($created_at) {
+            if ($created_at = $request->input('created_at')) {
                 $created_at_array = is_array($created_at) ? $created_at : explode(',', $created_at);
-
-                // Ensure the array is of length 2
                 if (count($created_at_array) == 2) {
-                    $formattedFromDate = date('Y-m-d 00:00:00', strtotime($created_at_array[0]));
-                    $formattedToDate = date('Y-m-d 23:59:59', strtotime($created_at_array[1]));
-                    $query->whereBetween('created_at', [$formattedFromDate, $formattedToDate]);
+                    $fromDate = date('Y-m-d 00:00:00', strtotime($created_at_array[0]));
+                    $toDate = date('Y-m-d 23:59:59', strtotime($created_at_array[1]));
+                    $query->whereBetween('created_at', [$fromDate, $toDate]);
                 }
             }
 
-            $payment_receiver = $request->input('payment_receiver_id');
-            if ($payment_receiver) {
+            if ($payment_receiver = $request->input('payment_receiver_id')) {
                 if (strpos($payment_receiver, 'id-') === 0) {
                     $payment_receiver = substr($payment_receiver, strlen('id-'));
                 }
                 $query->where('payment_receiver_id', $payment_receiver);
             }
 
-            if ($request->input('searchValue')) {
-                $queryParam = ['payment_category', 'purpose'];
-                $searchValue = $request->input('searchValue');
-                $query->where(function ($query) use ($queryParam, $searchValue) {
-                    foreach ($queryParam as $q) {
-                        $query->orWhere($q, 'like', '%' . $searchValue . '%');
-                    }
-                });
-            }
-
-            // Calculate the total sum for filtered data
-            $totalSumQuery = clone $query;
-
-            // Fetch all filtered results
-            $totalSumData = $totalSumQuery->get();
-
-            // Calculate totals by country
-            $totalSumByCountry = [];
-            $totalSumData->each(function ($data) use (&$totalSumByCountry) {
-                $currency = $data->currencyObject;
-                $country = $currency->country;
-                $variable = $country->short_code;
-
-                if (isset($totalSumByCountry[$variable])) {
-                    $totalSumByCountry[$variable]['amount'] += $data->amount;
-                } else {
-                    $totalSumByCountry[$variable]['amount'] = $data->amount;
-                    $totalSumByCountry[$variable]['country_name'] = $country->name;
-                    $totalSumByCountry[$variable]['currency'] = $currency->short_code;
-                }
-            });
-
-            // Apply sorting
-            $sortColumn = $request->input('sort_by', 'id');
-            $sortDirection = $request->input('sort_order', $sortColumn === 'id' ? 'desc' : 'asc');
-            $query->orderBy($sortColumn, $sortDirection);
-
-            // Paginate the results
-            $perPage = $request->get('per_page', 10); // Default to 10 items per page
-            $datas = $query->paginate($perPage);
-            $sum = [];
-
-            // Transform the data
-            $datas->getCollection()->transform(function ($data) use (&$sum) {
-                $currency = $data->currencyObject;
-                $country = $currency->country;
-                $variable = $country->short_code;
-                if (isset($sum[$variable])) {
-                    $sum[$variable]['amount'] += $data->amount;
-                } else {
-                    $sum[$variable]['amount'] = $data->amount;
-                    $sum[$variable]['country_name'] = $country->name;
-                    $sum[$variable]['currency'] = $currency->short_code;
-                }
-
-                // Add transformed properties
-                $data->currency = $data->currencyObject->short_code;
-                $data->status_id = $data->status;
-                $data->status = ApprovalStatus::APPROVAL_STATUS_ID[$data->status];
-                $data->payment_category_name = $data->paymentCategory->name;
-                $data->receipt_file = $this->getReceiptFileUrl($data->receipt_file);
-                $data->payment_receiver = $data->paymentToUser;
-
-                return $data;
-            });
-
-            // Return the response with the total sum and paginated data
-            return response()->json([
-                'success' => true,
-                'data' => $datas,
-                'sum' => $sum,
-                'total_sum_by_country' => $totalSumByCountry,
-                'message' => 'Payments listed successfully',
-            ]);
-        } catch (\Exception $e) {
-            // Log the error with detailed information
-            Log::error('Error listing Claims', [
-                'message' => $e->getMessage(),
-                'line' => $e->getLine(),
-                'file' => $e->getFile(),
-                'trace' => $e->getTraceAsString(),
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred while listing Claims',
-            ], 500);
-        }
-    }
-
-    public function listPendingApproval(Request $request)
-    {
-        try {
-            $user = $request->user();
-            $privilegeRoleId = $user->privileges->first()->approval_role_id ?? null;
-
-            // Step 1: Check if the user lacks privilege roles
-            if (! $privilegeRoleId && ! $user->role === 'finance') {
-                return response()->json([
-                    'success' => true,
-                    'data' => [],
-                    'message' => 'Claims listed successfully',
-                ]);
-            }
-
-            // Initialize query
-            $query = Claim::with(['createdUser', 'currencyObject', 'paymentCategory']);
-
-            // Step 2: Check if the user is in the finance role
-            if ($user->role === 'finance') {
-                $query->where('status', ApprovalStatus::APPROVED);
-            }
-
-            // Step 3: Apply privilege-based filtering
-            if ($privilegeRoleId) {
-                $query->orWhere('approval_status', $privilegeRoleId - 1);
-            }
-
-            // Apply additional filters
-            if ($paymentType = $request->input('paymentType')) {
-                $query->where('payment_type', $paymentType);
-            }
-
             if ($searchValue = $request->input('searchValue')) {
                 $query->where(function ($q) use ($searchValue) {
-                    $queryParam = ['payment_category', 'purpose'];
-                    foreach ($queryParam as $param) {
+                    $queryParams = ['payment_category', 'purpose'];
+                    foreach ($queryParams as $param) {
                         $q->orWhere($param, 'like', "%{$searchValue}%");
                     }
                 });
             }
 
-            // Apply sorting if provided
+            // Calculate total sums if not pending approval
+            $totalSumByCountry = [];
+            if (!$isPendingApproval) {
+                $totalSumData = clone $query;
+                $totalSumData->get()->each(function ($data) use (&$totalSumByCountry) {
+                    $currency = $data->currencyObject;
+                    $country = $currency->country;
+                    $key = $country->short_code;
+
+                    if (isset($totalSumByCountry[$key])) {
+                        $totalSumByCountry[$key]['amount'] += $data->amount;
+                    } else {
+                        $totalSumByCountry[$key] = [
+                            'amount' => $data->amount,
+                            'country_name' => $country->name,
+                            'currency' => $currency->short_code,
+                        ];
+                    }
+                });
+            }
+
+            // Apply sorting
             $sortColumn = $request->input('sort.column', 'id');
             $sortDirection = $request->input('sort.direction', 'asc');
             $query->orderBy($sortColumn, $sortDirection);
 
-            // Paginate the results
-            $perPage = $request->get('per_page', 10); // Default to 10 items per page
+            // Paginate results
+            $perPage = $request->get('per_page', 10);
             $datas = $query->paginate($perPage);
 
+            // Transform data
             $datas->getCollection()->transform(function ($data) {
-                $data->currency = $data->currencyObject->short_code;
+                $currency = $data->currencyObject;
+                $data->currency = $currency->short_code;
+                $data->status_id = $data->status;
+                $data->status_name = ApprovalStatus::APPROVAL_STATUS_ID[$data->status] . ($data->status == ApprovalStatus::PENDING_APPROVAL ? ' • L' . ($data->approval_status + 1) : '');
                 $data->status = ApprovalStatus::APPROVAL_STATUS_ID[$data->status];
                 $data->payment_category_name = $data->paymentCategory->name;
                 $data->receipt_file = $this->getReceiptFileUrl($data->receipt_file);
@@ -409,14 +333,13 @@ class ClaimController extends Controller
                 return $data;
             });
 
-            // Return the response in a structured format
             return response()->json([
                 'success' => true,
                 'data' => $datas,
-                'message' => 'Claims listed successfully',
+                'total_sum_by_country' => $isPendingApproval ? null : $totalSumByCountry,
+                'message' => $isPendingApproval ? 'Pending Approval Payments listed successfully' : 'Payments listed successfully',
             ]);
         } catch (\Exception $e) {
-            // Log the error with detailed information
             Log::error('Error listing Claims', [
                 'message' => $e->getMessage(),
                 'line' => $e->getLine(),

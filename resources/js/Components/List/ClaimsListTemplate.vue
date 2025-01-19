@@ -40,7 +40,7 @@
                     <div class="col">
                         <div class="mb-1 text-xs text-gray-500">Status</div>
                         <!-- <StatusLabel class="text-2xs inline-block w-[140px]" :status="data.status" /> -->
-                        <StatusLabel class="overide-fs-11 inline-block w-[140px] rounded-xl" :status="data.status" />
+                        <StatusLabel class="overide-fs-11 inline-block w-[140px] rounded-xl" :status="data.status" :name="data.status_name" />
                     </div>
                     <div class="col">
                         <div class="mb-1 text-xs text-gray-500">Created At</div>

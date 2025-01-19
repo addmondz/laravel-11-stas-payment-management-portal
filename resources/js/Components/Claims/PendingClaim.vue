@@ -16,14 +16,14 @@
                 {{ emitPendingClaimsCount(apiResponse.total) }}
                 {{ getListIds(data) }}
 
-                <ClaimsListTemplate v-for="product in data" 
+                <ClaimsListTemplate :createComplete="createCompleteSignal"
+                    @createComplete="handleCreateComplete"
+                    @update-selected-list="handleUpdateSelectedList"
+                    v-for="product in data" 
                     :key="product.id" 
                     :showGroupActions="true"
-                    :createComplete="createCompleteSignal"
                     :data="product" 
                     :isSelected="selectedIds.includes(product.id)" 
-                    @update-selected-list="handleUpdateSelectedList"
-                    @createComplete="handleCreateComplete"
                 />
 
             </template>

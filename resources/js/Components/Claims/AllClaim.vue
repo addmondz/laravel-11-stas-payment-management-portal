@@ -5,7 +5,7 @@
             <template v-slot:list-view="{ data, apiResponse, fullApiResponse }">
 
                 <!-- Total Amount -->
-                <div class="bg-white p-5 rounded-xl" v-if="Object.keys(fullApiResponse.sum).length">
+                <div class="bg-white p-5 rounded-xl" v-if="Object.keys(fullApiResponse.total_sum_by_country).length">
                     <h2 class="mb-4">Total Amount</h2>
                     <!-- <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"> -->
                     <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-6">
@@ -24,9 +24,12 @@
                 </div>
 
                 <ClaimsListTemplate :createComplete="createCompleteSignal"
-                @createComplete="handleCreateComplete"
-                    @update-selected-list="handleUpdateSelectedList" v-for="product in data" :key="product.id"
-                    :data="product" />
+                    @createComplete="handleCreateComplete"
+                    @update-selected-list="handleUpdateSelectedList"
+                    v-for="product in data"
+                    :key="product.id"
+                    :data="product"
+                />
             </template>
         </ListComponent>
     </div>
