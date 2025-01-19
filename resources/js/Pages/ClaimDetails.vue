@@ -3,7 +3,7 @@
     <Head title="Payment Details" />
     <AuthenticatedLayout>
         <template #header>
-            <div class="flex justify-between content-center">
+            <div class="flex flex-wrap justify-between items-center gap-y-4 sm:flex-nowrap">
                 <BreadcrumbComponent :breadcrumbs="breadcrumbs" />
                 <div class="flex items-center justify-center">
                     <StatusLabel v-if="apiResponse" class="text-sm inline-block" :status="fetchedData.status" />
@@ -22,8 +22,8 @@
             <LoadingComponent class="mt-32" />
         </div>
         <div v-else>
-            <div class="py-12 m-5 mt-0 mb-0 pt-5" v-if="apiResponse">
-                <div class="bg-white max-w-7xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5">
+            <div class="max-w-8xl mx-auto py-6 px-4 sm:px-6 lg:px-8" v-if="apiResponse">
+                <div class="bg-white max-w-8xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5">
                     <div class="px-5 py-3 border-b border-gray-300 flex justify-between items-center">
                         <div class="flex justify-between content-center w-full">
                             <h2>Details</h2>
@@ -82,7 +82,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="bg-white max-w-7xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5">
+                <div class="bg-white max-w-8xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5">
                     <div class="px-5 py-3 border-b border-gray-300 flex justify-between items-center">
                         <div class="flex justify-between content-center w-full">
                             <h2>Amount</h2>
@@ -124,7 +124,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="bg-white max-w-7xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5">
+                <div class="bg-white max-w-8xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5">
                     <div class="px-5 py-3 border-b border-gray-300 flex justify-between items-center">
                         <div class="flex justify-between content-center w-full">
                             <h2>Receipt</h2>
@@ -154,7 +154,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="bg-white max-w-7xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5">
+                <div class="bg-white max-w-8xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5">
                     <div class="px-5 py-3 border-b border-gray-300 flex justify-between items-center">
                         <div class="flex justify-between content-center w-full">
                             <h2>Approval History</h2>
@@ -185,7 +185,7 @@
                     </div>
                 </div>
 
-                <div class="bg-white max-w-7xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5"
+                <div class="bg-white max-w-8xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5"
                     v-if="fetchedData.status_id >= 3">
                     <div class="px-5 py-3 border-b border-gray-300 flex justify-between items-center">
                         <div class="flex justify-between content-center w-full">
@@ -225,19 +225,19 @@
                     </div>
                 </div>
 
-                <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5 text-right"
+                <div class="max-w-8xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5 text-right"
                     v-if="fetchedData.status_id < 2 && (getUserApprovalPrivillage().value == fetchedData.next_approval_level)">
                     <PrimaryButton
                         class="bg-violet-500 hover:bg-violet-700 active:bg-violet-700 focus:bg-violet-700 font-bold"
                         @click="approvalClaimConfirmation">Approve Payment</PrimaryButton>
                 </div>
 
-                <!-- <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5 text-right"
+                <!-- <div class="max-w-8xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5 text-right"
                     v-if="fetchedData.status_id == 2 && isAdmin().value">
                     <PrimaryButton @click="paymentCompletedConfirmation">Mark as Payment Completed</PrimaryButton>
                 </div> -->
 
-                <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5 text-right"
+                <div class="max-w-8xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5 text-right"
                     v-if="fetchedData.status_id == 2 && isFinance().value">
                     <PaymentVoucherForm :claimId="props.id" @createComplete="handleCreateComplete" />
                 </div>

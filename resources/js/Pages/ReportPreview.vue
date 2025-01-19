@@ -2,12 +2,12 @@
     <Head :title="pageTitle" />
     
     <div class="flex flex-col items-center justify-center m-auto pl-8 pr-8">
-        <div v-if="isLoading || isApiLoading" class="flex flex-col items-center justify-center max-w-7xl m-auto min-h-screen">
+        <div v-if="isLoading || isApiLoading" class="flex flex-col items-center justify-center max-w-8xl m-auto min-h-screen">
             <LoadingComponent class="mt-32 mb-32" />
         </div>
         <NotFound v-else-if="notFound || error" class="min-h-screen" />
         <div v-else>
-            <div class="max-w-7xl overflow-auto mt-4 pb-8 m-auto" v-html="apiResponse.html"></div>
+            <div class="max-w-8xl overflow-auto mt-4 pb-8 m-auto" v-html="apiResponse.html"></div>
         </div>
     </div>
 </template>
