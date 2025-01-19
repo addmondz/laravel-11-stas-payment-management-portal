@@ -273,7 +273,8 @@ class ClaimController extends Controller
                 }
             }
 
-            if ($approval_level = $request->input('approval_level')) {
+            $approval_level = $request->input('approval_level');
+            if (isset($approval_level)) {
                 $query->where('approval_status', $approval_level);
             }
 
