@@ -311,8 +311,8 @@ class ClaimController extends Controller
             }
 
             // Apply sorting
-            $sortColumn = $request->input('sort.column', 'id');
-            $sortDirection = $request->input('sort.direction', 'asc');
+            $sortColumn = $request->input('sort_by', 'id');
+            $sortDirection = $request->input('sort_order', $isPendingApproval ? 'asc' : 'desc');
             $query->orderBy($sortColumn, $sortDirection);
 
             // Paginate results
