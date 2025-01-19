@@ -6,7 +6,7 @@
                 <SquareBtn @update-selected="handleUpdateSelected" :isSelected="isSelected" class="block mr-5" />
             </div>
             <div class="flex-1">
-                <div class="grid lg:grid-cols-7 grid-cols-2 gap-x-4 gap-y-4">
+                <div class="grid lg:grid-cols-8 grid-cols-2 gap-x-4 gap-y-4">
                     <div class="col">
                         <div class="mb-1 text-xs text-gray-500">ID</div>
                         <div class="">{{ data.id }}</div>
@@ -29,6 +29,18 @@
                         <div class="whitespace-nowrap overflow-hidden text-ellipsis">{{ data.currency }} {{
                             formatPrice(data.amount) }}</div>
                     </div>
+                    <div class="col cursor pointer">
+                        <div class="mb-1 text-xs text-gray-500 cursor pointer">Purpose</div>
+                        <div class="relative group">
+                            <div class="whitespace-nowrap overflow-hidden text-ellipsis max-w-xs cursor pointer">
+                                {{ data.purpose }}
+                            </div>
+                            <div
+                                class="absolute left-0 bottom-full mb-2 w-max bg-gray-700 text-white text-md rounded p-1 opacity-0 group-hover:opacity-100 transition-opacity cursor pointer">
+                                {{ data.purpose }}
+                            </div>
+                        </div>
+                    </div>
                     <!-- <div class="col">
                         <div class="mb-1 text-xs text-gray-500">Purpose</div>
                         <div class="">{{ data.purpose }}</div>
@@ -40,7 +52,8 @@
                     <div class="col">
                         <div class="mb-1 text-xs text-gray-500">Status</div>
                         <!-- <StatusLabel class="text-2xs inline-block w-[140px]" :status="data.status" /> -->
-                        <StatusLabel class="overide-fs-11 inline-block w-[140px] rounded-xl" :status="data.status" :name="data.status_name" />
+                        <StatusLabel class="overide-fs-11 inline-block w-[140px] rounded-xl" :status="data.status"
+                            :name="data.status_name" />
                     </div>
                     <div class="col">
                         <div class="mb-1 text-xs text-gray-500">Created At</div>
@@ -49,9 +62,9 @@
                 </div>
             </div>
             <div class="flex justify-center items-center space-x-4">
-                <DeleteOutlined @click="deletePaymentConfirmation" class="mb-3 mr-2" :class="{ 'invisible': isApproved }" :disabled="isApproved" v-if="canDeletePayments().value"/>
-                <div
-                    :class="{ 'invisible': isApproved }" :disabled="isApproved">
+                <DeleteOutlined @click="deletePaymentConfirmation" class="mb-3 mr-2"
+                    :class="{ 'invisible': isApproved }" :disabled="isApproved" v-if="canDeletePayments().value" />
+                <div :class="{ 'invisible': isApproved }" :disabled="isApproved">
                     <CreateClaimForm :claimData="data" />
                 </div>
                 <button class="cursor-pointer hover:text-violet-600 transition-all">

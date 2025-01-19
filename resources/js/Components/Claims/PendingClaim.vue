@@ -1,20 +1,12 @@
 <template>
     <div>
-        <div class="flex items-center w-full order-last lg:order-none max-lg:mx-auto p-5 rounded-xl overflow-hidden transition-all duration-500" v-if="!isFinance().value">
-            <SquareBtn @click="selectAllClicked(data)" :isSelected="selectAll" class="block mr-5" v-show="allIds.length" />
-            <PrimaryButton class="select-none bg-violet-500 hover:bg-violet-700 active:bg-violet-700 focus:bg-violet-700 font-bold" :class="{ 'invisible': !selectedIds.length }"
-                @click="groupApprovalConfirmation">
-                Approve {{ selectedIds.length }} Payment(s)
-            </PrimaryButton>
-        </div>
-        <div class="mb-3" v-else></div>
-
         <ListComponent :apiUrl="route('claims.listPendingApproval')" :createCompleteSignal="createCompleteSignal"
-            :key="loadingKey" :allowSorting="true" :sortAndFilters="sortAndFilters" :hasPaddingTop="false">
+            :key="loadingKey" :allowSorting="true" :sortAndFilters="sortAndFilters"
+            :allowSelectAll="true" :selectedIds="selectedIds"
+            @update:wholeSelectedIds="handleUpdateWholeSelectedList">
 
             <template v-slot:list-view="{ data, apiResponse }">
                 {{ emitPendingClaimsCount(apiResponse.total) }}
-                {{ getListIds(data) }}
 
                 <ClaimsListTemplate :createComplete="createCompleteSignal"
                     @createComplete="handleCreateComplete"
@@ -32,13 +24,10 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref } from 'vue';
 import ClaimsListTemplate from '@/Components/List/ClaimsListTemplate.vue';
 import ListComponent from '../General/ListComponent.vue';
-import PrimaryButton from '@/Components/General/PrimaryButton.vue';
 import Swal from 'sweetalert2';
-import SquareBtn from '../Icons/SquareBtn.vue';
-import { isFinance } from '@/Composables/GlobalFuntions.vue';
 
 const emit = defineEmits(['pendingClaimsCount']);
 const props = defineProps({
@@ -54,11 +43,13 @@ const props = defineProps({
 
 const selectedIds = ref([]);
 const loadingKey = ref(1);
-const selectAll = ref(false);
-const allIds = ref([]);
 
 const emitPendingClaimsCount = (count) => {
     emit('pendingClaimsCount', count);
+};
+
+const handleUpdateWholeSelectedList = (updatedSelectedIds) => {
+    selectedIds.value = updatedSelectedIds;
 };
 
 const handleUpdateSelectedList = ({ isSelected, id }) => {
@@ -76,63 +67,10 @@ const handleUpdateSelectedList = ({ isSelected, id }) => {
     selectAll.value = JSON.stringify(sortedSelectedIds) === JSON.stringify(sortedAllIds);
 };
 
-const selectAllClicked = (data) => {
-    selectAll.value = !selectAll.value; // Toggle selectAll state
-    if (selectAll.value) {
-        // Select all items
-        selectedIds.value = [...new Set([...selectedIds.value, ...allIds.value])];
-    } else {
-        // Deselect all items
-        selectedIds.value = [];
-    }
-};
-
-const getListIds = (list) => {
-    allIds.value = list.map(item => item.id);
-};
-
-const groupApprovalConfirmation = () => {
-    Swal.fire({
-        title: "Are you sure?",
-        text: "Are you sure you want to approve these Payments?",
-        icon: "question",
-        showCancelButton: true,
-        confirmButtonText: 'Yes',
-        cancelButtonText: 'No',
-        allowOutsideClick: false,
-        stopKeydownPropagation: true,
-        preConfirm: () => {
-            return new Promise((resolve, reject) => {
-                callApiToGroupApproveClaim(resolve, reject);
-            });
-        }
-    });
-};
-
 const reloadComponent = () => {
     loadingKey.value++;
     selectedIds.value = [];
     selectAll.value = false;
-};
-
-const callApiToGroupApproveClaim = async () => {
-    try {
-        const response = await axios.post(route('claims.groupApprove', selectedIds.value.toString()));
-        reloadComponent();
-        Swal.fire({
-            title: "Success!",
-            text: "The Payment has been successfully approved.",
-            icon: "success",
-            confirmButtonText: "OK"
-        });
-    } catch (err) {
-        Swal.fire({
-            title: "Error!",
-            text: err.response?.data?.error || "An unexpected error occurred while approving the claim.",
-            icon: "error",
-            confirmButtonText: "OK"
-        });
-    }
 };
 
 const handleCreateComplete = (value) => {
