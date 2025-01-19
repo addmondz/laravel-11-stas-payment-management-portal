@@ -103,6 +103,15 @@ const sortAndFilters = ref([
             external_payment: 'External Payment'
         }
     },
+    {
+        field_name: "approval_level",
+        field_type: "select",
+        options: {
+            0: 'L1',
+            1: 'L2',
+            2: 'L3'
+        }
+    },
     { display_name: "Payment Category", field_name: "payment_category_id", field_type: "select", api: route('paymentCategory.listChoice') },
     { display_name: "Payment Receiver", field_name: "payment_receiver_id", field_type: "select", api: route('paymentReceiver.listIdToName') },
     { display_name: "Currency", field_name: "currency_id", field_type: "select", api: route('currency.listShortCode') },

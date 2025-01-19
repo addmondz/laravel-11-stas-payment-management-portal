@@ -273,6 +273,10 @@ class ClaimController extends Controller
                 }
             }
 
+            if ($approval_level = $request->input('approval_level')) {
+                $query->where('approval_status', $approval_level);
+            }
+
             if ($payment_receiver = $request->input('payment_receiver_id')) {
                 if (strpos($payment_receiver, 'id-') === 0) {
                     $payment_receiver = substr($payment_receiver, strlen('id-'));
