@@ -57,7 +57,7 @@ class SummaryReportExport implements FromArray, ShouldAutoSize, WithStyles, With
             // Add header information for each receiver
             $reportData[] = [''];
             $reportData[] = [''];
-            $reportData[] = ["Pay To:", $receiver->name, "", "", "", "", "Date:", $currentDate];
+            $reportData[] = ["Pay To:", $receiver->name, "", "", "", "", "", "Date:", $currentDate];
             $reportData[] = ["Bank Name:", $receiver->bank_name];
             $reportData[] = ["Bank Account:", $receiver->bank_account_no];
             $reportData[] = ["Swift Code:", $receiver->swift_code];
@@ -71,6 +71,7 @@ class SummaryReportExport implements FromArray, ShouldAutoSize, WithStyles, With
                 "Total Transaction",
                 "Currency",
                 "Total Amount",
+                "Gst",
                 "Reviewed by",
                 "Approved by",
                 "Approved by",
@@ -80,11 +81,13 @@ class SummaryReportExport implements FromArray, ShouldAutoSize, WithStyles, With
             $startRow = $currentRow + 1; // Start of the transaction summary section
             $totalTransactions = 0;
             $totalAmount = 0;
+            $totalGst = 0;
             $categoryCounter = 1;
 
             foreach ($categories->groupBy('payment_category_id') as $categoryId => $categoryClaims) {
                 $transactionCount = $categoryClaims->count();
                 $amount = $categoryClaims->sum('amount');
+                $gst_amount = $categoryClaims->sum('gst_amount');
                 $currency = $categoryClaims->first()->currencyObject->short_code ?? $notAvailable;
                 $categoryName = ucwords(PaymentCategory::find($categoryId)->name);
                 $claimIds = $categoryClaims->pluck('id');
@@ -102,6 +105,7 @@ class SummaryReportExport implements FromArray, ShouldAutoSize, WithStyles, With
                     $transactionCount,
                     $currency,
                     $this->formatPrice($amount),
+                    $this->formatPrice($gst_amount),
                     implode(', ', $l1Approvers),
                     implode(', ', $l2Approvers),
                     implode(', ', $l3Approvers),
@@ -126,7 +130,7 @@ class SummaryReportExport implements FromArray, ShouldAutoSize, WithStyles, With
             $currentRow++;
             $currentRow++;
 
-            $this->transactionRanges[] = "A{$startRow}:H{$currentRow}"; // Store range for borders
+            $this->transactionRanges[] = "A{$startRow}:I{$currentRow}"; // Store range for borders
 
             $reportData[] = []; // Blank row for spacing
             $currentRow++;

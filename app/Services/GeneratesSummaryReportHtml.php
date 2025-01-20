@@ -55,7 +55,7 @@ class GeneratesSummaryReportHtml
     private function buildHtml($claims, $receivers): string
     {
         $html = $this->getHeaderHtml();
-        
+
         foreach ($claims as $receiverId => $categories) {
             $html .= $this->buildReceiverSection(
                 $receiverId ?? self::NOT_AVAILABLE,
@@ -196,21 +196,21 @@ class GeneratesSummaryReportHtml
     {
         return '
             <tr>
-                <td colspan="8" class="section-header">
+                <td colspan="9" class="section-header">
                     <div style="font-weight: 600; font-size: 0.85rem;">Pay To: ' . htmlspecialchars($receiver->name) . '</div>
-                    <div class="meta-info">Bank Name: ' . 
-                    htmlspecialchars("{$receiver->bank_name}") . 
-                    '</div>
-                    <div class="meta-info">Bank Account: ' . 
-                    htmlspecialchars("{$receiver->bank_account_no}") . 
-                    '</div>
-                    <div class="meta-info">Swift Code: ' . 
-                    htmlspecialchars("{$receiver->swift_code}") . 
-                    '</div>
+                    <div class="meta-info">Bank Name: ' .
+            htmlspecialchars("{$receiver->bank_name}") .
+            '</div>
+                    <div class="meta-info">Bank Account: ' .
+            htmlspecialchars("{$receiver->bank_account_no}") .
+            '</div>
+                    <div class="meta-info">Swift Code: ' .
+            htmlspecialchars("{$receiver->swift_code}") .
+            '</div>
                     <br>
-                    <div class="meta-info">Period: ' . 
-                    htmlspecialchars("{$this->requestBody['startDate']} - {$this->requestBody['endDate']}") . 
-                    '</div>
+                    <div class="meta-info">Period: ' .
+            htmlspecialchars("{$this->requestBody['startDate']} - {$this->requestBody['endDate']}") .
+            '</div>
                 </td>
             </tr>
             <tr>
@@ -219,6 +219,7 @@ class GeneratesSummaryReportHtml
                 <th class="col-transactions">Total Transactions</th>
                 <th class="col-currency">Currency</th>
                 <th class="col-amount">Total Amount</th>
+                <th class="col-amount">Gst</th>
                 <th class="col-approver">Reviewed by</th>
                 <th class="col-approver">Approved by</th>
                 <th class="col-approver">Approved by</th>
@@ -234,12 +235,13 @@ class GeneratesSummaryReportHtml
                 <td style="text-align: center;">' . $rowData['transactions'] . '</td>
                 <td style="text-align: center;">' . htmlspecialchars($rowData['currency']) . '</td>
                 <td class="amount-cell">' . $this->formatPrice($rowData['amount']) . '</td>
-                <td class="approver-cell" title="' . htmlspecialchars(implode(', ', $rowData['approvers']['l1'])) . '">' 
-                    . htmlspecialchars(implode(', ', $rowData['approvers']['l1'])) . '</td>
-                <td class="approver-cell" title="' . htmlspecialchars(implode(', ', $rowData['approvers']['l2'])) . '">' 
-                    . htmlspecialchars(implode(', ', $rowData['approvers']['l2'])) . '</td>
-                <td class="approver-cell" title="' . htmlspecialchars(implode(', ', $rowData['approvers']['l3'])) . '">' 
-                    . htmlspecialchars(implode(', ', $rowData['approvers']['l3'])) . '</td>
+                <td class="amount-cell">' . $this->formatPrice($rowData['gst_amount']) . '</td>
+                <td class="approver-cell" title="' . htmlspecialchars(implode(', ', $rowData['approvers']['l1'])) . '">'
+            . htmlspecialchars(implode(', ', $rowData['approvers']['l1'])) . '</td>
+                <td class="approver-cell" title="' . htmlspecialchars(implode(', ', $rowData['approvers']['l2'])) . '">'
+            . htmlspecialchars(implode(', ', $rowData['approvers']['l2'])) . '</td>
+                <td class="approver-cell" title="' . htmlspecialchars(implode(', ', $rowData['approvers']['l3'])) . '">'
+            . htmlspecialchars(implode(', ', $rowData['approvers']['l3'])) . '</td>
             </tr>';
     }
 
@@ -252,6 +254,7 @@ class GeneratesSummaryReportHtml
                 <td style="text-align: center;">' . $totals['transactions'] . '</td>
                 <td></td>
                 <td class="amount-cell">' . $this->formatPrice($totals['amount']) . '</td>
+                <td class="amount-cell">' . $this->formatPrice($totals['gst_amount']) . '</td>
                 <td colspan="3"></td>
             </tr>';
     }
@@ -260,7 +263,8 @@ class GeneratesSummaryReportHtml
     {
         return [
             'transactions' => $totals['transactions'] + $rowData['transactions'],
-            'amount' => $totals['amount'] + $rowData['amount']
+            'amount' => $totals['amount'] + $rowData['amount'],
+            'gst_amount' => $totals['gst_amount'] + $rowData['gst_amount']
         ];
     }
 
@@ -275,7 +279,7 @@ class GeneratesSummaryReportHtml
         $receiver = PaymentReceiver::find($receiverId);
         $html = $this->getReceiverHeader($receiver);
         $categoryCounter = 1;
-        $totals = ['transactions' => 0, 'amount' => 0];
+        $totals = ['transactions' => 0, 'amount' => 0, 'gst_amount' => 0];
 
         foreach ($categories->groupBy('payment_category_id') as $categoryId => $categoryClaims) {
             foreach ($categoryClaims->groupBy('currency_id') as $currencyId => $currencyClaims) {
@@ -285,7 +289,7 @@ class GeneratesSummaryReportHtml
             }
         }
 
-        return $html . $this->buildTotalRow($totals) . '<tr><td colspan="8" style="padding: 30px;"></td></tr>';
+        return $html . $this->buildTotalRow($totals) . '<tr><td colspan="9" style="padding: 30px;"></td></tr>';
     }
 
     private function processClaimGroup($categoryId, $claims): array
@@ -297,6 +301,7 @@ class GeneratesSummaryReportHtml
             'transactions' => $claims->count(),
             'currency' => $claims->first()->currencyObject->short_code ?? self::NOT_AVAILABLE,
             'amount' => $claims->sum('amount'),
+            'gst_amount' => $claims->sum('gst_amount'),
             'approvers' => $this->getApprovers($approvalLogs)
         ];
     }
