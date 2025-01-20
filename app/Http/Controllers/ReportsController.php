@@ -20,7 +20,7 @@ class ReportsController extends Controller
     {
         return Excel::download(
             new SummaryReportExport($fromDate, $toDate),
-            "Summary Report " . $fromDate . " to " . $toDate . ".xls"
+            "Summary_Report_" . $fromDate . "_to_" . $toDate . ".xls"
         );
     }
 
@@ -28,7 +28,7 @@ class ReportsController extends Controller
     {
         return Excel::download(
             new TransactionsReportExport($request, $fromDate, $toDate),
-            "Transactions Report " . $fromDate . " to " . $toDate . ".xls"
+            "Transactions_Report_" . $fromDate . "_to_" . $toDate . ".xls"
         );
     }
 
@@ -36,7 +36,7 @@ class ReportsController extends Controller
     {
         return Excel::download(
             new PaymentDetailReportExport($request, $fromDate, $toDate),
-            "Payment Detail Report " . $fromDate . " to " . $toDate . ".xls"
+            "Payment_Detail_Report_" . $fromDate . "_to_" . $toDate . ".xls"
         );
     }
 
