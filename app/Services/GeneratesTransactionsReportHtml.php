@@ -66,10 +66,10 @@ class GeneratesTransactionsReportHtml
     private function buildHtml($claims, $receivers): string
     {
         $html = $this->getHeaderHtml();
-
+        
         foreach ($claims as $receiverId => $categories) {
             $html .= $this->buildReceiverSection(
-                $receivers[$receiverId] ?? self::NOT_AVAILABLE,
+                $receiverId ?? self::NOT_AVAILABLE,
                 $categories
             );
         }
@@ -218,10 +218,20 @@ class GeneratesTransactionsReportHtml
         return '
             <tr>
                 <td colspan="17" class="section-header">
-                    <div style="font-weight: 600;">Pay To: ' . htmlspecialchars($receiver->name) . '</div>
-                    <div>Bank: ' . htmlspecialchars($receiver->bank_name ?? self::NOT_AVAILABLE) . '</div>
-                    <div>Account: ' . htmlspecialchars($receiver->bank_account_no ?? self::NOT_AVAILABLE) . '</div>
-                    <div class="meta-info">Period: ' . htmlspecialchars("{$this->requestBody['startDate']} - {$this->requestBody['endDate']}") . '</div>
+                    <div style="font-weight: 600; font-size: 0.85rem;">Pay To: ' . htmlspecialchars($receiver->name) . '</div>
+                    <div class="meta-info">Bank Name: ' . 
+                    htmlspecialchars("{$receiver->bank_name}") . 
+                    '</div>
+                    <div class="meta-info">Bank Account: ' . 
+                    htmlspecialchars("{$receiver->bank_account_no}") . 
+                    '</div>
+                    <div class="meta-info">Swift Code: ' . 
+                    htmlspecialchars("{$receiver->swift_code}") . 
+                    '</div>
+                    <br>
+                    <div class="meta-info">Period: ' . 
+                    htmlspecialchars("{$this->requestBody['startDate']} - {$this->requestBody['endDate']}") . 
+                    '</div>
                 </td>
             </tr>
             <tr>

@@ -68,14 +68,16 @@ class TransactionsReportExport implements FromArray, ShouldAutoSize, WithStyles,
             $receiverName = $paymentReceiver->name ?? $notAvailable;
             $receiverBank = $paymentReceiver->bank_name ?? $notAvailable;
             $receiverAccount = $paymentReceiver->bank_account_no ?? $notAvailable;
+            $swiftCode = $paymentReceiver->swift_code ?? $notAvailable;
 
             $reportData[] = [''];
             $reportData[] = [''];
             $reportData[] = ["Pay To:", $receiverName, "", "", "", "", "", "", "", "", "", "", "", "", "Date:", $currentDate];
-            $reportData[] = ["Bank:", $receiverBank, "", "", "", "", "", "", "", "", "", "", "", "", "Period:", "{$this->fromDate} - {$this->toDate}"];
-            $reportData[] = ["Account:", $receiverAccount];
+            $reportData[] = ["Bank Name:", $receiverBank, "", "", "", "", "", "", "", "", "", "", "", "", "Period:", "{$this->fromDate} - {$this->toDate}"];
+            $reportData[] = ["Bank Account:", $receiverAccount];
+            $reportData[] = ["Swift Code:", $swiftCode];
 
-            $currentRow += 3;
+            $currentRow += 4;
 
             // Add table headers
             $reportData[] = [

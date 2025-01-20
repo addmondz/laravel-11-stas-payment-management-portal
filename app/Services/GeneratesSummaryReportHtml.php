@@ -58,7 +58,7 @@ class GeneratesSummaryReportHtml
         
         foreach ($claims as $receiverId => $categories) {
             $html .= $this->buildReceiverSection(
-                $receivers[$receiverId] ?? self::NOT_AVAILABLE,
+                $receiverId ?? self::NOT_AVAILABLE,
                 $categories
             );
         }
@@ -192,12 +192,22 @@ class GeneratesSummaryReportHtml
                 <table class="data-table">';
     }
 
-    private function getReceiverHeader(string $receiverName): string
+    private function getReceiverHeader($receiver): string
     {
         return '
             <tr>
                 <td colspan="8" class="section-header">
-                    <div style="font-weight: 600;">Pay To: ' . htmlspecialchars($receiverName) . '</div>
+                    <div style="font-weight: 600; font-size: 0.85rem;">Pay To: ' . htmlspecialchars($receiver->name) . '</div>
+                    <div class="meta-info">Bank Name: ' . 
+                    htmlspecialchars("{$receiver->bank_name}") . 
+                    '</div>
+                    <div class="meta-info">Bank Account: ' . 
+                    htmlspecialchars("{$receiver->bank_account_no}") . 
+                    '</div>
+                    <div class="meta-info">Swift Code: ' . 
+                    htmlspecialchars("{$receiver->swift_code}") . 
+                    '</div>
+                    <br>
                     <div class="meta-info">Period: ' . 
                     htmlspecialchars("{$this->requestBody['startDate']} - {$this->requestBody['endDate']}") . 
                     '</div>
@@ -260,9 +270,10 @@ class GeneratesSummaryReportHtml
         return base64_encode(file_get_contents($imagePath));
     }
 
-    private function buildReceiverSection(string $receiverName, $categories): string
+    private function buildReceiverSection(string $receiverId, $categories): string
     {
-        $html = $this->getReceiverHeader($receiverName);
+        $receiver = PaymentReceiver::find($receiverId);
+        $html = $this->getReceiverHeader($receiver);
         $categoryCounter = 1;
         $totals = ['transactions' => 0, 'amount' => 0];
 

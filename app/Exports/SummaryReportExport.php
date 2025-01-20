@@ -48,21 +48,21 @@ class SummaryReportExport implements FromArray, ShouldAutoSize, WithStyles, With
         $claims = Claim::whereBetween('created_at', [$formattedFromDate, $formattedToDate])->get();
         $groupedClaims = $claims->groupBy('payment_receiver_id');
 
-        // Retrieve all receiver names in one go for efficiency
-        $receivers = PaymentReceiver::whereIn('id', $groupedClaims->keys())->pluck('name', 'id');
-
         $currentRow = 8; // Start from row 2 after the title
 
         foreach ($groupedClaims as $receiverId => $categories) {
             // Use pre-fetched receiver names
-            $receiverName = $receivers[$receiverId] ?? $notAvailable;
+            $receiver = PaymentReceiver::find($receiverId);
 
             // Add header information for each receiver
             $reportData[] = [''];
             $reportData[] = [''];
-            $reportData[] = ["Pay To:", $receiverName, "", "", "", "", "Date:", $currentDate];
+            $reportData[] = ["Pay To:", $receiver->name, "", "", "", "", "Date:", $currentDate];
+            $reportData[] = ["Bank Name:", $receiver->bank_name];
+            $reportData[] = ["Bank Account:", $receiver->bank_account_no];
+            $reportData[] = ["Swift Code:", $receiver->swift_code];
             $reportData[] = ["Period:", "{$this->fromDate} - {$this->toDate}"];
-            $currentRow += 2;
+            $currentRow += 5;
 
             // Add table headers
             $reportData[] = [
