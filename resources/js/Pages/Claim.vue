@@ -15,17 +15,18 @@
                 <div class="inline-flex max-w-full">
                     <span v-for="tab in tabs" :key="tab.name"
                         :class="['tab-btn p-2 px-5 text-md flex justify-center items-center', tabClasses(tab.name)]"
-                        class="flex-1 pt-5 pb-5 border border-violet-500 flex flex-col sm:min-w-60" @click="activeTab = tab.name">
+                        class="flex-1 pt-5 pb-5 border border-violet-500 flex flex-col sm:min-w-60"
+                        @click="setActiveTab(tab.name)">
                         <div class="flex">
                             {{ tab.label }}
 
                             <!-- Notification Circle -->
-                             <div class="flex justify-center items-center">
+                            <div class="flex justify-center items-center">
                                 <span class="bg-gray-500 px-2 py-1 ml-3 text-white text-xs notification-circle rounded"
                                     v-if="tab.name == 'pendingApproval' && pendingClaimCount != 0 && pendingClaimCount != null">
                                     {{ formatNumberToString(pendingClaimCount) }}
                                 </span>
-                             </div>
+                            </div>
                         </div>
                     </span>
                 </div>
@@ -63,7 +64,7 @@ import BreadcrumbComponent from '@/Components/General/BreadcrumbComponent.vue';
 import AllClaim from '@/Components/Claims/AllClaim.vue';
 import PendingClaim from '@/Components/Claims/PendingClaim.vue';
 import CreateClaimForm from '@/Components/Form/CreateClaimForm.vue';
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { getUserApprovalPrivillage, isFinance } from '@/Composables/GlobalFuntions.vue';
 import { formatNumberToString } from '@/Helpers/helpers.js';
 import { FieldTimeOutlined, SwitcherOutlined } from '@ant-design/icons-vue';
@@ -71,7 +72,7 @@ import { FieldTimeOutlined, SwitcherOutlined } from '@ant-design/icons-vue';
 // Reactive data
 const createCompleteSignal = ref(2);
 const pendingClaimCount = ref(0);
-const activeTab = ref('allClaims');
+const activeTab = ref(localStorage.getItem('activeTab') || 'allClaims'); // Default to 'allClaims' if not set
 const tabs = ref([
     { name: 'allClaims', label: 'All Payments', icon: SwitcherOutlined },
     { name: 'pendingApproval', label: 'Pending Approval', icon: FieldTimeOutlined },
@@ -84,6 +85,12 @@ const tabClasses = (tabName) => {
         : 'hover:bg-gray-200 text-black bg-white';
 };
 
+// Handle tab change
+const setActiveTab = (tabName) => {
+    activeTab.value = tabName;
+    localStorage.setItem('activeTab', tabName); // Save the active tab to localStorage
+};
+
 // Handle create completion
 const handleCreateComplete = () => {
     createCompleteSignal.value = Math.floor(Math.random() * 100) + 1;
@@ -93,6 +100,7 @@ const handlePendingClaimsCount = (value) => {
     pendingClaimCount.value = value;
 };
 
+// Sort and filter options
 const sortAndFilters = ref([
     { display_name: "Payment ID", field_name: "id", field_type: "string" },
     {
@@ -119,6 +127,13 @@ const sortAndFilters = ref([
     { display_name: "Created Date", field_name: "created_at", field_type: "date_range" },
     { field_name: "status", field_type: "select", api: route('approvalStatus.list') },
 ]);
+
+onMounted(() => {
+    const savedTab = localStorage.getItem('activeTab');
+    if (savedTab) {
+        activeTab.value = savedTab;
+    }
+});
 </script>
 
 <style scoped>
