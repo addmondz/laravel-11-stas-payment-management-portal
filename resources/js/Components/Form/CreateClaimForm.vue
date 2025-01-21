@@ -237,7 +237,7 @@ onMounted(() => {
                         <div>
                             <InputLabel for="payment_to" value="Payment To" />
                             <CustomSelectComponent :choices="paymentReceiverData" v-model="payment_to" :isEdit="props.claimData != null"
-                            :label="props.claimData != null ? selectedReceiverName : 'Payment Receiver'" :choicesIsObject="true" ref="customSelect" />
+                            :label="props.claimData != null ? selectedReceiverName : 'Payment To'" :choicesIsObject="true" ref="customSelect" />
                             <InputError :message="form.errors.payment_to" class="mt-2" />
                         </div>
 

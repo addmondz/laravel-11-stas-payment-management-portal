@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="flex justify-between content-center">
-            <p>Payment Receiver</p>
+            <p>Payment To</p>
             <PaymentReceiverForm @createComplete="handleCreateComplete" />
         </div>
 

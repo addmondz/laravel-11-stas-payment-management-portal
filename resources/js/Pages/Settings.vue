@@ -21,7 +21,7 @@
                                 <div class="tab-btn border-4 border-white" tab-name="paymentReceiver">
                                     <div class="flex items-center">
                                         <div class="flex-1 p-4">
-                                            <p class="font-semibold">Payment Receiver</p>
+                                            <p class="font-semibold">Payment To</p>
                                         </div>
                                     </div>
                                 </div>

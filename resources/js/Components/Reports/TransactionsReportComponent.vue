@@ -8,8 +8,8 @@
                 <DateRangeComponent v-model="dateRange" label="Date" :additionalErrorMessage="dateRangeErrorMsg" />
             </div>
             <div class="mb-5">
-                <InputLabel for="payment_to" value="Payment Receivers" />
-                <CustomSelectComponent :choices="paymentReceiverData" v-model="payment_to" :label="'Payment Receivers'"
+                <InputLabel for="payment_to" value="Payment To" />
+                <CustomSelectComponent :choices="paymentReceiverData" v-model="payment_to" :label="'Payment To'"
                     :choicesIsObject="true" :allowAllChoice="true" :allowMultiChoice="true" />
             </div>
             <div class="mb-5">
