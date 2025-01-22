@@ -50,7 +50,7 @@ class SummaryReportExport implements FromArray, ShouldAutoSize, WithStyles, With
 
         $currentRow = 8; // Start from row 2 after the title
 
-        foreach ($groupedClaims as $receiverId => $categories) {
+        foreach ($groupedClaims as $receiverId => $receiverClaims) {
             // Use pre-fetched receiver names
             $receiver = PaymentReceiver::find($receiverId);
 
@@ -68,9 +68,9 @@ class SummaryReportExport implements FromArray, ShouldAutoSize, WithStyles, With
             $reportData[] = [
                 "",
                 "Category",
-                "Total Transaction",
+                "Transaction ID",
                 "Currency",
-                "Total Amount",
+                "Amount",
                 "Gst",
                 "Reviewed by",
                 "Approved by",
@@ -82,45 +82,46 @@ class SummaryReportExport implements FromArray, ShouldAutoSize, WithStyles, With
             $totalTransactions = 0;
             $totalAmount = 0;
             $totalGst = 0;
-            $categoryCounter = 1;
+            $counter = 1;
 
-            foreach ($categories->groupBy('payment_category_id') as $categoryId => $categoryClaims) {
-                $transactionCount = $categoryClaims->count();
-                $amount = $categoryClaims->sum('amount');
-                $gst_amount = $categoryClaims->sum('gst_amount');
-                $currency = $categoryClaims->first()->currencyObject->short_code ?? $notAvailable;
-                $categoryName = ucwords(PaymentCategory::find($categoryId)->name);
-                $claimIds = $categoryClaims->pluck('id');
-                $approvalLogs = ClaimStatusLog::whereIn('claim_id', $claimIds)->get();
+            foreach ($receiverClaims as $claim) {
+                $transactionId = $claim->id;
+                $transactionDate = $claim->created_at->format('Y-m-d');
+                $amount = $claim->amount;
+                $gstAmount = $claim->gst_amount;
+                $currency = $claim->currencyObject->short_code ?? $notAvailable;
 
                 // Retrieve approvers
+                $approvalLogs = ClaimStatusLog::where('claim_id', $claim->id)->get();
                 $l1Approvers = User::whereIn('id', $approvalLogs->where('status', ApprovalStatus::L1_APPROVAL)->pluck('causer_id'))->pluck('name')->toArray();
                 $l2Approvers = User::whereIn('id', $approvalLogs->where('status', ApprovalStatus::L2_APPROVAL)->pluck('causer_id'))->pluck('name')->toArray();
                 $l3Approvers = User::whereIn('id', $approvalLogs->where('status', ApprovalStatus::L3_APPROVAL)->pluck('causer_id'))->pluck('name')->toArray();
 
-                // Add category data to report
+                // Add transaction data to the report
                 $reportData[] = [
-                    $categoryCounter,
-                    $categoryName,
-                    $transactionCount,
+                    $counter,
+                    ucwords($claim->paymentCategory->name),
+                    $claim->id,
                     $currency,
                     $this->formatPrice($amount),
-                    $this->formatPrice($gst_amount),
+                    $this->formatPrice($gstAmount),
                     implode(', ', $l1Approvers),
                     implode(', ', $l2Approvers),
                     implode(', ', $l3Approvers),
                 ];
+
                 $currentRow++;
-                $categoryCounter++;
-                $totalTransactions += $transactionCount;
+                $counter++;
+                $totalTransactions++;
                 $totalAmount += $amount;
+                $totalGst += $gstAmount;
             }
 
             // Add totals row
             $reportData[] = [
                 "",
                 "TOTAL",
-                $totalTransactions,
+                "",
                 "",
                 $this->formatPrice($totalAmount),
                 "",
