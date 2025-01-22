@@ -105,7 +105,7 @@ class ClaimController extends Controller
         if ($userPrivilage == ApprovalRoles::L3_APPROVAL_MEMBERS) {
             ClaimStatusLog::create([
                 'claim_id' => $claim->id,
-                'status' => ApprovalStatus::L3_APPROVAL,
+                'status' => ApprovalStatus::PENDING_APPROVAL,
                 'causer_id' => $user->id,
             ]);
         }
@@ -363,13 +363,13 @@ class ClaimController extends Controller
     {
         // Fetch the claim data with the necessary relationships
         $data = Claim::with([
-            'currencyObject', 
-            'createdUser', 
+            'currencyObject',
+            'createdUser',
             'paymentToUser.currency', // Load currency relationship for paymentToUser
-            'statusLogs', 
+            'statusLogs',
             'paymentCategory'
         ])->find($id);
-    
+
         // Check if data exists
         if (!$data) {
             return response()->json([
@@ -377,18 +377,18 @@ class ClaimController extends Controller
                 'message' => 'Data not found',
             ], 404);
         }
-    
+
         // Format and enhance the response
         $data->status_name = ApprovalStatus::APPROVAL_STATUS_ID[$data->status] . ($data->status == ApprovalStatus::PENDING_APPROVAL ? ' • L' . ($data->approval_status + 1) : '');
         $data->status_id = $data->status;
         $data->status = ApprovalStatus::APPROVAL_STATUS_ID[$data->status] ?? 'Unknown Status';
         $data->next_approval_level = $data->approval_status + 1;
         $data->receipt_file = $this->getReceiptFileUrl($data->receipt_file);
-    
+
         // Map the status logs
         $data->status_log = $data->statusLogs->map(function ($log) {
             $logStatus = ApprovalStatus::APPROVAL_STATUS_ID_FOR_LOG_DISPLAY[$log->status] ?? 'Unknown Status';
-    
+
             return [
                 'id' => $log->id,
                 'status' => $logStatus,  // Human-readable status name
@@ -396,7 +396,7 @@ class ClaimController extends Controller
                 'name' => $log->causer->name ?? 'Unknown User',  // Causer's name
             ];
         });
-    
+
         // Add paymentToUser details with currency and country
         if ($data->paymentToUser && $data->paymentToUser->currency) {
             $data->payment_to_user = [
@@ -414,7 +414,7 @@ class ClaimController extends Controller
         } else {
             $data->payment_to_user = null;
         }
-    
+
         // Return the data as a JSON response
         return response()->json([
             'success' => true,

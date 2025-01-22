@@ -147,9 +147,7 @@
                                 <p class="mb-1 text-sm text-gray-500">Bank Number</p>
                                 <InfoCircleOutlined class="text-gray-400" />
                             </div>
-                            <p class="text-base">
-                                <p class="text-base">{{ fetchedData.payment_to_user?.bank_account_no || '-' }}</p>
-                            </p>
+                            <p class="text-base">{{ fetchedData.payment_to_user?.bank_account_no || '-' }}</p>
                         </div>
                         <div class="mb-4">
                             <div class="flex justify-between">
