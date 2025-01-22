@@ -75,7 +75,7 @@ const pendingClaimCount = ref(0);
 const activeTab = ref(localStorage.getItem('activeTab') || 'allClaims'); // Default to 'allClaims' if not set
 const tabs = ref([
     { name: 'allClaims', label: 'All Payments', icon: SwitcherOutlined },
-    { name: 'pendingApproval', label: 'Pending Approval', icon: FieldTimeOutlined },
+    { name: 'pendingApproval', label: isFinance().value ? 'Pending Action' : 'Pending Approval', icon: FieldTimeOutlined },
 ]);
 
 // Compute tab classes

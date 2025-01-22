@@ -6,7 +6,7 @@
             <div class="flex flex-wrap justify-between items-center gap-y-4 sm:flex-nowrap">
                 <BreadcrumbComponent :breadcrumbs="breadcrumbs" />
                 <div class="flex items-center justify-center">
-                    <StatusLabel v-if="apiResponse" class="text-sm inline-block" :status="fetchedData.status" />
+                    <StatusLabel v-if="apiResponse" class="text-sm inline-block" :status="fetchedData.status" :name="fetchedData.status_name" />
                     <PrimaryButton
                         v-if="fetchedData.status_id < 2 && (getUserApprovalPrivillage().value == fetchedData.next_approval_level)"
                         class="bg-violet-500 hover:bg-violet-700 active:bg-violet-700 focus:bg-violet-700 font-bold"
@@ -121,6 +121,49 @@
                                     ' ' +
                                     formatPrice(fetchedData.gst_amount) }}
                             </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white max-w-8xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5">
+                    <div class="px-5 py-3 border-b border-gray-300 flex justify-between items-center">
+                        <div class="flex justify-between content-center w-full">
+                            <h2>Bank Details</h2>
+                            <AngleUp class="cursor-pointer" v-if="showSection.bankDetails"
+                                @click="toggleShowSection('bankDetails')" />
+                            <AngleDown class="cursor-pointer" v-if="!showSection.bankDetails"
+                                @click="toggleShowSection('bankDetails')" />
+                        </div>
+                    </div>
+                    <div class="grid md:grid-cols-3 gap-9 p-6 border-gray-300 col-span-2" v-if="showSection.bankDetails">
+                        <div class="mb-4">
+                            <div class="flex justify-between">
+                                <p class="mb-1 text-sm text-gray-500">Bank Name</p>
+                                <InfoCircleOutlined class="text-gray-400" />
+                            </div>
+                            <p class="text-base">{{ fetchedData.payment_to_user?.bank_name || '-' }}</p>
+                        </div>
+                        <div class="mb-4">
+                            <div class="flex justify-between">
+                                <p class="mb-1 text-sm text-gray-500">Bank Number</p>
+                                <InfoCircleOutlined class="text-gray-400" />
+                            </div>
+                            <p class="text-base">
+                                <p class="text-base">{{ fetchedData.payment_to_user?.bank_account_no || '-' }}</p>
+                            </p>
+                        </div>
+                        <div class="mb-4">
+                            <div class="flex justify-between">
+                                <p class="mb-1 text-sm text-gray-500">Swift Code</p>
+                                <InfoCircleOutlined class="text-gray-400" />
+                            </div>
+                            <p class="text-base">{{ fetchedData.payment_to_user?.swift_code || '-' }}</p>
+                        </div>
+                        <div class="mb-4">
+                            <div class="flex justify-between">
+                                <p class="mb-1 text-sm text-gray-500">Country</p>
+                                <InfoCircleOutlined class="text-gray-400" />
+                            </div>
+                            <p class="text-base">{{ fetchedData.payment_to_user?.currency?.country?.name || '-' }} ({{ fetchedData.payment_to_user?.currency?.country?.short_code || '-' }})</p>
                         </div>
                     </div>
                 </div>
@@ -301,6 +344,7 @@ const showSection = ref({
     receipt: true,
     approvalHistory: true,
     paymentVoucher: true,
+    bankDetails: true,
 });
 
 const toggleShowSection = (name) => {

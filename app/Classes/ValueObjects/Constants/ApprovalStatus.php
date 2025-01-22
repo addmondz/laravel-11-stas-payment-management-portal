@@ -32,6 +32,20 @@ final class ApprovalStatus
         self::L3_APPROVAL                 => "L3 Approved",
     ];
 
+    public const APPROVAL_STATUS_ID_FOR_LOG_DISPLAY = [
+        self::PENDING_SUBMISSION          => "Pending Submission",
+        self::PENDING_APPROVAL            => "Preparer",
+        self::APPROVED                    => "Approved",
+        self::PAYMENT_COMPLETED           => "Payment Completed",
+        self::REJECTED                    => "Rejected",
+        self::CANCELLED                   => "Cancelled",
+        self::PAYMENT_FAILED              => "Payment Failed",
+        
+        self::L1_APPROVAL                 => "L1 Approved",
+        self::L2_APPROVAL                 => "L2 Approved",
+        self::L3_APPROVAL                 => "L3 Approved",
+    ];
+
     public const APPROVAL_CHOICE = [
         // self::PENDING_SUBMISSION          => "Pending Submission",
         self::PENDING_APPROVAL            => "Pending Approval",

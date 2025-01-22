@@ -6,7 +6,7 @@ import DropdownLink from '@/Components/General/DropdownLink.vue';
 import NavLink from '@/Components/General/NavLink.vue';
 import ResponsiveNavLink from '@/Components/General/ResponsiveNavLink.vue';
 import { Link, usePage } from '@inertiajs/vue3';
-import { isAdmin, getUserApprovalPrivillage } from '@/Composables/GlobalFuntions.vue';
+import { isAdmin, getUserApprovalPrivillage, isFinance } from '@/Composables/GlobalFuntions.vue';
 
 const showingNavigationDropdown = ref(false);
 const { props } = usePage();
@@ -41,7 +41,7 @@ const logout = () => {
                                 Settings
                             </NavLink>
                         </div>
-                        <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex" v-if="isAdmin().value">
+                        <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex" v-if="isAdmin().value || isFinance().value">
                             <NavLink :href="route('reports')" :active="route().current('reports')">
                                 Reports
                             </NavLink>
@@ -98,10 +98,10 @@ const logout = () => {
                         <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">
                             Payments
                         </ResponsiveNavLink>
-                        <ResponsiveNavLink :href="route('settings')" :active="route().current('settings')">
+                        <ResponsiveNavLink :href="route('settings')" :active="route().current('settings')" v-if="isAdmin().value">
                             Settings
                         </ResponsiveNavLink>
-                        <ResponsiveNavLink :href="route('reports')" :active="route().current('reports')">
+                        <ResponsiveNavLink :href="route('reports')" :active="route().current('reports')" v-if="isAdmin().value || isFinance().value">
                             Reports
                         </ResponsiveNavLink>
                     </div>

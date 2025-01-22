@@ -1,7 +1,8 @@
 <template>
     <div>
         <ListComponent :apiUrl="route('claims.list')" :createCompleteSignal="createCompleteSignal"
-            :sortAndFilters="sortAndFilters" :allowSorting="true">
+            :sortAndFilters="sortAndFilters" :allowSorting="true"
+            :showFiltersOutside="true">
             <template v-slot:list-view="{ data, apiResponse, fullApiResponse }">
 
                 <!-- Total Amount -->

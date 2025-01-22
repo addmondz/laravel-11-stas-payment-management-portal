@@ -293,13 +293,14 @@ class GeneratesPaymentDetailReportHtml
 
     private function buildTableRow(int $counter, array $rowData): string
     {
+        $approvalSatatus = ApprovalStatus::APPROVAL_STATUS_ID;
         return '
             <tr>
                 <td style="text-align: center;">' . $counter . '</td>
                 <td style="text-align: center;">' . htmlspecialchars($rowData['id']) . '</td>
                 <td style="text-align: center;">' . htmlspecialchars($rowData['created_at']) . '</td>
                 <td style="text-align: center;">' . htmlspecialchars($rowData['receipt_date']) . '</td>
-                <td style="text-align: center;">' . htmlspecialchars($rowData['status']) . '</td>
+                <td style="text-align: center;">' . htmlspecialchars($approvalSatatus[$rowData['status']]) . '</td>
                 <td>' . htmlspecialchars($rowData['purpose']) . '</td>
                 <td style="text-align: center;">' . htmlspecialchars($rowData['currency']) . '</td>
                 <td class="amount-cell">' . $this->formatPrice($rowData['gst_amount']) . '</td>

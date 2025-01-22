@@ -2,13 +2,13 @@
 
     <Head title="Reports" />
     <AuthenticatedLayout>
-        <template #header v-if="isAdmin().value">
+        <template #header v-if="isAdmin().value || isFinance().value">
             <div class="flex justify-between content-center">
                 <BreadcrumbComponent :breadcrumbs="[{ title: 'Reports' }]" />
             </div>
         </template>
 
-        <div v-if="isAdmin().value">
+        <div v-if="isAdmin().value || isFinance().value">
             <div v-if="isLoading">
                 <LoadingComponent class="mt-32" />
             </div>
@@ -96,7 +96,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import LoadingComponent from '@/Components/General/LoadingComponent.vue';
 import BreadcrumbComponent from '@/Components/General/BreadcrumbComponent.vue';
-import { isAdmin } from '@/Composables/GlobalFuntions.vue';
+import { isAdmin, isFinance } from '@/Composables/GlobalFuntions.vue';
 import NotFound from '@/Components/Icons/NotFound.vue';
 import { Link } from '@inertiajs/vue3';
 import PrimaryButton from '@/Components/General/PrimaryButton.vue';

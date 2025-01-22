@@ -5,11 +5,16 @@
         </div>
         <div v-else>
             <div v-if="apiResponse">
+                <div class="w-full md:w-auto" v-if="sortAndFilters && showFiltersOutside">
+                    <SortAndFilterComponent :sortAndFilters="sortAndFilters" @filtersUpdated="handleFiltersUpdated"
+                        :allowSorting="allowSorting" :filters="filters" :showFiltersOutside="showFiltersOutside" />
+                </div>
+                <div v-else class="w-full md:w-auto block"></div>
                 <div v-if="sortAndFilters || hasSearchBox"
                     class="flex flex-wrap justify-between items-center mt-6 mb-6 space-y-4 md:space-y-0">
-                    <div class="w-full md:w-auto" v-if="sortAndFilters">
+                    <div class="w-full md:w-auto" v-if="sortAndFilters && !showFiltersOutside">
                         <SortAndFilterComponent :sortAndFilters="sortAndFilters" @filtersUpdated="handleFiltersUpdated"
-                            :allowSorting="allowSorting" :filters="filters" />
+                            :allowSorting="allowSorting" :filters="filters" :showFiltersOutside="showFiltersOutside" />
                     </div>
                     <div v-else class="w-full md:w-auto block"></div>
 
@@ -116,6 +121,10 @@ const props = defineProps({
         default: true,
     },
     allowSelectAll: {
+        type: Boolean,
+        default: false,
+    },
+    showFiltersOutside: {
         type: Boolean,
         default: false,
     },

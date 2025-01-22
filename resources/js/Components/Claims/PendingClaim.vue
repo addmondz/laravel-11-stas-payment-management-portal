@@ -3,7 +3,8 @@
         <ListComponent :apiUrl="route('claims.listPendingApproval')" :createCompleteSignal="createCompleteSignal"
             :key="loadingKey" :allowSorting="true" :sortAndFilters="sortAndFilters"
             :allowSelectAll="true" :selectedIds="selectedIds"
-            @update:wholeSelectedIds="handleUpdateWholeSelectedList">
+            @update:wholeSelectedIds="handleUpdateWholeSelectedList"
+            :showFiltersOutside="true">
 
             <template v-slot:list-view="{ data, apiResponse }">
                 {{ emitPendingClaimsCount(apiResponse.total) }}

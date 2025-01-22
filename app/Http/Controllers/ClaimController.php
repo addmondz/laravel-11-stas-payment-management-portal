@@ -361,26 +361,34 @@ class ClaimController extends Controller
 
     public function fetchData(Request $request, $id)
     {
-        // Fetch the claim data with the relationships
-        $data = Claim::with('currencyObject', 'createdUser', 'paymentToUser', 'statusLogs', 'paymentCategory')->find($id);
-
+        // Fetch the claim data with the necessary relationships
+        $data = Claim::with([
+            'currencyObject', 
+            'createdUser', 
+            'paymentToUser.currency', // Load currency relationship for paymentToUser
+            'statusLogs', 
+            'paymentCategory'
+        ])->find($id);
+    
         // Check if data exists
-        if (! $data) {
+        if (!$data) {
             return response()->json([
                 'success' => false,
                 'message' => 'Data not found',
             ], 404);
         }
-
+    
+        // Format and enhance the response
+        $data->status_name = ApprovalStatus::APPROVAL_STATUS_ID[$data->status] . ($data->status == ApprovalStatus::PENDING_APPROVAL ? ' • L' . ($data->approval_status + 1) : '');
         $data->status_id = $data->status;
-        // Format the status field (assuming ApprovalStatus::APPROVAL_STATUS_ID holds the status names)
         $data->status = ApprovalStatus::APPROVAL_STATUS_ID[$data->status] ?? 'Unknown Status';
         $data->next_approval_level = $data->approval_status + 1;
         $data->receipt_file = $this->getReceiptFileUrl($data->receipt_file);
-
+    
+        // Map the status logs
         $data->status_log = $data->statusLogs->map(function ($log) {
-            $logStatus = ApprovalStatus::APPROVAL_STATUS_ID[$log->status] ?? 'Unknown Status';
-
+            $logStatus = ApprovalStatus::APPROVAL_STATUS_ID_FOR_LOG_DISPLAY[$log->status] ?? 'Unknown Status';
+    
             return [
                 'id' => $log->id,
                 'status' => $logStatus,  // Human-readable status name
@@ -388,7 +396,25 @@ class ClaimController extends Controller
                 'name' => $log->causer->name ?? 'Unknown User',  // Causer's name
             ];
         });
-
+    
+        // Add paymentToUser details with currency and country
+        if ($data->paymentToUser && $data->paymentToUser->currency) {
+            $data->payment_to_user = [
+                'id' => $data->paymentToUser->id,
+                'name' => $data->paymentToUser->name,
+                'bank_name' => $data->paymentToUser->bank_name,
+                'bank_account_no' => $data->paymentToUser->bank_account_no,
+                'swift_code' => $data->paymentToUser->swift_code,
+                'currency' => [
+                    'id' => $data->paymentToUser->currency->id,
+                    'name' => $data->paymentToUser->currency->name,
+                    'country' => $data->paymentToUser->currency->country,
+                ],
+            ];
+        } else {
+            $data->payment_to_user = null;
+        }
+    
         // Return the data as a JSON response
         return response()->json([
             'success' => true,
@@ -445,11 +471,11 @@ class ClaimController extends Controller
 
         if ($nextApprovalLevel >= ApprovalRoles::L3_APPROVAL_MEMBERS) {
             $claim->update(['status' => ApprovalStatus::APPROVED]);
-            ClaimStatusLog::create([
-                'claim_id' => $claim->id,
-                'status' => ApprovalStatus::APPROVED,
-                'causer_id' => auth()->id(),
-            ]);
+            // ClaimStatusLog::create([
+            //     'claim_id' => $claim->id,
+            //     'status' => ApprovalStatus::APPROVED,
+            //     'causer_id' => auth()->id(),
+            // ]);
 
             return response()->json(['message' => 'Claim approved at all levels.'], 200);
         }
