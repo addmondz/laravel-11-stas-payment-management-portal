@@ -4,14 +4,8 @@
     <AuthenticatedLayout>
         <template #header>
             <div class="flex flex-wrap justify-between items-center gap-y-4 sm:flex-nowrap">
-                <div>
+                <div class="flex ">
                     <BreadcrumbComponent :breadcrumbs="breadcrumbs" />
-                    <PrimaryButton class="mr-5" @click="actionClicked('test')">
-                        Preview
-                    </PrimaryButton>
-                    <PrimaryButton class="mr-5" @click="actionClicked('export')">
-                        Export PDF
-                    </PrimaryButton>
                 </div>
                 <div class="flex items-center justify-center">
                     <StatusLabel v-if="apiResponse" class="text-sm inline-block" :status="fetchedData.status"
@@ -32,6 +26,14 @@
         </div>
         <div v-else>
             <div class="max-w-8xl mx-auto py-6 px-4 sm:px-6 lg:px-8" v-if="apiResponse">
+                <div class="mb-5">
+                    <!-- <PrimaryButton class="mr-5" @click="actionClicked('test')">
+                        Preview
+                    </PrimaryButton> -->
+                    <PrimaryButton class="mr-5" @click="actionClicked('export')">
+                        Export PDF
+                    </PrimaryButton>
+                </div>
                 <div class="bg-white max-w-8xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5">
                     <div class="px-5 py-3 border-b border-gray-300 flex justify-between items-center">
                         <div class="flex justify-between content-center w-full">
@@ -109,7 +111,7 @@
                             </div>
                             <p class="text-base">{{ fetchedData.currency_object.short_code }} {{
                                 formatPrice(fetchedData.amount)
-                                }}</p>
+                            }}</p>
                         </div>
                         <!-- <div class="mb-4">
                             <div class="flex justify-between">

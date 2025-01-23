@@ -55,11 +55,11 @@ class GeneratesClaimExportById
 
         // Check if this is for PDF generation
         $forPdf = isset($this->requestBody['for_pdf']) && $this->requestBody['for_pdf'];
-        Log::info('Generating report for: ' . ($forPdf ? 'PDF' : 'HTML'));
-        
+        // Log::info('Generating report for: ' . ($forPdf ? 'PDF' : 'HTML'));
+
         // Check if receipt is PDF
         $isPdf = $claim->receipt_file && strtolower(pathinfo($claim->receipt_file, PATHINFO_EXTENSION)) === 'pdf';
-        
+
         // Handle receipt display
         if ($isPdf && $forPdf) {
             // Store PDF path for merging later
@@ -68,12 +68,12 @@ class GeneratesClaimExportById
         } else {
             // Handle image display or no receipt
             $imgPath = $this->getReceiptFileUrl($claim->receipt_file, $forPdf);
-            $receiptDisplay = $claim->receipt_file && !$isPdf && $imgPath ? 
+            $receiptDisplay = $claim->receipt_file && !$isPdf && $imgPath ?
                 '<div class="receipt-image">
                     <img src="' . $imgPath . '" 
                         alt="Receipt" 
                         style="max-width: 100%; height: auto; display: block; margin: 0 auto;">
-                </div>' : 
+                </div>' :
                 '<div class="section"><span class="value">No receipt available</span></div>';
         }
 
@@ -266,15 +266,20 @@ class GeneratesClaimExportById
                             <td>' . ($fetchedData['gst_amount'] == 0 ? '-' : $fetchedData['currency_object']['short_code'] . ' ' . number_format($fetchedData['gst_amount'], 2)) . '</td>
                         </tr>
                     </table>
-                </div>
+                </div>';
 
+        $extension = strtolower(pathinfo($claim->receipt_file, PATHINFO_EXTENSION));
+        if ($extension != 'pdf') {
+            $html .= '
                 <div class="receipt-section">
                     <div class="claim-info">
                         <h2>Receipt Document</h2>
                         ' . $receiptDisplay . '
                     </div>
-                </div>
-            </div>
+                </div>';
+        }
+
+        $html .= '</div>
         </body>
         </html>';
 
@@ -284,7 +289,7 @@ class GeneratesClaimExportById
     private function getReceiptFileUrl($url, $forPdf = false)
     {
         if (!$url) {
-            Log::info('No URL provided');
+            // Log::info('No URL provided');
             return null;
         }
 
@@ -292,12 +297,12 @@ class GeneratesClaimExportById
         if (strtolower(pathinfo($url, PATHINFO_EXTENSION)) === 'pdf') {
             return null;
         }
-        
+
         if ($forPdf) {
             try {
                 $filePath = public_path($url);
-                Log::info('Attempting to read file from: ' . $filePath);
-                
+                // Log::info('Attempting to read file from: ' . $filePath);
+
                 if (!file_exists($filePath)) {
                     Log::error('File not found at: ' . $filePath);
                     return null;
@@ -312,9 +317,8 @@ class GeneratesClaimExportById
                 $base64 = base64_encode($fileContent);
                 $extension = strtolower(pathinfo($url, PATHINFO_EXTENSION));
                 $mimeType = $this->getMimeType($extension);
-                
-                return "data:{$mimeType};base64,{$base64}";
 
+                return "data:{$mimeType};base64,{$base64}";
             } catch (\Exception $e) {
                 Log::error('Error processing file for PDF: ' . $e->getMessage());
                 return null;
