@@ -42,10 +42,10 @@ class GeneratesClaimExportById
 
         // Fetch necessary data (example placeholders, adjust as needed)
         $fetchedData = [
-            'created_user' => ['name' => $claim->createdBy->name ?? '-'],
-            'payment_to_user' => ['name' => $claim->paymentReceiver->name ?? '-'],
-            'payment_type' => $claim->payment_type ?? '-',
-            'payment_category' => ['name' => $claim->paymentCategory->name ?? '-'],
+            'created_user' => ['name' => $claim->createdUser->name ?? '-'],
+            'payment_to_user' => ['name' => $claim->paymentToUser->name ?? '-'],
+            'payment_type' => $this->formatString($claim->payment_type) ?? '-',
+            'payment_category' => ['name' => $this->formatString($claim->paymentCategory->name) ?? '-'],
             'purpose' => $claim->purpose ?? '-',
             'created_at' => $claim->created_at->format('Y-m-d') ?? '-',
             'currency_object' => ['short_code' => $claim->currencyObject->short_code ?? '-'],
@@ -152,10 +152,8 @@ class GeneratesClaimExportById
                 }
                 .label {
                     font-weight: 600;
-                    color: #6b7280;
                     font-size: 11px;
                     text-transform: uppercase;
-                    letter-spacing: 0.3px;
                 }
                 .value {
                     color: #333;
@@ -208,7 +206,6 @@ class GeneratesClaimExportById
                     color: #6b7280;
                     font-size: 11px;
                     text-transform: uppercase;
-                    letter-spacing: 0.3px;
                 }
                 .details-table td:last-child {
                     color: #333;
@@ -266,7 +263,32 @@ class GeneratesClaimExportById
                             <td>' . ($fetchedData['gst_amount'] == 0 ? '-' : $fetchedData['currency_object']['short_code'] . ' ' . number_format($fetchedData['gst_amount'], 2)) . '</td>
                         </tr>
                     </table>
-                </div>';
+                </div>
+
+                <div class="claim-info">
+                    <h2>Bank Details</h2>
+                    <table class="details-table">
+                        <tr>
+                            <td>Bank Name</td>
+                            <td>' . $claim->paymentToUser->bank_name . '</td>
+                        </tr>
+                        <tr>
+                        <td>Bank Number</td>
+                            <td>' . $claim->paymentToUser->bank_account_no . '</td>
+                        </tr>
+                        <tr>
+                            <td>Swift Code</td>
+                            <td>' . $claim->paymentToUser->swift_code . '</td>
+                        </tr>
+                        <tr>
+                            <td>Country</td>
+                            <td>' . $claim->paymentToUser->currency->country->name . ' (' . $claim->paymentToUser->currency->country->short_code . ')</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                
+                ';
 
         $extension = strtolower(pathinfo($claim->receipt_file, PATHINFO_EXTENSION));
         if ($extension != 'pdf') {
@@ -342,5 +364,12 @@ class GeneratesClaimExportById
         ];
 
         return $mimeTypes[$extension] ?? 'application/octet-stream';
+    }
+
+    function formatString($str)
+    {
+        return implode(' ', array_map(function ($word) {
+            return ucfirst(strtolower($word));
+        }, explode('_', $str)));
     }
 }
