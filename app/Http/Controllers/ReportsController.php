@@ -12,8 +12,11 @@ use App\Services\GeneratesTransactionsReportHtml;
 use Exception;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Log;
+use Barryvdh\DomPDF\Facade\Pdf;
+use iio\libmergepdf\Merger;
+use iio\libmergepdf\Driver\TcpdiDriver;
+use App\Models\Claim;
 
 class ReportsController extends Controller
 {
@@ -65,31 +68,59 @@ class ReportsController extends Controller
 
     public function exportPDF(Request $request, $reportType)
     {
-        // Map report types to their respective services
-        $reportServices = [
-            'summaryReport' => GeneratesSummaryReportHtml::class,
-            'transactionReport' => GeneratesTransactionsReportHtml::class,
-            'paymentDetailReport' => GeneratesPaymentDetailReportHtml::class,
-            'claimExport' => GeneratesClaimExportById::class,
-        ];
+        try {
+            // Map report types to their respective services
+            $reportServices = [
+                'summaryReport' => GeneratesSummaryReportHtml::class,
+                'transactionReport' => GeneratesTransactionsReportHtml::class,
+                'paymentDetailReport' => GeneratesPaymentDetailReportHtml::class,
+                'claimExport' => GeneratesClaimExportById::class,
+            ];
 
-        // Validate report type
-        if (!isset($reportServices[$reportType])) {
-            throw new Exception("Report Type Not Found");
-        }
+            // Validate report type
+            if (!isset($reportServices[$reportType])) {
+                throw new Exception("Report Type Not Found");
+            }
 
-        // Generate HTML using the appropriate service
-        $html = (new $reportServices[$reportType]())->generate($request->input());
+            // Generate HTML using the appropriate service
+            $result = (new $reportServices[$reportType]())->generate($request->input());
 
-        // Generate and stream PDF
-        $pdf = PDF::loadHTML($html);
+            // If result is array (contains PDF path for merging)
+            if (is_array($result) && isset($result['html']) && isset($result['pdf_path'])) {
+                // Generate the main PDF from HTML
+                $mainPdf = PDF::loadHTML($result['html']);
+                $mainPdfContent = $mainPdf->output();
 
-        // Check if the PDF object is created correctly
-        if ($pdf) {
-            // Stream PDF to the browser
+                // Create merger instance
+                $merger = new Merger(new TcpdiDriver());
+
+                // Add main PDF content
+                $merger->addRaw($mainPdfContent);
+
+                // Add receipt PDF if it exists
+                if (file_exists($result['pdf_path'])) {
+                    $merger->addFile($result['pdf_path']);
+                }
+
+                // Merge PDFs
+                $mergedPdf = $merger->merge();
+
+                return response($mergedPdf)
+                    ->header('Content-Type', 'application/pdf')
+                    ->header('Content-Disposition', 'attachment; filename="claim.pdf"');
+            }
+
+            // For non-merged PDFs
+            $pdf = PDF::loadHTML(is_array($result) ? $result['html'] : $result);
+
+            if (!$pdf) {
+                throw new Exception("Error generating PDF");
+            }
+
             return $pdf->stream('document.pdf');
-        } else {
-            throw new Exception("Error generating PDF");
+        } catch (\Exception $e) {
+            Log::error('PDF Generation Error: ' . $e->getMessage());
+            throw $e;
         }
     }
 }

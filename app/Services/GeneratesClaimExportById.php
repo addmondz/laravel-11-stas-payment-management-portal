@@ -4,15 +4,27 @@ namespace App\Services;
 
 use App\Models\{Claim};
 use Exception;
+use Illuminate\Support\Facades\Log;
 
 class GeneratesClaimExportById
 {
     private $requestBody;
+    private $pdfToMerge;
 
     public function generate($requestBody)
     {
         $this->requestBody = $requestBody;
-        return $this->generateReport();
+        $html = $this->generateReport();
+
+        // If we have a PDF to merge and this is for PDF generation
+        if ($this->pdfToMerge && isset($requestBody['for_pdf']) && $requestBody['for_pdf']) {
+            return [
+                'html' => $html,
+                'pdf_path' => $this->pdfToMerge
+            ];
+        }
+
+        return $html;
     }
 
     private function generateReport()
@@ -40,6 +52,30 @@ class GeneratesClaimExportById
             'amount' => $claim->amount ?? 0,
             'gst_amount' => $claim->gst_amount ?? 0,
         ];
+
+        // Check if this is for PDF generation
+        $forPdf = isset($this->requestBody['for_pdf']) && $this->requestBody['for_pdf'];
+        Log::info('Generating report for: ' . ($forPdf ? 'PDF' : 'HTML'));
+        
+        // Check if receipt is PDF
+        $isPdf = $claim->receipt_file && strtolower(pathinfo($claim->receipt_file, PATHINFO_EXTENSION)) === 'pdf';
+        
+        // Handle receipt display
+        if ($isPdf && $forPdf) {
+            // Store PDF path for merging later
+            $this->pdfToMerge = public_path($claim->receipt_file);
+            $receiptDisplay = '<div class="section"><span class="value">PDF Receipt will be attached at the end</span></div>';
+        } else {
+            // Handle image display or no receipt
+            $imgPath = $this->getReceiptFileUrl($claim->receipt_file, $forPdf);
+            $receiptDisplay = $claim->receipt_file && !$isPdf && $imgPath ? 
+                '<div class="receipt-image">
+                    <img src="' . $imgPath . '" 
+                        alt="Receipt" 
+                        style="max-width: 100%; height: auto; display: block; margin: 0 auto;">
+                </div>' : 
+                '<div class="section"><span class="value">No receipt available</span></div>';
+        }
 
         $html = '
         <!DOCTYPE html>
@@ -235,11 +271,7 @@ class GeneratesClaimExportById
                 <div class="receipt-section">
                     <div class="claim-info">
                         <h2>Receipt Document</h2>
-                        ' . ($claim->receipt_file ? '
-                        <div class="receipt-image">
-                            <img src="' . public_path($claim->receipt_file) . '" alt="Receipt">
-                        </div>
-                        ' : '<div class="section"><span class="value">No receipt available</span></div>') . '
+                        ' . $receiptDisplay . '
                     </div>
                 </div>
             </div>
@@ -247,5 +279,64 @@ class GeneratesClaimExportById
         </html>';
 
         return $html;
+    }
+
+    private function getReceiptFileUrl($url, $forPdf = false)
+    {
+        if (!$url) {
+            Log::info('No URL provided');
+            return null;
+        }
+
+        // If it's a PDF, don't process it
+        if (strtolower(pathinfo($url, PATHINFO_EXTENSION)) === 'pdf') {
+            return null;
+        }
+        
+        if ($forPdf) {
+            try {
+                $filePath = public_path($url);
+                Log::info('Attempting to read file from: ' . $filePath);
+                
+                if (!file_exists($filePath)) {
+                    Log::error('File not found at: ' . $filePath);
+                    return null;
+                }
+
+                $fileContent = file_get_contents($filePath);
+                if ($fileContent === false) {
+                    Log::error('Failed to read file content');
+                    return null;
+                }
+
+                $base64 = base64_encode($fileContent);
+                $extension = strtolower(pathinfo($url, PATHINFO_EXTENSION));
+                $mimeType = $this->getMimeType($extension);
+                
+                return "data:{$mimeType};base64,{$base64}";
+
+            } catch (\Exception $e) {
+                Log::error('Error processing file for PDF: ' . $e->getMessage());
+                return null;
+            }
+        } else {
+            // For HTML display, use URL
+            $baseUrl = config('app.url');
+            $prefix = app()->environment('production') ? 'public/' : '';
+            return $baseUrl . '/' . $prefix . $url;
+        }
+    }
+
+    private function getMimeType($extension)
+    {
+        $mimeTypes = [
+            'png' => 'image/png',
+            'jpg' => 'image/jpeg',
+            'jpeg' => 'image/jpeg',
+            'gif' => 'image/gif',
+            'pdf' => 'application/pdf'
+        ];
+
+        return $mimeTypes[$extension] ?? 'application/octet-stream';
     }
 }

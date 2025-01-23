@@ -6,12 +6,12 @@
             <div class="flex flex-wrap justify-between items-center gap-y-4 sm:flex-nowrap">
                 <div>
                     <BreadcrumbComponent :breadcrumbs="breadcrumbs" />
-                    <!-- <PrimaryButton class="mr-5" @click="actionClicked('test')">
+                    <PrimaryButton class="mr-5" @click="actionClicked('test')">
                         Preview
                     </PrimaryButton>
                     <PrimaryButton class="mr-5" @click="actionClicked('export')">
                         Export PDF
-                    </PrimaryButton> -->
+                    </PrimaryButton>
                 </div>
                 <div class="flex items-center justify-center">
                     <StatusLabel v-if="apiResponse" class="text-sm inline-block" :status="fetchedData.status"
@@ -109,7 +109,7 @@
                             </div>
                             <p class="text-base">{{ fetchedData.currency_object.short_code }} {{
                                 formatPrice(fetchedData.amount)
-                            }}</p>
+                                }}</p>
                         </div>
                         <!-- <div class="mb-4">
                             <div class="flex justify-between">
@@ -311,7 +311,7 @@
 
 <script setup>
 import axios from 'axios';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import NotFound from '@/Components/Icons/NotFound.vue';
@@ -458,25 +458,45 @@ const handleCreateComplete = () => {
     fetchData();
 };
 
-
-const generateReportData = () => ({
-    reportName: 'CLaim Export',
-    reportType: 'claimExport',
-    claim_id: fetchedData.value.id,
+const isReceiptFilePdf = computed(() => {
+    const file = fetchedData.value.receipt_file;
+    return file && file.toLowerCase().endsWith(".pdf");
 });
+
+const generateReportData = (isExport) => {
+    let data = {
+        reportName: 'Claim Export 1',
+        reportType: 'claimExport',
+        claim_id: fetchedData.value.id,
+        for_pdf: false,
+        isReceiptFilePdf: isReceiptFilePdf.value,
+    };
+
+    if (isExport) {
+        data.for_pdf = true;
+    }
+
+    return data;
+};
 
 const actionClicked = async (action) => {
     isLoading.value = true;
 
-    const data = generateReportData();
+    try {
+        const data = generateReportData(action === 'export');
 
-    const urlMap = {
-        // preview: `${route('report.preview')}?data=${encodeURIComponent(btoa(JSON.stringify(data)))}`,
-        test: route('reports.generateReportPreview', 'claimExport'),
-        export: route('reports.exportPDF', data.reportType),
-    };
-    await handleReportAction(action, data, urlMap, 'claim_report_' + fetchedData.value.id);
+        const urlMap = {
+            // preview: `${route('report.preview')}?data=${encodeURIComponent(btoa(JSON.stringify(data)))}`,
+            test: route('reports.generateReportPreview', 'claimExport'),
+            export: route('reports.exportPDF', data.reportType),
+        };
 
-    isLoading.value = false;
+        await handleReportAction(action, data, urlMap, 'claim_report_' + formatId(fetchedData.value.id));
+    } catch (error) {
+        console.error('Error generating report:', error);
+        // Handle error appropriately (e.g., show a notification)
+    } finally {
+        isLoading.value = false;
+    }
 };
 </script>

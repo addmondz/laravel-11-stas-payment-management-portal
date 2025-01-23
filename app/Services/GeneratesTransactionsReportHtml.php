@@ -218,7 +218,7 @@ class GeneratesTransactionsReportHtml
     {
         return '
             <tr>
-                <td colspan="9" class="section-header">
+                <td colspan="17" class="section-header">
                     <div style="font-weight: 600; font-size: 1.2rem; margin-bottom:5px">Pay To: ' . htmlspecialchars($receiver->name) . '</div>
                     <div class="meta-info">Bank Name: ' .
             htmlspecialchars("{$receiver->bank_name}") .
