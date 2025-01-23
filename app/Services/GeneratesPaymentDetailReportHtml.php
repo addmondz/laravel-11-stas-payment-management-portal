@@ -250,6 +250,7 @@ class GeneratesPaymentDetailReportHtml
                 <th>Approved by</th>
                 <th>Approved by</th>
                 <th>Receipts</th>
+                <th>Payment Voucher Receipts</th>
                 <th>Payment Voucher No</th>
                 <th>Payment Made</th>
             </tr>';
