@@ -102,7 +102,7 @@
                                 formatPrice(fetchedData.amount)
                                 }}</p>
                         </div>
-                        <div class="mb-4">
+                        <!-- <div class="mb-4">
                             <div class="flex justify-between">
                                 <p class="mb-1 text-sm text-gray-500">GST Percent</p>
                                 <InfoCircleOutlined class="text-gray-400" />
@@ -110,7 +110,7 @@
                             <p class="text-base">
                                 {{ Number(fetchedData.gst_amount) === 0 ? '-' : fetchedData.gst_percent + ' %' }}
                             </p>
-                        </div>
+                        </div> -->
                         <div class="mb-4">
                             <div class="flex justify-between">
                                 <p class="mb-1 text-sm text-gray-500">GST Amount</p>
