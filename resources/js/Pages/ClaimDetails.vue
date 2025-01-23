@@ -26,7 +26,7 @@
         </div>
         <div v-else>
             <div class="max-w-8xl mx-auto py-6 px-4 sm:px-6 lg:px-8" v-if="apiResponse">
-                <div class="mb-5">
+                <div class="mb-5 hidden">
                     <!-- <PrimaryButton class="mr-5" @click="actionClicked('test')">
                         Preview
                     </PrimaryButton> -->
