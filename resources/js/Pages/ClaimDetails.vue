@@ -4,9 +4,18 @@
     <AuthenticatedLayout>
         <template #header>
             <div class="flex flex-wrap justify-between items-center gap-y-4 sm:flex-nowrap">
-                <BreadcrumbComponent :breadcrumbs="breadcrumbs" />
+                <div>
+                    <BreadcrumbComponent :breadcrumbs="breadcrumbs" />
+                    <PrimaryButton class="mr-5" @click="actionClicked('test')">
+                        Preview
+                    </PrimaryButton>
+                    <PrimaryButton class="mr-5" @click="actionClicked('export')">
+                        Export PDF
+                    </PrimaryButton>
+                </div>
                 <div class="flex items-center justify-center">
-                    <StatusLabel v-if="apiResponse" class="text-sm inline-block" :status="fetchedData.status" :name="fetchedData.status_name" />
+                    <StatusLabel v-if="apiResponse" class="text-sm inline-block" :status="fetchedData.status"
+                        :name="fetchedData.status_name" />
                     <PrimaryButton
                         v-if="fetchedData.status_id < 2 && (getUserApprovalPrivillage().value == fetchedData.next_approval_level)"
                         class="bg-violet-500 hover:bg-violet-700 active:bg-violet-700 focus:bg-violet-700 font-bold"
@@ -100,7 +109,7 @@
                             </div>
                             <p class="text-base">{{ fetchedData.currency_object.short_code }} {{
                                 formatPrice(fetchedData.amount)
-                                }}</p>
+                            }}</p>
                         </div>
                         <!-- <div class="mb-4">
                             <div class="flex justify-between">
@@ -134,7 +143,8 @@
                                 @click="toggleShowSection('bankDetails')" />
                         </div>
                     </div>
-                    <div class="grid md:grid-cols-3 gap-9 p-6 border-gray-300 col-span-2" v-if="showSection.bankDetails">
+                    <div class="grid md:grid-cols-3 gap-9 p-6 border-gray-300 col-span-2"
+                        v-if="showSection.bankDetails">
                         <div class="mb-4">
                             <div class="flex justify-between">
                                 <p class="mb-1 text-sm text-gray-500">Bank Name</p>
@@ -161,7 +171,8 @@
                                 <p class="mb-1 text-sm text-gray-500">Country</p>
                                 <InfoCircleOutlined class="text-gray-400" />
                             </div>
-                            <p class="text-base">{{ fetchedData.payment_to_user?.currency?.country?.name || '-' }} ({{ fetchedData.payment_to_user?.currency?.country?.short_code || '-' }})</p>
+                            <p class="text-base">{{ fetchedData.payment_to_user?.currency?.country?.name || '-' }} ({{
+                                fetchedData.payment_to_user?.currency?.country?.short_code || '-' }})</p>
                         </div>
                     </div>
                 </div>
@@ -259,8 +270,8 @@
                                 <InfoCircleOutlined class="text-gray-400" />
                             </div>
                             <div>
-                                <DocumentViewer :src="`/${fetchedData.payment_voucher_receipt_file}`" alt="Receipt Image"
-                                    :id="fetchedData.id" />
+                                <DocumentViewer :src="`/${fetchedData.payment_voucher_receipt_file}`"
+                                    alt="Receipt Image" :id="fetchedData.id" />
                             </div>
                         </div>
                     </div>
@@ -307,9 +318,8 @@ import NotFound from '@/Components/Icons/NotFound.vue';
 import LoadingComponent from '@/Components/General/LoadingComponent.vue';
 import StatusLabel from '@/Components/General/StatusLabel.vue';
 import BreadcrumbComponent from '@/Components/General/BreadcrumbComponent.vue';
-import { formatId } from '@/Helpers/helpers.js';
 import { InfoCircleOutlined } from '@ant-design/icons-vue';
-import { formatPrice, formatDate, formatString, formatDateWithTime } from '@/Helpers/helpers.js';
+import { formatPrice, formatDate, formatString, formatDateWithTime, handleReportAction, downloadExcel, formatId } from '@/Helpers/helpers.js';
 import AngleUp from '@/Components/Icons/AngleUp.vue';
 import AngleDown from '@/Components/Icons/AngleDown.vue';
 import PrimaryButton from '@/Components/General/PrimaryButton.vue';
@@ -448,4 +458,25 @@ const handleCreateComplete = () => {
     fetchData();
 };
 
+
+const generateReportData = () => ({
+    reportName: 'CLaim Export',
+    reportType: 'claimExport',
+    claim_id: fetchedData.value.id,
+});
+
+const actionClicked = async (action) => {
+    isLoading.value = true;
+
+    const data = generateReportData();
+
+    const urlMap = {
+        // preview: `${route('report.preview')}?data=${encodeURIComponent(btoa(JSON.stringify(data)))}`,
+        test: route('reports.generateReportPreview', 'claimExport'),
+        export: route('reports.exportPDF', data.reportType),
+    };
+    await handleReportAction(action, data, urlMap, 'claim_report_' + fetchedData.value.id);
+
+    isLoading.value = false;
+};
 </script>

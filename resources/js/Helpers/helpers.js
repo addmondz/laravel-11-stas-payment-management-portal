@@ -104,7 +104,7 @@ export const handleReportAction = async (action, generateReportData, urlMap, rep
 
         Swal.fire({
             title: "Error!",
-            text: err.response?.data?.error || "An unexpected error occurred while generating the report.",
+            text: error.response?.data?.error || "An unexpected error occurred while generating the report.",
             icon: "error",
             confirmButtonText: "OK",
         });

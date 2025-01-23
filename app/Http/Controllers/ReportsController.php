@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Exports\PaymentDetailReportExport;
 use App\Exports\TransactionsReportExport;
 use App\Exports\SummaryReportExport;
+use App\Services\GeneratesClaimExportById;
 use App\Services\GeneratesPaymentDetailReportHtml;
 use App\Services\GeneratesSummaryReportHtml;
 use App\Services\GeneratesTransactionsReportHtml;
@@ -47,6 +48,7 @@ class ReportsController extends Controller
             'summaryReport' => GeneratesSummaryReportHtml::class,
             'transactionReport' => GeneratesTransactionsReportHtml::class,
             'paymentDetailReport' => GeneratesPaymentDetailReportHtml::class,
+            'claimExport' => GeneratesClaimExportById::class,
         ];
 
         // Validate report type
@@ -68,6 +70,7 @@ class ReportsController extends Controller
             'summaryReport' => GeneratesSummaryReportHtml::class,
             'transactionReport' => GeneratesTransactionsReportHtml::class,
             'paymentDetailReport' => GeneratesPaymentDetailReportHtml::class,
+            'claimExport' => GeneratesClaimExportById::class,
         ];
 
         // Validate report type
