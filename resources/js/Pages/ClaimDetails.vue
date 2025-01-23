@@ -6,12 +6,12 @@
             <div class="flex flex-wrap justify-between items-center gap-y-4 sm:flex-nowrap">
                 <div>
                     <BreadcrumbComponent :breadcrumbs="breadcrumbs" />
-                    <PrimaryButton class="mr-5" @click="actionClicked('test')">
+                    <!-- <PrimaryButton class="mr-5" @click="actionClicked('test')">
                         Preview
                     </PrimaryButton>
                     <PrimaryButton class="mr-5" @click="actionClicked('export')">
                         Export PDF
-                    </PrimaryButton>
+                    </PrimaryButton> -->
                 </div>
                 <div class="flex items-center justify-center">
                     <StatusLabel v-if="apiResponse" class="text-sm inline-block" :status="fetchedData.status"
