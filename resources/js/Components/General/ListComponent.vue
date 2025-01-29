@@ -30,17 +30,17 @@
                 <div class="block mt-12" v-else v-if="hasPaddingTop"></div>
 
                 <div v-if="allowSelectAll">
-                    <div class="flex items-center w-full order-last lg:order-none max-lg:mx-auto p-5 pt-0 rounded-xl overflow-hidden transition-all duration-500"
-                        v-if="!isFinance().value">
+                    <div class="flex items-center w-full order-last lg:order-none max-lg:mx-auto p-5 pt-0 rounded-xl overflow-hidden transition-all duration-500">
                         <SquareBtn @click="selectAllClicked(data)" :isSelected="selectAll" class="block mr-5"
                             v-show="allIds.length" />
-                        <PrimaryButton
+                        <PaymentVoucherForm :claimId="selectedIdsToString" @createComplete="handleCreateComplete" class="rounded-md"
+                            v-if="isFinance().value" :class="{ 'invisible': !selectedIds.length }" />
+                        <PrimaryButton v-else
                             class="select-none bg-violet-500 hover:bg-violet-700 active:bg-violet-700 focus:bg-violet-700 font-bold"
                             :class="{ 'invisible': !selectedIds.length }" @click="groupApprovalConfirmation">
                             Approve {{ selectedIds.length }} Payment(s)
                         </PrimaryButton>
                     </div>
-                    <div class="mb-3" v-else></div>
                 </div>
 
                 <div class="grid md:grid-cols gap-4 mb-5">
@@ -72,7 +72,7 @@
 
 <script setup>
 import axios from 'axios';
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import NotFound from '@/Components/Icons/NotFound.vue';
 import LoadingComponent from '@/Components/General/LoadingComponent.vue';
 import SortAndFilterComponent from '@/Components/General/SortAndFilterComponent.vue';
@@ -82,6 +82,7 @@ import SquareBtn from '../Icons/SquareBtn.vue';
 import { isFinance } from '@/Composables/GlobalFuntions.vue';
 import PrimaryButton from '@/Components/General/PrimaryButton.vue';
 import Swal from 'sweetalert2';
+import PaymentVoucherForm from '@/Components/Form/PaymentVoucherForm.vue';
 
 const isLoading = ref(true);
 const listData = ref([]);
@@ -161,7 +162,7 @@ const fetchList = async (page = 1) => {
         });
 
         const { data } = await axios.get(`${props.apiUrl}?${queryParams.toString()}`);
-        listData.value = data.data.data;
+        listData.value = data?.data?.data || [];
         apiResponse.value = data.data;
         fullApiResponse.value = data;
         lastPage.value = data.data.last_page;
@@ -172,6 +173,10 @@ const fetchList = async (page = 1) => {
         isLoading.value = false;
     }
 };
+
+const selectedIdsToString = computed(() => {
+    return props.selectedIds.toString();
+});
 
 // On component mount, load data
 onMounted(() => {
@@ -216,10 +221,32 @@ const triggerSearch = () => {
     selectAll.value = false;
 };
 
+function handleCreateComplete () {
+    triggerSearch();
+}
+
 const groupApprovalConfirmation = () => {
     Swal.fire({
         title: "Are you sure?",
         text: "Are you sure you want to approve these Payments?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: 'Yes',
+        cancelButtonText: 'No',
+        allowOutsideClick: false,
+        stopKeydownPropagation: true,
+        preConfirm: () => {
+            return new Promise((resolve, reject) => {
+                callApiToGroupApproveClaim(resolve, reject);
+            });
+        }
+    });
+};
+
+const groupUploadPaymentVoucehr = () => {
+    Swal.fire({
+        title: "Are you sure?",
+        text: "Are you sure you want to group upload Payment Vouchers?",
         icon: "question",
         showCancelButton: true,
         confirmButtonText: 'Yes',

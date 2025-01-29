@@ -29,6 +29,7 @@ import { ref } from 'vue';
 import ClaimsListTemplate from '@/Components/List/ClaimsListTemplate.vue';
 import ListComponent from '../General/ListComponent.vue';
 import Swal from 'sweetalert2';
+const allIds = ref([]); // Initialize as an empty array
 
 const emit = defineEmits(['pendingClaimsCount']);
 const props = defineProps({
@@ -44,6 +45,7 @@ const props = defineProps({
 
 const selectedIds = ref([]);
 const loadingKey = ref(1);
+const selectAll = ref(0);
 
 const emitPendingClaimsCount = (count) => {
     emit('pendingClaimsCount', count);

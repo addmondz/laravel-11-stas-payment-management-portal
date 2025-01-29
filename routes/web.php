@@ -54,5 +54,9 @@ Route::get('/reports', function () {
     return Inertia::render('Reports');
 })->middleware(['auth', 'verified'])->name('reports');
 
+Route::get('/payment-groups', function () {
+    return Inertia::render('PaymentGroups');
+})->middleware(['auth', 'verified'])->name('paymentGroups');
+
 require __DIR__ . '/auth.php';
 require __DIR__ . '/api.php';

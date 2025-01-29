@@ -40,8 +40,8 @@ const props = defineProps({
         default: '',
     },
     modelValue: {
-        type: Array,
-        default: () => ['', ''],
+        type: [Array, String], // Correct way to specify multiple types
+        default: () => ['', ''], // Default value for both cases
     },
 });
 

@@ -6,6 +6,8 @@ use App\Classes\ValueObjects\Constants\ApprovalRoles;
 use App\Classes\ValueObjects\Constants\ApprovalStatus;
 use App\Models\Claim;
 use App\Models\ClaimStatusLog;
+use App\Models\PaymentGroup;
+use App\Models\PaymentGroupChild;
 use App\Services\FetchesGstTax;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -500,30 +502,14 @@ class ClaimController extends Controller
 
     public function paymentCompleted(Request $request, $id)
     {
-        $claim = Claim::find($id);
+        $ids = explode(',', $id);
+        $paymentGroup = null;
 
         $validated = $request->validate([
             'paymentVoucherNumber' => 'required',
             'paymentDate' => 'required',
             'receipt' => 'required|mimes:jpeg,pdf,jpg,png|max:2048',
         ]);
-
-        if (! $claim) {
-            return response()->json(['error' => 'Claim not found.'], 404);
-        }
-
-        if ($claim->status < ApprovalStatus::APPROVED) {
-            return response()->json(['error' => 'Claim has not been approved yet.'], 409);
-        }
-
-        if ($claim->status >= ApprovalStatus::PAYMENT_COMPLETED) {
-            return response()->json(['error' => 'Claim has already been marked as Payment Completed.'], 409);
-        }
-
-        // todo-new: update here if anyone else can update
-        if (auth()->user()->role != 'finance') {
-            return response()->json(['error' => 'Insufficient privileges for this approval level.'], 403);
-        }
 
         // store at public folder
         if ($request->hasFile('receipt')) {
@@ -539,18 +525,58 @@ class ClaimController extends Controller
             $path = 'receipts/' . $filename;
         }
 
-        $claim->update([
-            'status' => ApprovalStatus::PAYMENT_COMPLETED,
-            'payment_voucher_number' => $validated['paymentVoucherNumber'],
-            'payment_date' => $validated['paymentDate'],
-            'payment_voucher_receipt_file' => $path ?? null,
-        ]);
+        foreach ($ids as $id) {
+            $claim = Claim::find($id);
 
-        ClaimStatusLog::create([
-            'claim_id' => $claim->id,
-            'status' => ApprovalStatus::PAYMENT_COMPLETED,
-            'causer_id' => auth()->id(),
-        ]);
+            if (!$claim) {
+                return response()->json(['error' => 'Claim not found.'], 404);
+            }
+
+            if ($claim->status < ApprovalStatus::APPROVED) {
+                return response()->json(['error' => 'Claim has not been approved yet.'], 409);
+            }
+
+            if ($claim->status >= ApprovalStatus::PAYMENT_COMPLETED) {
+                return response()->json(['error' => 'Claim has already been marked as Payment Completed.'], 409);
+            }
+
+            // todo-new: update here if anyone else can update
+            if (auth()->user()->role != 'finance') {
+                return response()->json(['error' => 'Insufficient privileges for this approval level.'], 403);
+            }
+
+            // Update the claim with payment completed status
+            $claim->update([
+                'status' => ApprovalStatus::PAYMENT_COMPLETED,
+                'payment_voucher_number' => $validated['paymentVoucherNumber'],
+                'payment_date' => $validated['paymentDate'],
+                'payment_voucher_receipt_file' => $path ?? null,
+            ]);
+
+            // Log the claim status update
+            ClaimStatusLog::create([
+                'claim_id' => $claim->id,
+                'status' => ApprovalStatus::PAYMENT_COMPLETED,
+                'causer_id' => auth()->id(),
+            ]);
+
+            // Create a PaymentGroup if not already created (for multiple claims)
+            if (count($ids) > 1 && is_null($paymentGroup)) {
+                $paymentGroup = PaymentGroup::create([
+                    'payment_voucher_number' => $validated['paymentVoucherNumber'], // Using the first payment voucher number
+                    'payment_date' => $validated['paymentDate'], // Using the same payment date
+                    'payment_voucher_receipt_file' => $path ?? null,
+                ]);
+            }
+
+            // Create PaymentGroupChild for each claim
+            if ($paymentGroup) {
+                PaymentGroupChild::create([
+                    'payment_group_id' => $paymentGroup->id,
+                    'claim_id' => $claim->id, // Associating this claim with the payment group
+                ]);
+            }
+        }
 
         return response()->json(['message' => 'Claim has been updated.'], 200);
     }

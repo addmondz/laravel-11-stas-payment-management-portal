@@ -1,0 +1,24 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class PaymentGroupChild extends Model
+{
+    use HasFactory;
+
+    protected $table = 'payment_groups_child';
+
+    protected $fillable = [
+        'payment_group_id',
+        'claim_id',
+    ];
+
+    // Define the inverse relationship with the PaymentGroup model
+    public function paymentGroup()
+    {
+        return $this->belongsTo(PaymentGroup::class);
+    }
+}

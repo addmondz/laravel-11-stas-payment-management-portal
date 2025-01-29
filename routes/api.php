@@ -4,11 +4,13 @@ use App\Http\Controllers\ApprovalStatusController;
 use App\Http\Controllers\ClaimController;
 use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\PaymentCategoryController;
+use App\Http\Controllers\PaymentGroupController;
 use App\Http\Controllers\PaymentReceiverController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VariableController;
+use App\Models\PaymentGroup;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('api')->middleware('auth')->group(function () {
@@ -78,6 +80,10 @@ Route::prefix('api')->middleware('auth')->group(function () {
 
     Route::prefix('approval-status')->group(function () {
         Route::get('/list', [ApprovalStatusController::class, 'list'])->name('approvalStatus.list');
+    });
+
+    Route::prefix('payment-grousp')->group(function () {
+        Route::get('/list', [PaymentGroupController::class, 'list'])->name('paymentGroup.list');
     });
 
 });

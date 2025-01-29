@@ -2,7 +2,7 @@
     <div class="w-full flex flex-col justify-center order-last lg:order-none max-lg:mx-auto border p-5 rounded-xl overflow-visible bg-white hover:border-violet-600 transition-all duration-500"
         :class="{ 'bg-violet-50 border-violet-900': isSelected }">
         <div class="flex">
-            <div class="flex justify-center items-center" v-if="showGroupActions && !isFinance().value">
+            <div class="flex justify-center items-center" v-if="showGroupActions">
                 <SquareBtn @update-selected="handleUpdateSelected" :isSelected="isSelected" class="block mr-5" />
             </div>
             <div class="flex-1">

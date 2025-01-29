@@ -116,10 +116,13 @@ const replaceUnderscoreAndUppercase = (str) => {
 const formErrors = ref({});
 
 onMounted(async () => {
-    filters.value = { ...props.filters };  // Initialize filters with the value from props
+    // Initialize filters with the value from props and ensure each field is a string
+    filters.value = { ...props.filters };
+
     for (const filter of props.sortAndFilters) {
-        filters.value[filter.field_name] = filters.value[filter.field_name] || '';
+        filters.value[filter.field_name] = filters.value[filter.field_name] || '';  // Ensure empty string if undefined
         formErrors.value[filter.field_name] = '';
+
         if (filter.field_type === 'select' && filter.api) {
             const data = await fetchData(filter.api);
             filter.options = data;
