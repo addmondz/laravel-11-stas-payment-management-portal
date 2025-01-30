@@ -259,9 +259,6 @@ class GeneratesClaimExportById
                     font-size: 12px;
                     padding-left: 0;
                 }
-                .receipt-section {
-                    page-break-before: always;
-                }
                 .receipt-image {
                     max-width: 100%;
                     height: auto;
