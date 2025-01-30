@@ -38,7 +38,7 @@
                         </div>
                         <div class="row">
                             <div class="col">
-                                <div class="text-[14px] truncate">{{ data.payment_date }}</div>
+                                <div class="text-[14px] truncate">{{ formatDate(data.payment_date) }}</div>
                             </div>
                         </div>
                     </div>
@@ -76,6 +76,7 @@ import DocumentViewer from '@/Components/General/DocumentViewer.vue';
 import { ref } from 'vue';
 import AngleUp from '@/Components/Icons/AngleUp.vue';
 import AngleDown from '@/Components/Icons/AngleDown.vue';
+import { formatDate, formatString } from '@/Helpers/helpers.js';
 
 const emit = defineEmits();
 const props = defineProps({

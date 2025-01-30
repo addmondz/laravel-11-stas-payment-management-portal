@@ -202,7 +202,6 @@ class GeneratesClaimExportById
                 }
                 .details-table td:first-child {
                     width: 200px;
-                    font-weight: 600;
                     color: #6b7280;
                     font-size: 11px;
                     text-transform: uppercase;

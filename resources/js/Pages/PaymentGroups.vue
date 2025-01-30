@@ -34,11 +34,11 @@ const handleCreateComplete = () => {
     createCompleteSignal.value = Math.floor(Math.random() * 100) + 132;
 };
 
-// const sortAndFilters = ref([
-//     { field_name: "name", field_type: "string" },
-//     { field_name: "bank_name", field_type: "string" },
-//     { display_name: "Currency", field_name: "currency_id", field_type: "select", api: route('currency.listShortCode') },
-// ]);
+const sortAndFilters = ref([
+    { display_name: "Payment Group ID", field_name: "id", field_type: "string" },
+    { display_name: "Payment Voucher Number", field_name: "payment_voucher_number", field_type: "string" },
+    { display_name: "Payment Date", field_name: "payment_date", field_type: "date_range" },
+]);
 
-const sortAndFilters = ref([]);
+// const sortAndFilters = ref([]);
 </script>

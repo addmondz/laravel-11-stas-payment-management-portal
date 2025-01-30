@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PaymentGroup;
 use App\Classes\ValueObjects\Constants\ApprovalStatus;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -16,7 +17,29 @@ class PaymentGroupController extends Controller
             $perPage = $request->query('per_page', 10);
 
             // Fetch payment groups with their associated claims using pagination
-            $paymentGroups = PaymentGroup::with(['claims', 'claims.createdUser'])->paginate($perPage);
+            $query = PaymentGroup::with(['claims', 'claims.createdUser']);
+
+            // Apply filters
+            $filters = ['id', 'payment_voucher_number'];
+            foreach ($filters as $filter) {
+                if ($request->has($filter)) {
+                    $query->where($filter, $request->input($filter));
+                }
+            }
+
+            // dd($request->input());
+            
+            if (($payment_date = $request->input('payment_date')) !== null) {
+                $dates = is_array($payment_date) ? $payment_date : explode(',', $payment_date);
+                if (count($dates) === 2) {
+                    $query->whereBetween('payment_date', [
+                        Carbon::parse($dates[0])->startOfDay(),
+                        Carbon::parse($dates[1])->endOfDay()
+                    ]);
+                }
+            }
+
+            $paymentGroups = $query->paginate($perPage);
 
             // Transform claims for each payment group
             $paymentGroups->getCollection()->transform(function ($group) {
