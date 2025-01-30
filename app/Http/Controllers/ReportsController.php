@@ -85,37 +85,44 @@ class ReportsController extends Controller
             // Generate HTML using the appropriate service
             $result = (new $reportServices[$reportType]())->generate($request->input());
 
-            // If result is array (contains PDF path for merging)
-            if (is_array($result) && isset($result['html']) && isset($result['pdf_path'])) {
-                // Generate the main PDF from HTML
-                $mainPdf = PDF::loadHTML($result['html']);
-                $mainPdfContent = $mainPdf->output();
+            // Generate the main PDF from HTML
+            $mainPdf = PDF::loadHTML($result['html']);
+            $mainPdfContent = $mainPdf->output();
 
-                // Create merger instance
-                $merger = new Merger(new TcpdiDriver());
+            // Create merger instance
+            $merger = new Merger(new TcpdiDriver());
 
-                // Add main PDF content
-                $merger->addRaw($mainPdfContent);
+            // Add main PDF content
+            $merger->addRaw($mainPdfContent);
 
-                // Add receipt PDF if it exists
-                if (file_exists($result['pdf_path'])) {
-                    $merger->addFile($result['pdf_path']);
-                }
-
-                // Merge PDFs
-                $mergedPdf = $merger->merge();
-
-                return response($mergedPdf)
-                    ->header('Content-Type', 'application/pdf')
-                    ->header('Content-Disposition', 'attachment; filename="claim.pdf"');
+            // Add receipt PDF if it exists
+            if (file_exists($result['pdf_path'])) {
+                $merger->addFile($result['pdf_path']);
             }
+
+            if (isset($result['paymentVoucherHtml'])) {
+                $newPdf = PDF::loadHTML($result['paymentVoucherHtml']);
+                $newCOntent = $newPdf->output();
+                $merger->addRaw($newCOntent);
+            }
+
+            if (file_exists($result['paymentVoucherPdf'])) {
+                $merger->addFile($result['paymentVoucherPdf']);
+            }
+
+            // Merge PDFs
+            $mergedPdf = $merger->merge();
+
+            return response($mergedPdf)
+                ->header('Content-Type', 'application/pdf')
+                ->header('Content-Disposition', 'attachment; filename="claim.pdf"');
 
             // For non-merged PDFs
-            $pdf = PDF::loadHTML(is_array($result) ? $result['html'] : $result);
+            // $pdf = PDF::loadHTML(is_array($result) ? $result['html'] : $result);
 
-            if (!$pdf) {
-                throw new Exception("Error generating PDF");
-            }
+            // if (!$pdf) {
+            //     throw new Exception("Error generating PDF");
+            // }
 
             return $pdf->stream('document.pdf');
         } catch (\Exception $e) {

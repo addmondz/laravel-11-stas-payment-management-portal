@@ -5,43 +5,66 @@ namespace App\Services;
 use App\Models\{Claim};
 use Exception;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class GeneratesClaimExportById
 {
     private $requestBody;
     private $pdfToMerge;
+    private $paymentVoucherHtml;
+    private $paymentVoucherPdf;
+    private const MIME_TYPES = [
+        'png' => 'image/png',
+        'jpg' => 'image/jpeg',
+        'jpeg' => 'image/jpeg',
+        'gif' => 'image/gif',
+        'pdf' => 'application/pdf'
+    ];
+
+    private function getFileExtension($url)
+    {
+        return strtolower(pathinfo($url, PATHINFO_EXTENSION));
+    }
 
     public function generate($requestBody)
     {
         $this->requestBody = $requestBody;
         $html = $this->generateReport();
 
-        // If we have a PDF to merge and this is for PDF generation
-        if ($this->pdfToMerge && isset($requestBody['for_pdf']) && $requestBody['for_pdf']) {
-            return [
-                'html' => $html,
-                'pdf_path' => $this->pdfToMerge
-            ];
-        }
-
-        return $html;
+        return [
+            'html' => $html,
+            'pdf_path' => $this->pdfToMerge,
+            'paymentVoucherHtml' => $this->paymentVoucherHtml ?? null,
+            'paymentVoucherPdf' => $this->paymentVoucherPdf ?? null
+        ];
     }
 
     private function generateReport()
+    {
+        $claim = $this->getClaimData();
+        $fetchedData = $this->prepareClaimData($claim);
+        $forPdf = isset($this->requestBody['for_pdf']) && $this->requestBody['for_pdf'];
+
+        return $this->buildHtmlTemplate($claim, $fetchedData, $forPdf);
+    }
+
+    private function getClaimData()
     {
         if (!isset($this->requestBody['claim_id']) || empty($this->requestBody['claim_id'])) {
             throw new Exception("Claim ID is required.");
         }
 
-        $claimId = $this->requestBody['claim_id'];
-        $claim = Claim::find($claimId);
-
+        $claim = Claim::find($this->requestBody['claim_id']);
         if (!$claim) {
             throw new Exception("Claim not found.");
         }
 
-        // Fetch necessary data (example placeholders, adjust as needed)
-        $fetchedData = [
+        return $claim;
+    }
+
+    private function prepareClaimData($claim)
+    {
+        return [
             'created_user' => ['name' => $claim->createdUser->name ?? '-'],
             'payment_to_user' => ['name' => $claim->paymentToUser->name ?? '-'],
             'payment_type' => $this->formatString($claim->payment_type) ?? '-',
@@ -52,37 +75,113 @@ class GeneratesClaimExportById
             'amount' => $claim->amount ?? 0,
             'gst_amount' => $claim->gst_amount ?? 0,
         ];
+    }
 
-        // Check if this is for PDF generation
-        $forPdf = isset($this->requestBody['for_pdf']) && $this->requestBody['for_pdf'];
-        // Log::info('Generating report for: ' . ($forPdf ? 'PDF' : 'HTML'));
+    private function buildHtmlTemplate($claim, $fetchedData, $forPdf)
+    {
+        $receiptDisplay = $this->processFileDisplay($claim->receipt_file, $forPdf, 'Receipt');
+        $paymentVoucherDisplay = $this->processFileDisplay($claim->payment_voucher_receipt_file, $forPdf, 'Payment Voucher', true);
 
-        // Check if receipt is PDF
-        $isPdf = $claim->receipt_file && strtolower(pathinfo($claim->receipt_file, PATHINFO_EXTENSION)) === 'pdf';
+        $styles = $this->getStyles();
+        $bankDetails = $this->getBankDetailsHtml($claim);
+        $detailsTable = $this->getDetailsTableHtml($fetchedData);
+        $amountDetails = $this->getAmountDetailsHtml($fetchedData);
 
-        // Handle receipt display
-        if ($isPdf && $forPdf) {
-            // Store PDF path for merging later
-            $this->pdfToMerge = public_path($claim->receipt_file);
-            $receiptDisplay = '<div class="section"><span class="value">PDF Receipt will be attached at the end</span></div>';
-        } else {
-            // Handle image display or no receipt
-            $imgPath = $this->getReceiptFileUrl($claim->receipt_file, $forPdf);
-            $receiptDisplay = $claim->receipt_file && !$isPdf && $imgPath ?
-                '<div class="receipt-image">
-                    <img src="' . $imgPath . '" 
-                        alt="Receipt" 
-                        style="max-width: 100%; height: auto; display: block; margin: 0 auto;">
-                </div>' :
-                '<div class="section"><span class="value">No receipt available</span></div>';
+        return $this->assembleHtml(
+            $claim,
+            $styles,
+            $detailsTable,
+            $amountDetails,
+            $bankDetails,
+            $receiptDisplay,
+            $paymentVoucherDisplay
+        );
+    }
+
+    private function processFileDisplay($file, $forPdf, $type, $isVoucher = false)
+    {
+        if (!$file) {
+            return $this->getNoFileMessage($type);
         }
 
-        $html = '
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <title>Claim Export</title>
+        $isPdf = $this->isFileAPdf($file);
+        if ($isPdf && $forPdf) {
+            if ($isVoucher) {
+                $this->paymentVoucherPdf = public_path($file);
+                Log::info('$this->paymentVoucherPdf- ' . $this->paymentVoucherPdf);
+            } else {
+                $this->pdfToMerge = public_path($file);
+                Log::info('$this->pdfToMerge- ' . $this->pdfToMerge);
+            }
+
+            return "<div class='section'><span class='value'>PDF {$type} will be attached at the end</span></div>";
+        }
+
+        $imgPath = $this->getReceiptFileUrl($file, $forPdf);
+        return $imgPath && !$isPdf ? $this->getImageHtml($imgPath) : $this->getNoFileMessage($type);
+    }
+
+    private function isFileAPdf($file)
+    {
+        return strtolower(pathinfo($file, PATHINFO_EXTENSION)) === 'pdf';
+    }
+
+    private function getNoFileMessage($type)
+    {
+        return "<div class='section'><span class='value'>No {$type} available</span></div>";
+    }
+
+    private function getImageHtml($imgPath)
+    {
+        return "<div class='receipt-image'>
+                    <img src='{$imgPath}' 
+                         alt='Receipt' 
+                         style='max-width: 100%; height: auto; display: block; margin: 0 auto;'>
+                </div>";
+    }
+
+    private function getReceiptFileUrl($url, $forPdf = false)
+    {
+        if (!$url || $this->isFileAPdf($url)) {
+            return null;
+        }
+
+        if ($forPdf) {
+            return $this->getBase64FileContent($url);
+        }
+
+        $baseUrl = config('app.url');
+        $prefix = app()->environment('production') ? 'public/' : '';
+        return $baseUrl . '/' . $prefix . $url;
+    }
+
+    private function getBase64FileContent($url)
+    {
+        try {
+            $filePath = public_path($url);
+            if (!file_exists($filePath)) {
+                Log::error('File not found at: ' . $filePath);
+                return null;
+            }
+
+            $fileContent = file_get_contents($filePath);
+            if ($fileContent === false) {
+                Log::error('Failed to read file content');
+                return null;
+            }
+
+            $extension = strtolower(pathinfo($url, PATHINFO_EXTENSION));
+            $mimeType = self::MIME_TYPES[$extension] ?? 'application/octet-stream';
+            return "data:{$mimeType};base64," . base64_encode($fileContent);
+        } catch (\Exception $e) {
+            Log::error('Error processing file for PDF: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    private function getStyles()
+    {
+        return '
             <style>
                 @page {
                     size: A4;
@@ -210,92 +309,124 @@ class GeneratesClaimExportById
                     color: #333;
                     font-size: 12px;
                 }
-            </style>
+            </style>';
+    }
+
+    private function getBankDetailsHtml($claim)
+    {
+        return '
+            <div class="claim-info">
+                <h2>Bank Details</h2>
+                <table class="details-table">
+                    <tr>
+                        <td>Bank Name</td>
+                        <td>' . $claim->paymentToUser->bank_name . '</td>
+                    </tr>
+                    <tr>
+                    <td>Bank Number</td>
+                        <td>' . $claim->paymentToUser->bank_account_no . '</td>
+                    </tr>
+                    <tr>
+                        <td>Swift Code</td>
+                        <td>' . $claim->paymentToUser->swift_code . '</td>
+                    </tr>
+                    <tr>
+                        <td>Country</td>
+                        <td>' . $claim->paymentToUser->currency->country->name . ' (' . $claim->paymentToUser->currency->country->short_code . ')</td>
+                    </tr>
+                </table>
+            </div>';
+    }
+
+    private function getDetailsTableHtml($fetchedData)
+    {
+        return '
+            <div class="claim-info">
+                <h2>Details</h2>
+                <table class="details-table">
+                    <tr>
+                        <td>Created By</td>
+                        <td>' . ($fetchedData['created_user']['name'] ?? '-') . '</td>
+                    </tr>
+                    <tr>
+                        <td>Payment To</td>
+                        <td>' . ($fetchedData['payment_to_user']['name'] ?? '-') . '</td>
+                    </tr>
+                    <tr>
+                        <td>Payment Type</td>
+                        <td>' . ($fetchedData['payment_type'] ?? '-') . '</td>
+                    </tr>
+                    <tr>
+                        <td>Payment Category</td>
+                        <td>' . ($fetchedData['payment_category']['name'] ?? '-') . '</td>
+                    </tr>
+                    <tr>
+                        <td>Purpose</td>
+                        <td>' . ($fetchedData['purpose'] ?? '-') . '</td>
+                    </tr>
+                    <tr>
+                        <td>Created At</td>
+                        <td>' . ($fetchedData['created_at'] ?? '-') . '</td>
+                    </tr>
+                </table>
+            </div>';
+    }
+
+    private function getAmountDetailsHtml($fetchedData)
+    {
+        return '
+            <div class="claim-info">
+                <h2>Amount Details</h2>
+                <table class="details-table">
+                    <tr>
+                        <td>Total Amount</td>
+                        <td>' . $fetchedData['currency_object']['short_code'] . ' ' . number_format($fetchedData['amount'], 2) . '</td>
+                    </tr>
+                    <tr>
+                        <td>GST Amount</td>
+                        <td>' . ($fetchedData['gst_amount'] == 0 ? '-' : $fetchedData['currency_object']['short_code'] . ' ' . number_format($fetchedData['gst_amount'], 2)) . '</td>
+                    </tr>
+                </table>
+            </div>';
+    }
+
+    private function assembleHtml($claim, $styles, $detailsTable, $amountDetails, $bankDetails, $receiptDisplay, $paymentVoucherDisplay)
+    {
+        $html = '
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Claim Export</title>
+            ' . $styles . '
         </head>
         <body>
             <div class="container">
                 <div class="header">
                     <h1>Claim Details</h1>
                     <p>Generated On: ' . date('Y-m-d H:i:s') . '</p>
-                    <p>Generated By: ' . \Illuminate\Support\Facades\Auth::user()->name . '</p>
+                    <p>Generated By: ' . Auth::user()->name . '</p>
                 </div>
                 
-                <div class="claim-info">
-                    <h2>Details</h2>
-                    <table class="details-table">
-                        <tr>
-                            <td>Created By</td>
-                            <td>' . ($fetchedData['created_user']['name'] ?? '-') . '</td>
-                        </tr>
-                        <tr>
-                            <td>Payment To</td>
-                            <td>' . ($fetchedData['payment_to_user']['name'] ?? '-') . '</td>
-                        </tr>
-                        <tr>
-                            <td>Payment Type</td>
-                            <td>' . ($fetchedData['payment_type'] ?? '-') . '</td>
-                        </tr>
-                        <tr>
-                            <td>Payment Category</td>
-                            <td>' . ($fetchedData['payment_category']['name'] ?? '-') . '</td>
-                        </tr>
-                        <tr>
-                            <td>Purpose</td>
-                            <td>' . ($fetchedData['purpose'] ?? '-') . '</td>
-                        </tr>
-                        <tr>
-                            <td>Created At</td>
-                            <td>' . ($fetchedData['created_at'] ?? '-') . '</td>
-                        </tr>
-                    </table>
-                </div>
+                ' . $detailsTable . '
+                ' . $amountDetails . '
+                ' . $bankDetails;
 
+        $paymentReceiptType = $this->getFileExtension($claim->receipt_file);
+        if ($paymentReceiptType != 'pdf') $html .= '<div class="receipt-section">
                 <div class="claim-info">
-                    <h2>Amount Details</h2>
-                    <table class="details-table">
-                        <tr>
-                            <td>Total Amount</td>
-                            <td>' . $fetchedData['currency_object']['short_code'] . ' ' . number_format($fetchedData['amount'], 2) . '</td>
-                        </tr>
-                        <tr>
-                            <td>GST Amount</td>
-                            <td>' . ($fetchedData['gst_amount'] == 0 ? '-' : $fetchedData['currency_object']['short_code'] . ' ' . number_format($fetchedData['gst_amount'], 2)) . '</td>
-                        </tr>
-                    </table>
+                    <h2>Receipt Document</h2>
+                    ' . $receiptDisplay . '
                 </div>
+            </div>';
 
-                <div class="claim-info">
-                    <h2>Bank Details</h2>
-                    <table class="details-table">
-                        <tr>
-                            <td>Bank Name</td>
-                            <td>' . $claim->paymentToUser->bank_name . '</td>
-                        </tr>
-                        <tr>
-                        <td>Bank Number</td>
-                            <td>' . $claim->paymentToUser->bank_account_no . '</td>
-                        </tr>
-                        <tr>
-                            <td>Swift Code</td>
-                            <td>' . $claim->paymentToUser->swift_code . '</td>
-                        </tr>
-                        <tr>
-                            <td>Country</td>
-                            <td>' . $claim->paymentToUser->currency->country->name . ' (' . $claim->paymentToUser->currency->country->short_code . ')</td>
-                        </tr>
-                    </table>
-                </div>
-                
-                
-                ';
-
-        $extension = strtolower(pathinfo($claim->receipt_file, PATHINFO_EXTENSION));
-        if ($extension != 'pdf') {
-            $html .= '
+        $paymentVoucherExtension = $this->getFileExtension($claim->payment_voucher_receipt_file);
+        if ($paymentVoucherExtension != 'pdf') {
+            $this->paymentVoucherHtml = '<style>.' . $this->getStyles() . '.</style>
                 <div class="receipt-section">
                     <div class="claim-info">
-                        <h2>Receipt Document</h2>
-                        ' . $receiptDisplay . '
+                        <h2>Payment Voucher Document</h2>
+                        ' . $paymentVoucherDisplay . '
                     </div>
                 </div>';
         }
@@ -305,64 +436,6 @@ class GeneratesClaimExportById
         </html>';
 
         return $html;
-    }
-
-    private function getReceiptFileUrl($url, $forPdf = false)
-    {
-        if (!$url) {
-            // Log::info('No URL provided');
-            return null;
-        }
-
-        // If it's a PDF, don't process it
-        if (strtolower(pathinfo($url, PATHINFO_EXTENSION)) === 'pdf') {
-            return null;
-        }
-
-        if ($forPdf) {
-            try {
-                $filePath = public_path($url);
-                // Log::info('Attempting to read file from: ' . $filePath);
-
-                if (!file_exists($filePath)) {
-                    Log::error('File not found at: ' . $filePath);
-                    return null;
-                }
-
-                $fileContent = file_get_contents($filePath);
-                if ($fileContent === false) {
-                    Log::error('Failed to read file content');
-                    return null;
-                }
-
-                $base64 = base64_encode($fileContent);
-                $extension = strtolower(pathinfo($url, PATHINFO_EXTENSION));
-                $mimeType = $this->getMimeType($extension);
-
-                return "data:{$mimeType};base64,{$base64}";
-            } catch (\Exception $e) {
-                Log::error('Error processing file for PDF: ' . $e->getMessage());
-                return null;
-            }
-        } else {
-            // For HTML display, use URL
-            $baseUrl = config('app.url');
-            $prefix = app()->environment('production') ? 'public/' : '';
-            return $baseUrl . '/' . $prefix . $url;
-        }
-    }
-
-    private function getMimeType($extension)
-    {
-        $mimeTypes = [
-            'png' => 'image/png',
-            'jpg' => 'image/jpeg',
-            'jpeg' => 'image/jpeg',
-            'gif' => 'image/gif',
-            'pdf' => 'application/pdf'
-        ];
-
-        return $mimeTypes[$extension] ?? 'application/octet-stream';
     }
 
     function formatString($str)
