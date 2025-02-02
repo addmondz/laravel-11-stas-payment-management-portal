@@ -460,18 +460,12 @@ const handleCreateComplete = () => {
     fetchData();
 };
 
-const isReceiptFilePdf = computed(() => {
-    const file = fetchedData.value.receipt_file;
-    return file && file.toLowerCase().endsWith(".pdf");
-});
-
 const generateReportData = (isExport) => {
     let data = {
-        reportName: 'Claim Export 1',
+        reportName: 'Claim Export',
         reportType: 'claimExport',
         claim_id: fetchedData.value.id,
         for_pdf: false,
-        isReceiptFilePdf: isReceiptFilePdf.value,
     };
 
     if (isExport) {

@@ -33,8 +33,13 @@
                     <div class="flex items-center w-full order-last lg:order-none max-lg:mx-auto p-5 pt-0 rounded-xl overflow-hidden transition-all duration-500">
                         <SquareBtn @click="selectAllClicked(data)" :isSelected="selectAll" class="block mr-5"
                             v-show="allIds.length" />
+                        <PrimaryButton v-if="isAllClaims"
+                            class="select-none bg-violet-500 hover:bg-violet-700 active:bg-violet-700 focus:bg-violet-700 font-bold"
+                            :class="{ 'invisible': !selectedIds.length }" @click="actionClicked('export')">
+                            Export {{ selectedIds.length }} Payment(s)
+                        </PrimaryButton>
                         <PaymentVoucherForm :claimId="selectedIdsToString" @createComplete="handleCreateComplete" class="rounded-md"
-                            v-if="isFinance().value" :class="{ 'invisible': !selectedIds.length }" />
+                            v-else-if="isFinance().value" :class="{ 'invisible': !selectedIds.length }" />
                         <PrimaryButton v-else
                             class="select-none bg-violet-500 hover:bg-violet-700 active:bg-violet-700 focus:bg-violet-700 font-bold"
                             :class="{ 'invisible': !selectedIds.length }" @click="groupApprovalConfirmation">
@@ -83,6 +88,7 @@ import { isFinance } from '@/Composables/GlobalFuntions.vue';
 import PrimaryButton from '@/Components/General/PrimaryButton.vue';
 import Swal from 'sweetalert2';
 import PaymentVoucherForm from '@/Components/Form/PaymentVoucherForm.vue';
+import { formatPrice, formatDate, formatString, formatDateWithTime, handleReportAction, downloadExcel, formatId } from '@/Helpers/helpers.js';
 
 const isLoading = ref(true);
 const listData = ref([]);
@@ -126,6 +132,10 @@ const props = defineProps({
         default: false,
     },
     showFiltersOutside: {
+        type: Boolean,
+        default: false,
+    },
+    isAllClaims: {
         type: Boolean,
         default: false,
     },
@@ -175,7 +185,7 @@ const fetchList = async (page = 1) => {
 };
 
 const selectedIdsToString = computed(() => {
-    return props.selectedIds.toString();
+    return [...props.selectedIds].sort((a, b) => a - b).toString();
 });
 
 // On component mount, load data
@@ -279,6 +289,42 @@ const callApiToGroupApproveClaim = async () => {
             icon: "error",
             confirmButtonText: "OK"
         });
+    }
+};
+
+const generateReportData = (isExport) => {
+    let data = {
+        reportName: 'Claim Export',
+        reportType: 'claimExport',
+        claim_ids: selectedIdsToString.value,
+        for_pdf: false,
+    };
+
+    if (isExport) {
+        data.for_pdf = true;
+    }
+
+    return data;
+};
+
+const actionClicked = async (action) => {
+    isLoading.value = true;
+
+    try {
+        const data = generateReportData(action === 'export');
+
+        const urlMap = {
+            // preview: `${route('report.preview')}?data=${encodeURIComponent(btoa(JSON.stringify(data)))}`,
+            test: route('reports.generateReportPreview', 'claimExport'),
+            export: route('reports.exportPDF', data.reportType),
+        };
+
+        await handleReportAction(action, data, urlMap, 'claim_report_' + selectedIdsToString.value);
+    } catch (error) {
+        console.error('Error generating report:', error);
+        // Handle error appropriately (e.g., show a notification)
+    } finally {
+        isLoading.value = false;
     }
 };
 </script>

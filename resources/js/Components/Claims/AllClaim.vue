@@ -2,7 +2,11 @@
     <div>
         <ListComponent :apiUrl="route('claims.list')" :createCompleteSignal="createCompleteSignal"
             :sortAndFilters="sortAndFilters" :allowSorting="true"
-            :showFiltersOutside="true">
+            :showFiltersOutside="true"
+            :allowSelectAll="false"
+            @update:wholeSelectedIds="handleUpdateWholeSelectedList"
+            :isAllClaims="true"
+            :selectedIds="selectedIds">
             <template v-slot:list-view="{ data, apiResponse, fullApiResponse }">
 
                 <!-- Total Amount -->
@@ -30,6 +34,8 @@
                     v-for="product in data"
                     :key="product.id"
                     :data="product"
+                    :isSelected="selectedIds.includes(product.id)" 
+                    :showGroupActions="false"
                 />
             </template>
         </ListComponent>
@@ -63,5 +69,9 @@ const handleUpdateSelectedList = ({ isSelected, id }) => {
 
 const handleCreateComplete = (value) => {
     emit('createComplete', true);
+};
+
+const handleUpdateWholeSelectedList = (updatedSelectedIds) => {
+    selectedIds.value = updatedSelectedIds;
 };
 </script>

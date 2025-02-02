@@ -76,6 +76,7 @@ Route::prefix('api')->middleware('auth')->group(function () {
         Route::post('/payment-detail-report/{dateFrom}/{dateTo}', [ReportsController::class, 'paymentDetailReport'])->name('reports.paymentDetailReport');
         Route::post('/generate-report-preview/{reportType}', [ReportsController::class, 'generateReportPreview'])->name('reports.generateReportPreview');
         Route::post('/export-pdf/{reportType}', [ReportsController::class, 'exportPDF'])->name('reports.exportPDF');
+        Route::post('/export-payment-group-pdf', [ReportsController::class, 'exportPaymentGroupPDF'])->name('reports.exportPaymentGroupPDF');
     });
 
     Route::prefix('approval-status')->group(function () {
