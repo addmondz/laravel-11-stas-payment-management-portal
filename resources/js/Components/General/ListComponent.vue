@@ -319,7 +319,7 @@ const actionClicked = async (action) => {
             export: route('reports.exportPDF', data.reportType),
         };
 
-        await handleReportAction(action, data, urlMap, 'claim_report_' + selectedIdsToString.value);
+        await handleReportAction(action, data, urlMap, 'payment_report_' + selectedIdsToString.value);
     } catch (error) {
         console.error('Error generating report:', error);
         // Handle error appropriately (e.g., show a notification)
