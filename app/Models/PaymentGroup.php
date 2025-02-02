@@ -15,6 +15,7 @@ class PaymentGroup extends Model
         'payment_voucher_number',
         'payment_date',
         'payment_voucher_receipt_file',
+        'payment_mode',
     ];
 
     // Define relationship with the child table

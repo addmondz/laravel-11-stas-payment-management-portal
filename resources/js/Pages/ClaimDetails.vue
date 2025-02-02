@@ -206,6 +206,13 @@
                             </div>
                             <p class="text-base">{{ formatDate(fetchedData.receipt_date) ?? '-' }}</p>
                         </div>
+                        <div class="mb-4">
+                            <div class="flex justify-between">
+                                <p class="mb-1 text-sm text-gray-500">Payment Mode</p>
+                                <InfoCircleOutlined class="text-gray-400" />
+                            </div>
+                            <p class="text-base">{{ fetchedData.payment_mode ?? '-' }}</p>
+                        </div>
                     </div>
                 </div>
                 <div class="bg-white max-w-8xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5">

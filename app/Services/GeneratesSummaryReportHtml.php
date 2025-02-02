@@ -84,6 +84,10 @@ class GeneratesSummaryReportHtml
                     margin: 15mm 10mm;
                 }
 
+                table{
+                    text-align: center;
+                }
+
                 table {
                     margin: 10px;
                 }
@@ -138,6 +142,7 @@ class GeneratesSummaryReportHtml
                     background-color: #f9fafb;
                     padding: 0.75rem;
                     border-bottom: 2px solid #e5e7eb;
+                    text-align: left;
                 }
                 
                 .total-row {
@@ -146,7 +151,6 @@ class GeneratesSummaryReportHtml
                 }
                 
                 .amount-cell {
-                    text-align: right;
                     font-family: "Monaco", monospace;
                     white-space: nowrap;
                 }
@@ -261,7 +265,7 @@ class GeneratesSummaryReportHtml
 
         return [
             'id' => str_pad($claim->id, 5, '0', STR_PAD_LEFT),
-            'created_at' => $claim->created_at->format('Y-m-d'),
+            'created_at' => $claim->created_at->format('d/m/Y'),
             'receipt_date' => $claim->receipt_date,
             'status' => $claim->status,
             'purpose' => $claim->purpose,

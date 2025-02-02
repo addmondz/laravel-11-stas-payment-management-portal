@@ -507,6 +507,7 @@ class ClaimController extends Controller
 
         $validated = $request->validate([
             'paymentVoucherNumber' => 'required',
+            'payment_mode' => 'required',
             'paymentDate' => 'required',
             'receipt' => 'required|mimes:jpeg,pdf,jpg,png|max:2048',
         ]);
@@ -551,6 +552,7 @@ class ClaimController extends Controller
                 'payment_voucher_number' => $validated['paymentVoucherNumber'],
                 'payment_date' => $validated['paymentDate'],
                 'payment_voucher_receipt_file' => $path ?? null,
+                'payment_mode' => $validated['payment_mode'],
             ]);
 
             // Log the claim status update
@@ -566,6 +568,7 @@ class ClaimController extends Controller
                     'payment_voucher_number' => $validated['paymentVoucherNumber'], // Using the first payment voucher number
                     'payment_date' => $validated['paymentDate'], // Using the same payment date
                     'payment_voucher_receipt_file' => $path ?? null,
+                    'payment_mode' => $validated['payment_mode'],
                 ]);
             }
 

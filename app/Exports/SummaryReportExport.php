@@ -85,8 +85,6 @@ class SummaryReportExport implements FromArray, ShouldAutoSize, WithStyles, With
             $counter = 1;
 
             foreach ($receiverClaims as $claim) {
-                $transactionId = $claim->id;
-                $transactionDate = $claim->created_at->format('Y-m-d');
                 $amount = $claim->amount;
                 $gstAmount = $claim->gst_amount;
                 $currency = $claim->currencyObject->short_code ?? $notAvailable;

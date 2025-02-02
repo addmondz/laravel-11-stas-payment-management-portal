@@ -23,6 +23,7 @@ const form = useForm({
     paymentVoucherNumber: '',
     paymentDate: '',
     receipt: null,
+    payment_mode: '',
 });
 
 const submitPayment = async () => {
@@ -78,6 +79,19 @@ const submitPayment = async () => {
                                 class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 cursor-pointer"
                                 required />
                             <InputError :message="form.errors.receipt" class="mt-2" />
+                        </div>
+
+                        <div>
+                            <InputLabel for="payment_mode" value="Payment Mode" />
+                            <select id="payment_mode" v-model="form.payment_mode"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                                <option value="" disabled selected>Please select Payment Mode</option>
+                                <option value="PayNow">PayNow</option>
+                                <option value="GIRO">GIRO</option>
+                                <option value="IBFT">IBFT</option>
+                                <option value="TT">TT</option>
+                            </select>
+                            <InputError :message="form.errors.payment_type" class="mt-2" />
                         </div>
                     </div>
                     <div class="text-right mt-6">

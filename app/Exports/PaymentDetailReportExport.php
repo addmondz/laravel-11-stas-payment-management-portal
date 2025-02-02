@@ -51,7 +51,7 @@ class PaymentDetailReportExport implements FromArray, ShouldAutoSize, WithStyles
         if (isset($requestQuery['payment_to'])) {
             $claims->where('payment_receiver_id', $requestQuery['payment_to']);
         }
-        
+
         if (isset($requestQuery['claim_ids_filters'])) {
             $claims->where('id', $requestQuery['claim_ids_filters']);
         }
@@ -71,8 +71,8 @@ class PaymentDetailReportExport implements FromArray, ShouldAutoSize, WithStyles
 
             $reportData[] = [''];
             $reportData[] = [''];
-            $reportData[] = ["Pay To:", $receiverName, "", "", "", "", "", "", "", "", "", "", "", "", "Date:", $currentDate];
-            $reportData[] = ["Bank:", $receiverBank, "", "", "", "", "", "", "", "", "", "", "", "", "Period:", "{$this->fromDate} - {$this->toDate}"];
+            $reportData[] = ["Pay To:", $receiverName, "", "", "", "", "", "", "", "", "", "", "", "", "", "Date:", $currentDate];
+            $reportData[] = ["Bank:", $receiverBank, "", "", "", "", "", "", "", "", "", "", "", "", "", "Period:", "{$this->fromDate} - {$this->toDate}"];
             $reportData[] = ["Account:", $receiverAccount];
 
             $currentRow += 3;
@@ -95,6 +95,7 @@ class PaymentDetailReportExport implements FromArray, ShouldAutoSize, WithStyles
                 'Receipts',
                 'Payment Voucher No',
                 'Payment Made',
+                'Payment Mode',
             ];
             $currentRow++;
 
@@ -121,6 +122,7 @@ class PaymentDetailReportExport implements FromArray, ShouldAutoSize, WithStyles
                     $this->getReceiptFileUrl($claim->receipt_file),
                     $claim->payment_voucher_number,
                     $claim->payment_date,
+                    $claim->payment_mode,
                 ];
                 $currentRow++;
                 $transactionCounter++;
@@ -146,7 +148,7 @@ class PaymentDetailReportExport implements FromArray, ShouldAutoSize, WithStyles
             $currentRow++;
             $currentRow++;
 
-            $this->transactionRanges[] = "A{$startRow}:P{$currentRow}"; // Store range for borders
+            $this->transactionRanges[] = "A{$startRow}:Q{$currentRow}"; // Store range for borders
 
             $reportData[] = []; // Blank row for spacing
             $currentRow++;

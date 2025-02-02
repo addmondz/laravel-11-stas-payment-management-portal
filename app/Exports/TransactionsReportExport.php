@@ -72,8 +72,8 @@ class TransactionsReportExport implements FromArray, ShouldAutoSize, WithStyles,
 
             $reportData[] = [''];
             $reportData[] = [''];
-            $reportData[] = ["Pay To:", $receiverName, "", "", "", "", "", "", "", "", "", "", "", "", "Date:", $currentDate];
-            $reportData[] = ["Bank Name:", $receiverBank, "", "", "", "", "", "", "", "", "", "", "", "", "Period:", "{$this->fromDate} - {$this->toDate}"];
+            $reportData[] = ["Pay To:", $receiverName, "", "", "", "", "", "", "", "", "", "", "", "", "", "Date:", $currentDate];
+            $reportData[] = ["Bank Name:", $receiverBank, "", "", "", "", "", "", "", "", "", "", "", "", "", "Period:", "{$this->fromDate} - {$this->toDate}"];
             $reportData[] = ["Bank Account:", $receiverAccount];
             $reportData[] = ["Swift Code:", $swiftCode];
 
@@ -97,6 +97,7 @@ class TransactionsReportExport implements FromArray, ShouldAutoSize, WithStyles,
                 'Receipts',
                 'Payment Voucher No',
                 'Payment Made',
+                'Payment Mode',
             ];
             $currentRow++;
 
@@ -123,6 +124,7 @@ class TransactionsReportExport implements FromArray, ShouldAutoSize, WithStyles,
                     $this->getReceiptFileUrl($claim->receipt_file),
                     $claim->payment_voucher_number,
                     $claim->payment_date,
+                    $claim->payment_mode,
                 ];
                 $currentRow++;
                 $transactionCounter++;
@@ -148,7 +150,7 @@ class TransactionsReportExport implements FromArray, ShouldAutoSize, WithStyles,
             $currentRow++;
             $currentRow++;
 
-            $this->transactionRanges[] = "A{$startRow}:P{$currentRow}"; // Store range for borders
+            $this->transactionRanges[] = "A{$startRow}:Q{$currentRow}"; // Store range for borders
 
             $reportData[] = []; // Blank row for spacing
             $currentRow++;

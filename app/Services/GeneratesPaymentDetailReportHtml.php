@@ -11,6 +11,7 @@ class GeneratesPaymentDetailReportHtml
     private array $requestBody;
     private const REQUIRED_FIELDS = ['startDate', 'endDate'];
     private const NOT_AVAILABLE = '-';
+    private const COLSPAN = 18;
 
     public function generate(array $requestBody): string
     {
@@ -87,6 +88,10 @@ class GeneratesPaymentDetailReportHtml
                     size: A3 landscape;
                     margin: 15mm 10mm;
                 }
+
+                table{
+                    text-align: center;
+                }
                 
                 body {
                     font-family: "Inter", sans-serif;
@@ -138,6 +143,7 @@ class GeneratesPaymentDetailReportHtml
                     background-color: #f9fafb;
                     padding: 0.75rem;
                     border-bottom: 2px solid #e5e7eb;
+                    text-align: left;
                 }
                 
                 .total-row {
@@ -146,7 +152,6 @@ class GeneratesPaymentDetailReportHtml
                 }
                 
                 .amount-cell {
-                    text-align: right;
                     font-family: "Monaco", monospace;
                     white-space: nowrap;
                 }
@@ -174,13 +179,24 @@ class GeneratesPaymentDetailReportHtml
                 .data-table th:nth-child(8) { width: 5%; }
                 .data-table th:nth-child(9) { width: 7%; }
                 .data-table th:nth-child(10) { width: 8%; }
-                .data-table th:nth-child(11) { width: 7%; }
-                .data-table th:nth-child(12) { width: 7%; }
-                .data-table th:nth-child(13) { width: 7%; }
+                .data-table th:nth-child(11) { width: 8%; }
+                .data-table th:nth-child(12) { width: 8%; }
+                .data-table th:nth-child(13) { width: 8%; }
                 .data-table th:nth-child(14) { width: 5%; }
                 .data-table th:nth-child(15) { width: 5%; }
-                .data-table th:nth-child(16) { width: 6%; }
-                .data-table th:nth-child(17) { width: 6%; }
+                .data-table th:nth-child(16) { width: 5%; }
+                .data-table th:nth-child(17) { width: 5%; }
+
+                .data-table td:nth-child(14) { 
+                    width: 5%;
+                    word-wrap: break-word; /* Allows breaking the string if it exceeds the container width */
+                    white-space: pre-wrap;  /* Keeps whitespace and wraps long text */
+                }
+                .data-table td:nth-child(15) { 
+                    width: 6%;
+                    word-wrap: break-word; /* Allows breaking the string if it exceeds the container width */
+                    white-space: pre-wrap;  /* Keeps whitespace and wraps long text */
+                }
             </style>
         ';
 
@@ -219,7 +235,7 @@ class GeneratesPaymentDetailReportHtml
     {
         return '
             <tr>
-                <td colspan="17" class="section-header">
+                <td colspan="' . self::COLSPAN . '" class="section-header">
                     <div style="font-weight: 600; font-size: 1.2rem; margin-bottom:5px">Pay To: ' . htmlspecialchars($receiver->name) . '</div>
                     <div class="meta-info">Bank Name: ' .
             htmlspecialchars("{$receiver->bank_name}") .
@@ -249,10 +265,11 @@ class GeneratesPaymentDetailReportHtml
                 <th>Reviewed by</th>
                 <th>Approved by</th>
                 <th>Approved by</th>
-                <th>Receipts</th>
-                <th>Payment Voucher Receipts</th>
+                <th>Receipt File</th>
+                <th>Payment Receipt</th>
                 <th>Payment Voucher No</th>
                 <th>Payment Made</th>
+                <th>Payment Mode</th>
             </tr>';
     }
 
@@ -271,7 +288,7 @@ class GeneratesPaymentDetailReportHtml
             $totals = $this->updateTotals($totals, $rowData);
         }
 
-        return $html . $this->buildTotalRow($totals) . '<tr><td colspan="17" style="padding: 30px;"></td></tr>';
+        return $html . $this->buildTotalRow($totals) . '<tr><td colspan="' . self::COLSPAN . '" style="padding: 30px;"></td></tr>';
     }
 
     private function processClaimData(Claim $claim): array
@@ -280,7 +297,7 @@ class GeneratesPaymentDetailReportHtml
 
         return [
             'id' => str_pad($claim->id, 5, '0', STR_PAD_LEFT),
-            'created_at' => $claim->created_at->format('Y-m-d'),
+            'created_at' => $claim->created_at->format('d/m/Y'),
             'receipt_date' => $claim->receipt_date,
             'status' => $claim->status,
             'purpose' => $claim->purpose,
@@ -289,10 +306,11 @@ class GeneratesPaymentDetailReportHtml
             'amount' => $claim->amount,
             'category' => ucwords(PaymentCategory::find($claim->payment_category_id)->name),
             'approvers' => $this->getApprovers($approvalLogs),
-            'receipt_file' => $claim->receipt_file,
-            'payment_voucher_receipt_file' => $claim->payment_voucher_receipt_file,
+            'receipt_file' => $this->getReceiptFileUrl($claim->receipt_file),
+            'payment_voucher_receipt_file' => $this->getReceiptFileUrl($claim->payment_voucher_receipt_file),
             'payment_voucher_number' => $claim->payment_voucher_number,
             'payment_date' => $claim->payment_date,
+            'payment_mode' => $claim->payment_mode,
         ];
     }
 
@@ -304,14 +322,14 @@ class GeneratesPaymentDetailReportHtml
 
     private function buildTableRow(int $counter, array $rowData): string
     {
-        $approvalSatatus = ApprovalStatus::APPROVAL_STATUS_ID;
+        $approvalStatus = ApprovalStatus::APPROVAL_STATUS_ID;
         return '
             <tr>
                 <td style="text-align: center;">' . $counter . '</td>
                 <td style="text-align: center;">' . htmlspecialchars($rowData['id']) . '</td>
                 <td style="text-align: center;">' . htmlspecialchars($rowData['created_at']) . '</td>
                 <td style="text-align: center;">' . htmlspecialchars($rowData['receipt_date']) . '</td>
-                <td style="text-align: center;">' . htmlspecialchars($approvalSatatus[$rowData['status']]) . '</td>
+                <td style="text-align: center;">' . htmlspecialchars($approvalStatus[$rowData['status']]) . '</td>
                 <td>' . htmlspecialchars($rowData['purpose']) . '</td>
                 <td style="text-align: center;">' . htmlspecialchars($rowData['currency']) . '</td>
                 <td class="amount-cell">' . $this->formatPrice($rowData['gst_amount']) . '</td>
@@ -320,10 +338,11 @@ class GeneratesPaymentDetailReportHtml
                 <td>' . htmlspecialchars(implode(', ', $rowData['approvers']['l1'])) . '</td>
                 <td>' . htmlspecialchars(implode(', ', $rowData['approvers']['l2'])) . '</td>
                 <td>' . htmlspecialchars(implode(', ', $rowData['approvers']['l3'])) . '</td>
-                <td style="text-align: center;">' . $this->getReceiptFileUrl($rowData['receipt_file']) . '</td>
-                <td style="text-align: center;">' . $this->getReceiptFileUrl($rowData['payment_voucher_receipt_file']) . '</td>
+                <td style="text-align: center;"><a target="_blank" href="' . $rowData['receipt_file'] . '">Click</a></td>
+                <td style="text-align: center;"><a target="_blank" href="' . $rowData['payment_voucher_receipt_file'] . '">Click</a></td>
                 <td style="text-align: center;">' . htmlspecialchars($rowData['payment_voucher_number']) . '</td>
                 <td style="text-align: center;">' . htmlspecialchars($rowData['payment_date']) . '</td>
+                <td style="text-align: center;">' . htmlspecialchars($rowData['payment_mode']) . '</td>
             </tr>';
     }
 
@@ -334,7 +353,7 @@ class GeneratesPaymentDetailReportHtml
                 <td colspan="7"></td>
                 <td class="amount-cell">' . $this->formatPrice($totals['gst']) . '</td>
                 <td class="amount-cell">' . $this->formatPrice($totals['amount']) . '</td>
-                <td colspan="8"></td>
+                <td colspan="9"></td>
             </tr>';
     }
 

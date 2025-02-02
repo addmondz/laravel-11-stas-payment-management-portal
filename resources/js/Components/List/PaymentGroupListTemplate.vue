@@ -3,7 +3,7 @@
         class="w-full flex flex-col justify-center order-last lg:order-none max-lg:mx-auto border p-5 rounded-xl overflow-hidden bg-white hover:border-violet-600 transition-all duration-500">
         <div class="flex items-center justify-center">
             <div class="flex-1">
-                <div class="grid grid-cols-5 gap-4">
+                <div class="grid grid-cols-6 gap-4">
                     <div class="col">
                         <div class="row">
                             <div class="col-auto">
@@ -39,6 +39,18 @@
                         <div class="row">
                             <div class="col">
                                 <div class="text-[14px] truncate">{{ formatDate(data.payment_date) }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="row">
+                            <div class="col-auto">
+                                <div class="mb-1 text-xs text-gray-500">Payment Mode</div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="text-[14px] truncate">{{ data.payment_mode ?? '-' }}</div>
                             </div>
                         </div>
                     </div>
