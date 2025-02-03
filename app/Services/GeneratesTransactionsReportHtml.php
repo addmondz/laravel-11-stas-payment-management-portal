@@ -324,6 +324,9 @@ class GeneratesTransactionsReportHtml
 
     private function buildTableRow(int $counter, array $rowData): string
     {
+        $receipt_file_html = $rowData['receipt_file'] ? '<a target="_blank" href="' . $rowData['receipt_file'] . '">Click</a>' : '';
+        $payment_voucher_file_html = $rowData['payment_voucher_receipt_file'] ? '<a target="_blank" href="' . $rowData['payment_voucher_receipt_file'] . '">Click</a>' : '';
+
         $approvalStatus = ApprovalStatus::APPROVAL_STATUS_ID;
         return '
             <tr>
@@ -341,8 +344,8 @@ class GeneratesTransactionsReportHtml
                 <td>' . htmlspecialchars(implode(', ', $rowData['approvers']['l1'])) . '</td>
                 <td>' . htmlspecialchars(implode(', ', $rowData['approvers']['l2'])) . '</td>
                 <td>' . htmlspecialchars(implode(', ', $rowData['approvers']['l3'])) . '</td>
-                <td style="text-align: center;"><a target="_blank" href="' . $rowData['receipt_file'] . '">Click</a></td>
-                <td style="text-align: center;"><a target="_blank" href="' . $rowData['payment_voucher_receipt_file'] . '">Click</a></td>
+                <td style="text-align: center;">' . $receipt_file_html . '</td>
+                <td style="text-align: center;">' . $payment_voucher_file_html . '</td>
                 <td style="text-align: center;">' . htmlspecialchars($rowData['payment_voucher_number']) . '</td>
                 <td style="text-align: center;">' . htmlspecialchars($rowData['payment_date']) . '</td>
                 <td style="text-align: center;">' . htmlspecialchars($rowData['payment_mode']) . '</td>
