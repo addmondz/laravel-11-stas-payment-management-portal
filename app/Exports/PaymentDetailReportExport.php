@@ -71,8 +71,8 @@ class PaymentDetailReportExport implements FromArray, ShouldAutoSize, WithStyles
 
             $reportData[] = [''];
             $reportData[] = [''];
-            $reportData[] = ["Pay To:", $receiverName, "", "", "", "", "", "", "", "", "", "", "", "", "", "Date:", $currentDate];
-            $reportData[] = ["Bank:", $receiverBank, "", "", "", "", "", "", "", "", "", "", "", "", "", "Period:", "{$this->fromDate} - {$this->toDate}"];
+            $reportData[] = ["Pay To:", $receiverName, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "Date:", $currentDate];
+            $reportData[] = ["Bank:", $receiverBank, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "Period:", "{$this->fromDate} - {$this->toDate}"];
             $reportData[] = ["Account:", $receiverAccount];
 
             $currentRow += 3;
@@ -89,6 +89,7 @@ class PaymentDetailReportExport implements FromArray, ShouldAutoSize, WithStyles
                 'GST',
                 'Claim Amount',
                 'Category',
+                'Created by',
                 'Reviewed by',
                 'Approved by',
                 'Approved by',
@@ -116,6 +117,7 @@ class PaymentDetailReportExport implements FromArray, ShouldAutoSize, WithStyles
                     $claim->gst_amount,
                     $claim->amount,
                     ucwords(PaymentCategory::find($claim->payment_category_id)->name),
+                    $claim->createdUser->name,
                     $claim->statusLogs()->where('status', ApprovalStatus::L1_APPROVAL)->first()->causer->name ?? $notAvalable,
                     $claim->statusLogs()->where('status', ApprovalStatus::L2_APPROVAL)->first()->causer->name ?? $notAvalable,
                     $claim->statusLogs()->where('status', ApprovalStatus::L3_APPROVAL)->first()->causer->name ?? $notAvalable,
@@ -148,7 +150,7 @@ class PaymentDetailReportExport implements FromArray, ShouldAutoSize, WithStyles
             $currentRow++;
             $currentRow++;
 
-            $this->transactionRanges[] = "A{$startRow}:Q{$currentRow}"; // Store range for borders
+            $this->transactionRanges[] = "A{$startRow}:R{$currentRow}"; // Store range for borders
 
             $reportData[] = []; // Blank row for spacing
             $currentRow++;

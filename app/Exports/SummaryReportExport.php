@@ -57,7 +57,7 @@ class SummaryReportExport implements FromArray, ShouldAutoSize, WithStyles, With
             // Add header information for each receiver
             $reportData[] = [''];
             $reportData[] = [''];
-            $reportData[] = ["Pay To:", $receiver->name, "", "", "", "", "", "Date:", $currentDate];
+            $reportData[] = ["Pay To:", $receiver->name, "", "", "", "", "", "", "Date:", $currentDate];
             $reportData[] = ["Bank Name:", $receiver->bank_name];
             $reportData[] = ["Bank Account:", $receiver->bank_account_no];
             $reportData[] = ["Swift Code:", $receiver->swift_code];
@@ -72,6 +72,7 @@ class SummaryReportExport implements FromArray, ShouldAutoSize, WithStyles, With
                 "Currency",
                 "Amount",
                 "Gst",
+                "Created by",
                 "Reviewed by",
                 "Approved by",
                 "Approved by",
@@ -88,6 +89,7 @@ class SummaryReportExport implements FromArray, ShouldAutoSize, WithStyles, With
                 $amount = $claim->amount;
                 $gstAmount = $claim->gst_amount;
                 $currency = $claim->currencyObject->short_code ?? $notAvailable;
+                $createdBy = $claim->createdUser->name ?? $notAvailable;
 
                 // Retrieve approvers
                 $approvalLogs = ClaimStatusLog::where('claim_id', $claim->id)->get();
@@ -103,6 +105,7 @@ class SummaryReportExport implements FromArray, ShouldAutoSize, WithStyles, With
                     $currency,
                     $this->formatPrice($amount),
                     $this->formatPrice($gstAmount),
+                    $createdBy,
                     implode(', ', $l1Approvers),
                     implode(', ', $l2Approvers),
                     implode(', ', $l3Approvers),
@@ -129,7 +132,7 @@ class SummaryReportExport implements FromArray, ShouldAutoSize, WithStyles, With
             $currentRow++;
             $currentRow++;
 
-            $this->transactionRanges[] = "A{$startRow}:I{$currentRow}"; // Store range for borders
+            $this->transactionRanges[] = "A{$startRow}:J{$currentRow}"; // Store range for borders
 
             $reportData[] = []; // Blank row for spacing
             $currentRow++;

@@ -212,7 +212,7 @@ class GeneratesSummaryReportHtml
     {
         return '
             <tr>
-                <td colspan="9" class="section-header">
+                <td colspan="10" class="section-header">
                     <div style="font-weight: 600; font-size: 1.2rem; margin-bottom:5px">Pay To: ' . htmlspecialchars($receiver->name) . '</div>
                     <div class="meta-info">Bank Name: ' .
             htmlspecialchars("{$receiver->bank_name}") .
@@ -235,6 +235,7 @@ class GeneratesSummaryReportHtml
                 <th class="col-currency">Currency</th>
                 <th class="col-amount">Total Amount</th>
                 <th class="col-amount">Gst</th>
+                <th class="col-approver">Created by</th>
                 <th class="col-approver">Reviewed by</th>
                 <th class="col-approver">Approved by</th>
                 <th class="col-approver">Approved by</th>
@@ -278,6 +279,7 @@ class GeneratesSummaryReportHtml
             'payment_voucher_receipt_file' => $claim->payment_voucher_receipt_file,
             'payment_voucher_number' => $claim->payment_voucher_number,
             'payment_date' => $claim->payment_date,
+            'created_by' => $claim->createdUser->name,
         ];
     }
 
@@ -297,6 +299,7 @@ class GeneratesSummaryReportHtml
                 <td style="text-align: center;">' . htmlspecialchars($rowData['currency']) . '</td>
                 <td class="amount-cell">' . $this->formatPrice($rowData['amount']) . '</td>
                 <td class="amount-cell">' . $this->formatPrice($rowData['gst_amount']) . '</td>
+                <td class="approver-cell">' . $rowData['created_by'] . '</td>
                 <td class="approver-cell" title="' . htmlspecialchars(implode(', ', $rowData['approvers']['l1'])) . '">'
             . htmlspecialchars(implode(', ', $rowData['approvers']['l1'])) . '</td>
                 <td class="approver-cell" title="' . htmlspecialchars(implode(', ', $rowData['approvers']['l2'])) . '">'
@@ -313,7 +316,7 @@ class GeneratesSummaryReportHtml
                 <td colspan="4"></td>
                 <td class="amount-cell">' . $this->formatPrice($totals['amount']) . '</td>
                 <td class="amount-cell">' . $this->formatPrice($totals['gst']) . '</td>
-                <td colspan="3"></td>
+                <td colspan="4"></td>
             </tr>';
     }
 

@@ -11,7 +11,7 @@ class GeneratesPaymentDetailReportHtml
     private array $requestBody;
     private const REQUIRED_FIELDS = ['startDate', 'endDate'];
     private const NOT_AVAILABLE = '-';
-    private const COLSPAN = 18;
+    private const COLSPAN = 19;
 
     public function generate(array $requestBody): string
     {
@@ -262,6 +262,7 @@ class GeneratesPaymentDetailReportHtml
                 <th>GST</th>
                 <th>Claim Amount</th>
                 <th>Category</th>
+                <th>Created by</th>
                 <th>Reviewed by</th>
                 <th>Approved by</th>
                 <th>Approved by</th>
@@ -311,6 +312,7 @@ class GeneratesPaymentDetailReportHtml
             'payment_voucher_number' => $claim->payment_voucher_number,
             'payment_date' => $claim->payment_date,
             'payment_mode' => $claim->payment_mode,
+            'created_by' => $claim->createdUser->name,
         ];
     }
 
@@ -335,6 +337,7 @@ class GeneratesPaymentDetailReportHtml
                 <td class="amount-cell">' . $this->formatPrice($rowData['gst_amount']) . '</td>
                 <td class="amount-cell">' . $this->formatPrice($rowData['amount']) . '</td>
                 <td>' . htmlspecialchars($rowData['category']) . '</td>
+                <td>' . htmlspecialchars($rowData['created_by']) . '</td>
                 <td>' . htmlspecialchars(implode(', ', $rowData['approvers']['l1'])) . '</td>
                 <td>' . htmlspecialchars(implode(', ', $rowData['approvers']['l2'])) . '</td>
                 <td>' . htmlspecialchars(implode(', ', $rowData['approvers']['l3'])) . '</td>
@@ -353,7 +356,7 @@ class GeneratesPaymentDetailReportHtml
                 <td colspan="7"></td>
                 <td class="amount-cell">' . $this->formatPrice($totals['gst']) . '</td>
                 <td class="amount-cell">' . $this->formatPrice($totals['amount']) . '</td>
-                <td colspan="9"></td>
+                <td colspan="10"></td>
             </tr>';
     }
 
