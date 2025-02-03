@@ -39,10 +39,11 @@ const submit = () => {
             <img 
                 src="/images/logo-new.jpg" 
                 alt="Logo" 
-                class="w-[280px] h-auto mb-8" 
+                class="w-[480px] h-auto mb-8 pl-9"
+                style="padding-left: 5rem;" 
             />
             <h1 class="text-2xl sm:text-3xl text-gray-900 text-center">
-                STAS Payment Management Portal
+                FPAS Payment Management Portal
             </h1>
         </div>
         
