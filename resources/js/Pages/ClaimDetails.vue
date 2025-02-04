@@ -215,6 +215,47 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="bg-white max-w-8xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5">
+                    <div class="px-5 py-3 border-b border-gray-300 flex justify-between items-center">
+                        <div class="flex justify-between content-center w-full">
+                            <h2>Payment Voucher</h2>
+                            <AngleUp class="cursor-pointer" v-if="showSection.paymentVoucher"
+                                @click="toggleShowSection('paymentVoucher')" />
+                            <AngleDown class="cursor-pointer" v-if="!showSection.paymentVoucher"
+                                @click="toggleShowSection('paymentVoucher')" />
+                        </div>
+                    </div>
+                    <div class="grid md:grid-cols-3 gap-9 p-6 border-gray-300 col-span-2"
+                        v-if="showSection.paymentVoucher">
+                        <div class="mb-4">
+                            <div class="flex justify-between">
+                                <p class="mb-1 text-sm text-gray-500">Payment Voucher Number</p>
+                                <InfoCircleOutlined class="text-gray-400" />
+                            </div>
+                            <p class="text-base">{{ fetchedData.payment_voucher_number ?? '-' }}</p>
+                        </div>
+                        <div class="mb-4">
+                            <div class="flex justify-between">
+                                <p class="mb-1 text-sm text-gray-500">Payment Date</p>
+                                <InfoCircleOutlined class="text-gray-400" />
+                            </div>
+                            <p class="text-base">{{ fetchedData.payment_date ? formatDate(fetchedData.payment_date) : '-' }}</p>
+                        </div>
+                        <div class="mb-4">
+                            <div class="flex justify-between">
+                                <p class="mb-1 text-sm text-gray-500">Receipt Document</p>
+                                <InfoCircleOutlined class="text-gray-400" />
+                            </div>
+                            <div>
+                                <DocumentViewer :src="`/${fetchedData.payment_voucher_receipt_file}`"
+                                    alt="Receipt Image" :id="fetchedData.id" v-if="fetchedData.payment_voucher_receipt_file" />
+                                    <span v-else>-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="bg-white max-w-8xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5">
                     <div class="px-5 py-3 border-b border-gray-300 flex justify-between items-center">
                         <div class="flex justify-between content-center w-full">
@@ -243,46 +284,6 @@
                             </li>
                         </ul>
 
-                    </div>
-                </div>
-
-                <div class="bg-white max-w-8xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5"
-                    v-if="fetchedData.status_id >= 3">
-                    <div class="px-5 py-3 border-b border-gray-300 flex justify-between items-center">
-                        <div class="flex justify-between content-center w-full">
-                            <h2>Payment Voucher</h2>
-                            <AngleUp class="cursor-pointer" v-if="showSection.paymentVoucher"
-                                @click="toggleShowSection('paymentVoucher')" />
-                            <AngleDown class="cursor-pointer" v-if="!showSection.paymentVoucher"
-                                @click="toggleShowSection('paymentVoucher')" />
-                        </div>
-                    </div>
-                    <div class="grid md:grid-cols-3 gap-9 p-6 border-gray-300 col-span-2"
-                        v-if="showSection.paymentVoucher">
-                        <div class="mb-4">
-                            <div class="flex justify-between">
-                                <p class="mb-1 text-sm text-gray-500">Payment Voucher Number</p>
-                                <InfoCircleOutlined class="text-gray-400" />
-                            </div>
-                            <p class="text-base">{{ fetchedData.payment_voucher_number ?? '-' }}</p>
-                        </div>
-                        <div class="mb-4">
-                            <div class="flex justify-between">
-                                <p class="mb-1 text-sm text-gray-500">Payment Date</p>
-                                <InfoCircleOutlined class="text-gray-400" />
-                            </div>
-                            <p class="text-base">{{ formatDate(fetchedData.payment_date) ?? '-' }}</p>
-                        </div>
-                        <div class="mb-4">
-                            <div class="flex justify-between">
-                                <p class="mb-1 text-sm text-gray-500">Receipt Document</p>
-                                <InfoCircleOutlined class="text-gray-400" />
-                            </div>
-                            <div>
-                                <DocumentViewer :src="`/${fetchedData.payment_voucher_receipt_file}`"
-                                    alt="Receipt Image" :id="fetchedData.id" />
-                            </div>
-                        </div>
                     </div>
                 </div>
 

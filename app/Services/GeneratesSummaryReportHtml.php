@@ -224,7 +224,7 @@ class GeneratesSummaryReportHtml
             htmlspecialchars("{$receiver->swift_code}") .
             '</div>
                     <div class="meta-info" style="margin-top:5px; margin-bottom:5px;">Period: ' .
-            htmlspecialchars("{$this->requestBody['startDate']} - {$this->requestBody['endDate']}") .
+            htmlspecialchars("{$this->formatDate($this->requestBody['startDate'])} - {$this->formatDate($this->requestBody['endDate'])}") .
             '</div>
                 </td>
             </tr>
@@ -300,12 +300,9 @@ class GeneratesSummaryReportHtml
                 <td class="amount-cell">' . $this->formatPrice($rowData['amount']) . '</td>
                 <td class="amount-cell">' . $this->formatPrice($rowData['gst_amount']) . '</td>
                 <td class="approver-cell">' . $rowData['created_by'] . '</td>
-                <td class="approver-cell" title="' . htmlspecialchars(implode(', ', $rowData['approvers']['l1'])) . '">'
-            . htmlspecialchars(implode(', ', $rowData['approvers']['l1'])) . '</td>
-                <td class="approver-cell" title="' . htmlspecialchars(implode(', ', $rowData['approvers']['l2'])) . '">'
-            . htmlspecialchars(implode(', ', $rowData['approvers']['l2'])) . '</td>
-                <td class="approver-cell" title="' . htmlspecialchars(implode(', ', $rowData['approvers']['l3'])) . '">'
-            . htmlspecialchars(implode(', ', $rowData['approvers']['l3'])) . '</td>
+                <td class="approver-cell">' . ($rowData['approvers']['l1'] ? htmlspecialchars(implode(', ', $rowData['approvers']['l1'])) : '-') . '</td>
+                <td class="approver-cell">' . ($rowData['approvers']['l2'] ? htmlspecialchars(implode(', ', $rowData['approvers']['l2'])) : '-') . '</td>
+                <td class="approver-cell">' . ($rowData['approvers']['l3'] ? htmlspecialchars(implode(', ', $rowData['approvers']['l3'])) : '-') . '</td>
             </tr>';
     }
 
@@ -356,5 +353,14 @@ class GeneratesSummaryReportHtml
     {
         $cssFiles = glob(public_path('build/assets/') . 'app-*.css');
         return !empty($cssFiles) ? asset('build/assets/' . basename($cssFiles[0])) : false;
+    }
+
+    private function formatDate($date)
+    {
+        if (!$date) {
+            return null;
+        }
+
+        return date('d/m/Y', strtotime($date));
     }
 }

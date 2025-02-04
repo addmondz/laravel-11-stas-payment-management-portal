@@ -247,7 +247,7 @@ class GeneratesPaymentDetailReportHtml
             htmlspecialchars("{$receiver->swift_code}") .
             '</div>
                     <div class="meta-info" style="margin-top:5px; margin-bottom:5px;">Period: ' .
-            htmlspecialchars("{$this->requestBody['startDate']} - {$this->requestBody['endDate']}") .
+            htmlspecialchars("{$this->formatDate($this->requestBody['startDate'])} - {$this->formatDate($this->requestBody['endDate'])}") .
             '</div>
                 </td>
             </tr>
@@ -341,9 +341,9 @@ class GeneratesPaymentDetailReportHtml
                 <td class="amount-cell">' . $this->formatPrice($rowData['amount']) . '</td>
                 <td>' . htmlspecialchars($rowData['category']) . '</td>
                 <td>' . htmlspecialchars($rowData['created_by']) . '</td>
-                <td>' . htmlspecialchars(implode(', ', $rowData['approvers']['l1'])) . '</td>
-                <td>' . htmlspecialchars(implode(', ', $rowData['approvers']['l2'])) . '</td>
-                <td>' . htmlspecialchars(implode(', ', $rowData['approvers']['l3'])) . '</td>
+                <td class="approver-cell">' . ($rowData['approvers']['l1'] ? htmlspecialchars(implode(', ', $rowData['approvers']['l1'])) : '-') . '</td>
+                <td class="approver-cell">' . ($rowData['approvers']['l2'] ? htmlspecialchars(implode(', ', $rowData['approvers']['l2'])) : '-') . '</td>
+                <td class="approver-cell">' . ($rowData['approvers']['l3'] ? htmlspecialchars(implode(', ', $rowData['approvers']['l3'])) : '-') . '</td>
                 <td style="text-align: center;">' . $receipt_file_html . '</td>
                 <td style="text-align: center;">' . $payment_voucher_file_html . '</td>
                 <td style="text-align: center;">' . htmlspecialchars($rowData['payment_voucher_number']) . '</td>
@@ -393,5 +393,14 @@ class GeneratesPaymentDetailReportHtml
     private function formatPrice($price): string
     {
         return is_numeric($price) ? number_format(round($price, 2), 2, '.', ',') : (string)$price;
+    }
+
+    private function formatDate($date)
+    {
+        if (!$date) {
+            return null;
+        }
+
+        return date('d/m/Y', strtotime($date));
     }
 }

@@ -118,7 +118,7 @@ class DatabaseSeeder extends Seeder
         }
 
         // create random claims.
-        $numberOfClaims = 0;
+        $numberOfClaims = 50;
         for ($i = 0; $i < $numberOfClaims; $i++) {
             Claim::create([
                 'created_by' => User::first()->id,
