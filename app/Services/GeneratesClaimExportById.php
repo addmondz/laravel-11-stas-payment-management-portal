@@ -372,7 +372,7 @@ class GeneratesClaimExportById
                     </tr>
                     <tr>
                         <td>Created At</td>
-                        <td>' . $this->getFormattedDate($fetchedData, 'created_at') . '</td>
+                        <td>' . $fetchedData['created_at'] . '</td>
                     </tr>
                 </table>
             </div>';
