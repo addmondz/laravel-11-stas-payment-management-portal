@@ -8,7 +8,7 @@ import LoadingComponent from '@/Components/General/LoadingComponent.vue';
 import { useForm } from '@inertiajs/vue3';
 import { ref, watch } from 'vue';
 import Swal from 'sweetalert2';
-import {  EditOutlined } from '@ant-design/icons-vue';
+import { EditOutlined } from '@ant-design/icons-vue';
 
 const props = defineProps({
     claimId: { type: String, required: true },
@@ -70,10 +70,9 @@ const submitPayment = async () => {
 
 <template>
     <section>
-        <EditOutlined class="mb-4 mr-2" @click="toggleModal" v-if="props.data != null && props.isListComponent"/>
+        <EditOutlined class="mb-4 mr-2" @click="toggleModal" v-if="props.data != null && props.isListComponent" />
         <PrimaryButton class="bg-violet-500 hover:bg-violet-700 active:bg-violet-700 focus:bg-violet-700 font-bold"
-            v-else
-            @click="toggleModal">
+            v-else @click="toggleModal">
             {{ props.data ? "Edit Payment Voucher" : "Payment Completed" }}
         </PrimaryButton>
 
@@ -97,15 +96,6 @@ const submitPayment = async () => {
                                 required />
                             <InputError :message="form.errors.paymentDate" class="mt-2" />
                         </div>
-                        <div v-if="props.data == null">
-                            <InputLabel for="receipt" value="Upload Receipt" />
-                            <input id="receipt" type="file" @change="(e) => form.receipt = e.target.files[0]"
-                                accept=".jpeg,.jpg,.pdf,.png"
-                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 cursor-pointer"
-                                required />
-                            <InputError :message="form.errors.receipt" class="mt-2" />
-                        </div>
-
                         <div>
                             <InputLabel for="payment_mode" value="Payment Mode" />
                             <select id="payment_mode" v-model="form.payment_mode"
@@ -117,6 +107,17 @@ const submitPayment = async () => {
                                 <option value="TT">TT</option>
                             </select>
                             <InputError :message="form.errors.payment_type" class="mt-2" />
+                        </div>
+                        <div>
+                            <InputLabel for="receipt" value="Upload Receipt" />
+                            <input id="receipt" type="file" @change="(e) => form.receipt = e.target.files[0]"
+                                accept=".jpeg,.jpg,.pdf,.png"
+                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 cursor-pointer"
+                                :required="props.data == null">
+                            <InputError :message="form.errors.receipt" class="mt-2" />
+                            <small v-if="props.data != null" class="text-indigo-500 font-bold"> 
+                                Please leave this field empty if you do not want to update the file.
+                            </small>
                         </div>
                     </div>
                     <div class="text-right mt-6">
