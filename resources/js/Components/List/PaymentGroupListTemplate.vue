@@ -62,12 +62,14 @@
                         </div>
                         <div class="row">
                             <div class="col">
-                                <DocumentViewer :src="`/${data.payment_voucher_receipt_file}`" alt="Receipt Image" :id="data.id" />
+                                <DocumentViewer :src="`/${data.payment_voucher_receipt_file}`" alt="Receipt Image"
+                                    :id="data.id" />
                             </div>
                         </div>
                     </div>
                     <div class="flex justify-end items-center space-x-4">
-                        <PaymentVoucherForm :claimId="data.claimIds" :data="data" @createComplete="handleCreateComplete" :isListComponent="true" />
+                        <PaymentVoucherForm :claimId="data.claimIds" :data="data" @createComplete="handleCreateComplete"
+                            :isListComponent="true" />
                         <ExportOutlined class="cursor-pointer" @click="actionClicked('export')" />
                         <AngleUp class="cursor-pointer" @click="clickShowDetails" v-if="showDetails" />
                         <AngleDown class="cursor-pointer" @click="clickShowDetails" v-if="!showDetails" />
@@ -93,6 +95,7 @@ import { ExportOutlined } from '@ant-design/icons-vue';
 import PrimaryButton from '@/Components/General/PrimaryButton.vue';
 import PaymentVoucherForm from '@/Components/Form/PaymentVoucherForm.vue';
 import { formatPrice, formatDate, formatString, formatDateWithTime, handleReportAction, downloadExcel, formatId } from '@/Helpers/helpers.js';
+import Swal from 'sweetalert2';
 
 const emit = defineEmits();
 const props = defineProps({
@@ -126,6 +129,16 @@ const generateReportData = (isExport) => {
 };
 
 const actionClicked = async (action) => {
+    const result = await Swal.fire({
+        title: "Are you sure?",
+        text: "Do you want to export this report?",
+        icon: "info",
+        showCancelButton: true,
+        confirmButtonText: "Yes"
+    });
+
+    if (!result.isConfirmed) return;
+
     isLoading.value = true;
 
     try {
@@ -138,9 +151,9 @@ const actionClicked = async (action) => {
         await handleReportAction(action, data, urlMap, 'payment_group_report_' + formatId(props.data.id));
     } catch (error) {
         console.error('Error generating report:', error);
-        // Handle error appropriately (e.g., show a notification)
     } finally {
         isLoading.value = false;
     }
 };
+
 </script>

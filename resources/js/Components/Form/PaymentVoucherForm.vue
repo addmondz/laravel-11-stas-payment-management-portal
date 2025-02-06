@@ -70,7 +70,7 @@ const submitPayment = async () => {
 
 <template>
     <section>
-        <EditOutlined class="mb-4 mr-2" @click="toggleModal" v-if="props.data != null && props.isListComponent" />
+        <EditOutlined class="mb-2 mr-2" @click="toggleModal" v-if="props.data != null && props.isListComponent" />
         <PrimaryButton class="bg-violet-500 hover:bg-violet-700 active:bg-violet-700 focus:bg-violet-700 font-bold"
             v-else @click="toggleModal">
             {{ props.data ? "Edit Payment Voucher" : "Payment Completed" }}
