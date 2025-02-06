@@ -57,6 +57,7 @@ class PaymentGroupController extends Controller
                     return $claim;
                 });
 
+                $group->claimIds = implode(',', $group->claims->pluck('id')->toArray());
                 return $group;
             });
 
