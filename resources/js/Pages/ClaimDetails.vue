@@ -206,13 +206,6 @@
                             </div>
                             <p class="text-base">{{ formatDate(fetchedData.receipt_date) ?? '-' }}</p>
                         </div>
-                        <div class="mb-4">
-                            <div class="flex justify-between">
-                                <p class="mb-1 text-sm text-gray-500">Payment Mode</p>
-                                <InfoCircleOutlined class="text-gray-400" />
-                            </div>
-                            <p class="text-base">{{ fetchedData.payment_mode ?? '-' }}</p>
-                        </div>
                     </div>
                 </div>
 
@@ -252,6 +245,13 @@
                                     alt="Receipt Image" :id="fetchedData.id" v-if="fetchedData.payment_voucher_receipt_file" />
                                     <span v-else>-</span>
                             </div>
+                        </div>
+                        <div class="mb-4">
+                            <div class="flex justify-between">
+                                <p class="mb-1 text-sm text-gray-500">Payment Mode</p>
+                                <InfoCircleOutlined class="text-gray-400" />
+                            </div>
+                            <p class="text-base">{{ fetchedData.payment_mode ?? '-' }}</p>
                         </div>
                     </div>
                 </div>
