@@ -67,6 +67,7 @@
                         </div>
                     </div>
                     <div class="flex justify-end items-center space-x-4">
+                        <PaymentVoucherForm :claimId="data.claimIds" :data="data" @createComplete="handleCreateComplete" :isListComponent="true" />
                         <ExportOutlined class="cursor-pointer" @click="actionClicked('export')" />
                         <AngleUp class="cursor-pointer" @click="clickShowDetails" v-if="showDetails" />
                         <AngleDown class="cursor-pointer" @click="clickShowDetails" v-if="!showDetails" />
@@ -90,6 +91,7 @@ import AngleUp from '@/Components/Icons/AngleUp.vue';
 import AngleDown from '@/Components/Icons/AngleDown.vue';
 import { ExportOutlined } from '@ant-design/icons-vue';
 import PrimaryButton from '@/Components/General/PrimaryButton.vue';
+import PaymentVoucherForm from '@/Components/Form/PaymentVoucherForm.vue';
 import { formatPrice, formatDate, formatString, formatDateWithTime, handleReportAction, downloadExcel, formatId } from '@/Helpers/helpers.js';
 
 const emit = defineEmits();

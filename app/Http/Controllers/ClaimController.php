@@ -417,6 +417,17 @@ class ClaimController extends Controller
             $data->payment_to_user = null;
         }
 
+        $paymentData = null;
+        if ($data->status_id == ApprovalStatus::PAYMENT_COMPLETED) {
+            $paymentData = [
+                'payment_voucher_number' => $data->payment_voucher_number,
+                'payment_date' => $data->payment_date,
+                'payment_voucher_receipt_file' => $data->payment_voucher_receipt_file,
+                'payment_mode' => $data->payment_mode,
+            ];
+        }
+        $data->payment_data = $paymentData;
+
         // Return the data as a JSON response
         return response()->json([
             'success' => true,
@@ -578,6 +589,61 @@ class ClaimController extends Controller
                     'payment_group_id' => $paymentGroup->id,
                     'claim_id' => $claim->id, // Associating this claim with the payment group
                 ]);
+            }
+        }
+
+        return response()->json(['message' => 'Claim has been updated.'], 200);
+    }
+
+    public function updatePaymentVoucherDetails(Request $request, $id)
+    {
+        $ids = explode(',', $id);
+        $paymentGroup = null;
+
+        $validated = $request->validate([
+            'paymentVoucherNumber' => 'required',
+            'payment_mode' => 'required',
+            'paymentDate' => 'required',
+            // 'receipt' => 'required|mimes:jpeg,pdf,jpg,png|max:2048',
+        ]);
+
+        // store at public folder
+        $path = null;
+        if ($request->hasFile('receipt')) {
+            $file = $request->file('receipt');
+
+            // Generate a unique name for the file to avoid conflicts
+            $filename = uniqid() . '.' . $file->getClientOriginalExtension();
+
+            // Store the file directly in the public folder
+            $file->move(public_path('receipts'), $filename);
+
+            // Save the file path to the database or return the filename
+            $path = 'receipts/' . $filename;
+        }
+
+        foreach ($ids as $id) {
+            $claim = Claim::find($id);
+
+            if (!$claim) {
+                return response()->json(['error' => 'Claim not found.'], 404);
+            }
+
+            // Update the claim with payment completed status
+            $updatedData = [
+                'payment_voucher_number'        => $validated['paymentVoucherNumber'],
+                'payment_date'                  => $validated['paymentDate'],
+                'payment_mode'                  => $validated['payment_mode'],
+            ];
+            if ($path) {
+                $updatedData['payment_voucher_receipt_file'] = $path;
+            }
+            $claim->update($updatedData);
+
+            // Create a PaymentGroup if not already created (for multiple claims)
+            if (count($ids) > 1) {
+                $paymentGroupParent = PaymentGroupChild::whereIn('claim_id', $ids)->first()->paymentGroup;
+                $paymentGroupParent->update($updatedData);
             }
         }
 

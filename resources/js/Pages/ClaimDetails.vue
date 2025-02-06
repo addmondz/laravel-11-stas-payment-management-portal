@@ -300,8 +300,8 @@
                 </div> -->
 
                 <div class="max-w-8xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5 text-right"
-                    v-if="fetchedData.status_id == 2 && isFinance().value">
-                    <PaymentVoucherForm :claimId="props.id" @createComplete="handleCreateComplete" />
+                    v-if="fetchedData.status_id >= 2 && isFinance().value">
+                    <PaymentVoucherForm :claimId="props.id" :data="fetchedData.payment_data" @createComplete="handleCreateComplete" />
                 </div>
             </div>
             <div v-else>

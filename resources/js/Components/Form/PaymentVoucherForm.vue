@@ -6,11 +6,20 @@ import PrimaryButton from '@/Components/General/PrimaryButton.vue';
 import TextInput from '@/Components/General/TextInput.vue';
 import LoadingComponent from '@/Components/General/LoadingComponent.vue';
 import { useForm } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import Swal from 'sweetalert2';
+import {  EditOutlined } from '@ant-design/icons-vue';
 
 const props = defineProps({
     claimId: { type: String, required: true },
+    data: {
+        type: Object,
+        default: null
+    },
+    isListComponent: {
+        type: Boolean,
+        default: false
+    }
 });
 
 const emit = defineEmits();
@@ -26,13 +35,27 @@ const form = useForm({
     payment_mode: '',
 });
 
+// populate form with userdata if editing
+watch(() => props.data, (newData) => {
+    if (newData) {
+        form.paymentVoucherNumber = newData.payment_voucher_number
+        form.paymentDate = newData.payment_date
+        form.receipt = newData.payment_voucher_receipt_file
+        form.payment_mode = newData.payment_mode
+    } else {
+        form.reset(); // reset if no userdata
+    }
+}, { immediate: true });
+
 const submitPayment = async () => {
     isLoading.value = true;
     try {
         const formData = new FormData();
         Object.entries(form.data()).forEach(([key, value]) => formData.append(key, value));
 
-        await axios.post(route('claims.paymentCompleted', props.claimId), formData);
+        const apiUrl = props.data == null ? route('claims.paymentCompleted', props.claimId) : route('claims.paymentCompletedUpdate', props.claimId);
+
+        await axios.post(apiUrl, formData);
         Swal.fire('Success!', 'Payment details updated successfully', 'success');
         toggleModal();
         form.reset();
@@ -47,9 +70,11 @@ const submitPayment = async () => {
 
 <template>
     <section>
+        <EditOutlined class="mb-4 mr-2" @click="toggleModal" v-if="props.data != null && props.isListComponent"/>
         <PrimaryButton class="bg-violet-500 hover:bg-violet-700 active:bg-violet-700 focus:bg-violet-700 font-bold"
+            v-else
             @click="toggleModal">
-            Payment Completed
+            {{ props.data ? "Edit Payment Voucher" : "Payment Completed" }}
         </PrimaryButton>
 
         <Modal :show="showingCreateUserModal" @close="toggleModal">
@@ -58,7 +83,7 @@ const submitPayment = async () => {
                     <LoadingComponent class="mt-32 mb-32" />
                 </div>
                 <div v-else>
-                    <h2 class="text-lg font-medium">Payment Voucher Details</h2>
+                    <h2 class="text-lg font-medium">{{ props.data ? "Edit" : "" }} Payment Voucher Details</h2>
                     <div class="grid grid-cols-1 gap-4 mt-4">
                         <div>
                             <InputLabel for="paymentVoucherNumber" value="Payment Voucher Number" />
@@ -72,7 +97,7 @@ const submitPayment = async () => {
                                 required />
                             <InputError :message="form.errors.paymentDate" class="mt-2" />
                         </div>
-                        <div>
+                        <div v-if="props.data == null">
                             <InputLabel for="receipt" value="Upload Receipt" />
                             <input id="receipt" type="file" @change="(e) => form.receipt = e.target.files[0]"
                                 accept=".jpeg,.jpg,.pdf,.png"
