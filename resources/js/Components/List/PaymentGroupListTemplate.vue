@@ -139,6 +139,16 @@ const actionClicked = async (action) => {
 
     if (!result.isConfirmed) return;
 
+    // Show loading state
+    Swal.fire({
+        title: "Processing...",
+        text: "Please wait while we generate your report.",
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
     isLoading.value = true;
 
     try {
@@ -149,11 +159,14 @@ const actionClicked = async (action) => {
         };
 
         await handleReportAction(action, data, urlMap, 'payment_group_report_' + formatId(props.data.id));
+
+        // Close loading popup once done
+        Swal.close();
     } catch (error) {
         console.error('Error generating report:', error);
+        Swal.fire("Error", "Failed to generate the report. Please try again.", "error");
     } finally {
         isLoading.value = false;
     }
 };
-
 </script>
