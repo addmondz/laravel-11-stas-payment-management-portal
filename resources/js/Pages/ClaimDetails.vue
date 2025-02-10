@@ -253,6 +253,12 @@
                             </div>
                             <p class="text-base">{{ fetchedData.payment_mode ?? '-' }}</p>
                         </div>
+                        <div></div>
+                        <div class="text-right">
+                            <PrimaryButton v-if="fetchedData.status_id == 3"
+                                class="bg-red-400 hover:bg-red-700 active:bg-red-700 focus:bg-red-700 font-bold mr-4"
+                                @click="paymentVoucherDeleteConfirmation">Delete Payment Voucher</PrimaryButton>
+                        </div>
                     </div>
                 </div>
                 
@@ -502,5 +508,46 @@ const actionClicked = async (action) => {
     } finally {
         isLoading.value = false;
     }
+};
+
+const callApiToDeletePaymnentVoucher = async () => {
+    try {
+        const response = await axios.post(route('claims.deletePaymentVoucherDetails', props.id), {
+            _method: 'DELETE' // Laravel handles this as a DELETE request
+        });
+
+        fetchData();
+        Swal.fire({
+            title: "Success!",
+            text: "The payment voucher has been deleted.",
+            icon: "success",
+            confirmButtonText: "OK"
+        });
+    } catch (err) {
+        Swal.fire({
+            title: "Error!",
+            text: err.response ? err.response.data.error || "There was an error while deleting the payment voucher. Please try again." : "An unexpected error occurred.",
+            icon: "error",
+            confirmButtonText: "OK"
+        });
+    }
+};
+
+const paymentVoucherDeleteConfirmation = () => {
+    Swal.fire({
+        title: "Are you sure?",
+        text: "Are you sure you want to delete the Payment Voucher?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: 'Yes',
+        cancelButtonText: 'No',
+        allowOutsideClick: false,
+        stopKeydownPropagation: true,
+        preConfirm: () => {
+            return new Promise((resolve, reject) => {
+                callApiToDeletePaymnentVoucher();
+            });
+        }
+    });
 };
 </script>
