@@ -650,6 +650,26 @@ class ClaimController extends Controller
         return response()->json(['message' => 'Claim has been updated.'], 200);
     }
 
+    public function deletePaymentVoucherDetails(Request $request, $id)
+    {
+        $claim = Claim::find($id);
+
+        $updatedData = [
+            'payment_voucher_number'        => null,
+            'payment_date'                  => null,
+            'payment_mode'                  => null,
+            'payment_voucher_receipt_file'  => null,
+            // change status 
+            'status'                        => ApprovalStatus::APPROVED,
+        ];
+        $claim->update($updatedData);
+
+        // delete log 
+        $claim->statusLogs()->latest()->first()?->delete();
+
+        return response()->json(['message' => 'Payment Voucher has been deleted.'], 200);
+    }
+
     public function getReceiptFileUrl($url)
     {
         return $url ? (app()->environment('production') ? 'public/' : '') . $url : null;
