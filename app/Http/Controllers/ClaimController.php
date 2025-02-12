@@ -710,6 +710,7 @@ class ClaimController extends Controller
             return response()->json(['message' => 'Claim has been deleted.'], 200);
         } catch (\Exception $e) {
             // Handle any unexpected errors
+            Log::info($e);
             return response()->json(['error' => 'An error occurred while deleting the claim.'], 500);
         }
     }
