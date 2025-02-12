@@ -577,7 +577,7 @@ const deletePaymentConfirmation = () => {
     });
 };
 
-const isApproved = computed(() => fetchData.status_id >= 2);
+const isApproved = computed(() => fetchedData.value.status_id >= 2);
 
 const deletePayment = async () => {
     try {
