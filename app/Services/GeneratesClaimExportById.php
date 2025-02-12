@@ -518,6 +518,6 @@ class GeneratesClaimExportById
 
     private function getFormattedDate($array, $key, $default = '-')
     {
-        return !empty($array[$key]) ? date('d/m/Y', strtotime($array[$key])) : $default;
+        return !empty($array[$key] && $array[$key] != '-') ? date('d/m/Y', strtotime($array[$key])) : $default;
     }
 }
