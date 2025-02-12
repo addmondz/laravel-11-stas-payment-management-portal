@@ -37,7 +37,7 @@
                         <DeleteOutlined @click="deletePaymentConfirmation" class="mb-3 mr-5 hover:text-red-500"
                             :class="{ 'invisible': isApproved }" :disabled="isApproved"
                             v-if="canDeletePayments().value" />
-                        <div :class="{ 'invisible': isApproved }" :disabled="isApproved">
+                        <div :class="{ 'invisible': isApproved }" :disabled="isApproved" v-if="false">
                             <CreateClaimForm :claimData="fetchedData" />
                         </div>
                     </div>
