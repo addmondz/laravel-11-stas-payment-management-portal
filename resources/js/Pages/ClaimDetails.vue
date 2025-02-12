@@ -26,13 +26,21 @@
         </div>
         <div v-else>
             <div class="max-w-8xl mx-auto py-6 px-4 sm:px-6 lg:px-8" v-if="apiResponse">
-                <div class="mb-5">
+                <div class="mb-5 flex items-center">
                     <PrimaryButton v-if="false" class="mr-5" @click="actionClicked('test')">
                         Preview
                     </PrimaryButton>
                     <PrimaryButton class="mr-5" @click="actionClicked('export')">
                         Export PDF
                     </PrimaryButton>
+                    <div class="flex items-center mt-3">
+                        <DeleteOutlined @click="deletePaymentConfirmation" class="mb-3 mr-5 hover:text-red-500"
+                            :class="{ 'invisible': isApproved }" :disabled="isApproved"
+                            v-if="canDeletePayments().value" />
+                        <div :class="{ 'invisible': isApproved }" :disabled="isApproved">
+                            <CreateClaimForm :claimData="fetchedData" />
+                        </div>
+                    </div>
                 </div>
                 <div class="bg-white max-w-8xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5">
                     <div class="px-5 py-3 border-b border-gray-300 flex justify-between items-center">
@@ -253,11 +261,13 @@
                             </div>
                             <p class="text-base">{{ fetchedData.payment_mode ?? '-' }}</p>
                         </div>
-                        <div></div>
-                        <div class="text-right">
+                        <div class="text-right flex flex-auto col-span-2 justify-end items-center">
                             <PrimaryButton v-if="fetchedData.status_id == 3"
                                 class="bg-red-400 hover:bg-red-700 active:bg-red-700 focus:bg-red-700 font-bold mr-4"
                                 @click="paymentVoucherDeleteConfirmation">Delete Payment Voucher</PrimaryButton>
+                            <PaymentVoucherForm :claimId="props.id" :data="fetchedData.payment_data"
+                                v-if="fetchedData.status_id >= 2 && isFinance().value"
+                                @createComplete="handleCreateComplete" />
                         </div>
                     </div>
                 </div>
@@ -304,11 +314,6 @@
                     v-if="fetchedData.status_id == 2 && isAdmin().value">
                     <PrimaryButton @click="paymentCompletedConfirmation">Mark as Payment Completed</PrimaryButton>
                 </div> -->
-
-                <div class="max-w-8xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5 text-right"
-                    v-if="fetchedData.status_id >= 2 && isFinance().value">
-                    <PaymentVoucherForm :claimId="props.id" :data="fetchedData.payment_data" @createComplete="handleCreateComplete" />
-                </div>
             </div>
             <div v-else>
                 <!-- <NotFound /> -->
@@ -334,7 +339,7 @@ import NotFound from '@/Components/Icons/NotFound.vue';
 import LoadingComponent from '@/Components/General/LoadingComponent.vue';
 import StatusLabel from '@/Components/General/StatusLabel.vue';
 import BreadcrumbComponent from '@/Components/General/BreadcrumbComponent.vue';
-import { InfoCircleOutlined } from '@ant-design/icons-vue';
+import { InfoCircleOutlined, DeleteOutlined } from '@ant-design/icons-vue';
 import { formatPrice, formatDate, formatString, formatDateWithTime, handleReportAction, downloadExcel, formatId } from '@/Helpers/helpers.js';
 import AngleUp from '@/Components/Icons/AngleUp.vue';
 import AngleDown from '@/Components/Icons/AngleDown.vue';
@@ -344,6 +349,8 @@ import PaymentVoucherForm from '@/Components/Form/PaymentVoucherForm.vue';
 import { Link } from '@inertiajs/vue3';
 import Swal from 'sweetalert2';
 import DocumentViewer from '@/Components/General/DocumentViewer.vue';
+import CreateClaimForm from '@/Components/Form/CreateClaimForm.vue';
+import { canDeletePayments } from '@/Composables/GlobalFuntions.vue';
 
 const isLoading = ref(true);
 const fetchedData = ref([]);
@@ -460,6 +467,7 @@ const fetchData = async () => {
         apiResponse.value = data;
     } catch (err) {
         error.value = err;
+        apiResponse.value = null;
     }
     finally {
         isLoading.value = false;
@@ -549,5 +557,48 @@ const paymentVoucherDeleteConfirmation = () => {
             });
         }
     });
+};
+
+const deletePaymentConfirmation = () => {
+    Swal.fire({
+        title: "Are you sure?",
+        text: "Are you sure you want to delete this Payment?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: 'Yes',
+        cancelButtonText: 'No',
+        allowOutsideClick: false,
+        stopKeydownPropagation: true,
+        preConfirm: () => {
+            return new Promise((resolve, reject) => {
+                deletePayment(resolve, reject);
+            });
+        }
+    });
+};
+
+const isApproved = computed(() => fetchData.status_id >= 2);
+
+const deletePayment = async () => {
+    try {
+        const response = await axios.post(route('claims.delete', fetchedData.value.id));
+        Swal.fire({
+            title: "Success!",
+            text: "The Payment has been successfully deleted.",
+            icon: "success",
+            confirmButtonText: "OK"
+        });
+
+        apiResponse.value = null;
+
+    } catch (err) {
+        console.log(err);
+        Swal.fire({
+            title: "Error!",
+            text: err.response?.data?.error || "An unexpected error occurred while deleteing the payment.",
+            icon: "error",
+            confirmButtonText: "OK"
+        });
+    }
 };
 </script>

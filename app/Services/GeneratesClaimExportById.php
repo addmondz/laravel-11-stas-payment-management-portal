@@ -74,6 +74,11 @@ class GeneratesClaimExportById
             'currency_object' => ['short_code' => $claim->currencyObject->short_code ?? '-'],
             'amount' => $claim->amount ?? 0,
             'gst_amount' => $claim->gst_amount ?? 0,
+
+            'payment_voucher_number' => $claim->payment_voucher_number ?? '-',
+            'payment_date' => $claim->payment_date ?? '-',
+            'payment_voucher_receipt_file' => $claim->payment_voucher_receipt_file ?? '-',
+            'payment_mode' => $claim->payment_mode ?? '-',
         ];
     }
 
@@ -384,6 +389,10 @@ class GeneratesClaimExportById
             <div class="claim-info">
                 <h2>Payment Voucher Details</h2>
                 <table class="details-table">
+                    <tr>
+                        <td>Payment Voucher Number</td>
+                        <td>' . ($fetchedData['payment_voucher_number'] ?? '-') . '</td>
+                    </tr>
                     <tr>
                         <td>Payment Date</td>
                         <td>' . $this->getFormattedDate($fetchedData, 'payment_date') . '</td>
