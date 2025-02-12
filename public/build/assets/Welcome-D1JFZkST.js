@@ -1,5 +1,0 @@
-<<<<<<<< HEAD:public/build/assets/Welcome-D1JFZkST.js
-import{_ as a}from"./AuthenticatedLayout-9Pj8z_f_.js";import{g as t,a as e,u as s,w as r,F as o,o as c,d as n,b as _}from"./app-CsWJjr4_.js";import{_ as m}from"./BreadcrumbComponent-Tu_v_Nuw.js";const l={class:"flex justify-between content-center"},h={__name:"Welcome",setup(i){return(d,f)=>(c(),t(o,null,[e(s(n),{title:"Welcome"}),e(a,null,{header:r(()=>[_("div",l,[e(m,{breadcrumbs:[{title:"Dashboard"}]})])]),_:1})],64))}};export{h as default};
-========
-import{_ as a}from"./AuthenticatedLayout-CrbuD0f3.js";import{g as t,a as e,u as s,w as r,F as o,o as c,d as n,b as _}from"./app-D52dY9h1.js";import{_ as m}from"./BreadcrumbComponent-gDeyTmwI.js";const l={class:"flex justify-between content-center"},h={__name:"Welcome",setup(i){return(d,f)=>(c(),t(o,null,[e(s(n),{title:"Welcome"}),e(a,null,{header:r(()=>[_("div",l,[e(m,{breadcrumbs:[{title:"Dashboard"}]})])]),_:1})],64))}};export{h as default};
->>>>>>>> 487034cbdb24aaf9cdf92590aa178836b08d55f0:public/build/assets/Welcome-CJzaTSqe.js

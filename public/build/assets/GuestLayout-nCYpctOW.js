@@ -1,5 +1,0 @@
-<<<<<<<< HEAD:public/build/assets/GuestLayout-nCYpctOW.js
-import{A as s}from"./ApplicationLogo-M_mRncSF.js";import{o as a,g as r,b as o,a as e,w as c,u as l,P as n,r as i}from"./app-CsWJjr4_.js";const p={class:"min-h-screen flex flex-col justify-center items-center sm:pt-0 bg-gray-100 p-5 sm:p-0"},d={__name:"GuestLayout",setup(u){return(t,f)=>(a(),r("div",p,[o("div",null,[e(l(n),{href:"/"},{default:c(()=>[e(s,{class:"w-20 h-20 fill-current text-gray-500"})]),_:1})]),i(t.$slots,"default")]))}};export{d as _};
-========
-import{A as s}from"./ApplicationLogo-M_mRncSF.js";import{o as a,g as r,b as o,a as e,w as c,u as l,P as n,r as i}from"./app-D52dY9h1.js";const p={class:"min-h-screen flex flex-col justify-center items-center sm:pt-0 bg-gray-100 p-5 sm:p-0"},d={__name:"GuestLayout",setup(u){return(t,f)=>(a(),r("div",p,[o("div",null,[e(l(n),{href:"/"},{default:c(()=>[e(s,{class:"w-20 h-20 fill-current text-gray-500"})]),_:1})]),i(t.$slots,"default")]))}};export{d as _};
->>>>>>>> 487034cbdb24aaf9cdf92590aa178836b08d55f0:public/build/assets/GuestLayout-Gg_JRiKr.js
