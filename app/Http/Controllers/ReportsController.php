@@ -18,6 +18,7 @@ use iio\libmergepdf\Merger;
 use iio\libmergepdf\Driver\TcpdiDriver;
 use App\Models\Claim;
 use App\Models\PaymentGroup;
+use App\Services\GeneratesPaymentGroupExportById;
 
 class ReportsController extends Controller
 {
@@ -173,7 +174,7 @@ class ReportsController extends Controller
             $merger = new Merger(new TcpdiDriver());
 
             foreach ($paymentGroup->claims as $claim) {
-                $result = (new GeneratesClaimExportById())->generate([
+                $result = (new GeneratesPaymentGroupExportById())->generate([
                     'claim_id' => $claim->id,
                     'for_pdf' => true
                 ]);
