@@ -57,6 +57,9 @@ class PaymentGroupController extends Controller
                     return $claim;
                 });
 
+                $group->currency = $group->claims->first()->currencyObject->short_code;
+                $group->sum_claims = $group->claims->sum('amount');
+
                 $group->claimIds = implode(',', $group->claims->pluck('id')->toArray());
                 return $group;
             });
