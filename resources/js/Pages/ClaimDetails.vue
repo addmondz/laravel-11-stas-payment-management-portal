@@ -410,6 +410,8 @@ const callApiToApproveClaim = async () => {
             text: "The payment has been successfully approved.",
             icon: "success",
             confirmButtonText: "OK"
+        }).then(() => {
+            window.location.href = route('dashboard');
         });
     } catch (err) {
         Swal.fire({
