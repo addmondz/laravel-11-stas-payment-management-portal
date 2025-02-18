@@ -152,20 +152,6 @@ class ClaimController extends Controller
         //     $path = $request->file('receipt')->store('receipts', 'public');
         // }
 
-        // store at public folder
-        if ($request->hasFile('receipt')) {
-            $file = $request->file('receipt');
-
-            // Generate a unique name for the file to avoid conflicts
-            $filename = uniqid() . '.' . $file->getClientOriginalExtension();
-
-            // Store the file directly in the public folder
-            $file->move(public_path('receipts'), $filename);
-
-            // Save the file path to the database or return the filename
-            $path = 'receipts/' . $filename;
-        }
-
         $requestData = $request->all();
         $hasGst = filter_var($requestData['gst'], FILTER_VALIDATE_BOOLEAN);
         $gstTax = (float) $this->fetchesGstTax->execute();
@@ -178,24 +164,30 @@ class ClaimController extends Controller
             'amount' => $requestData['amount'],
             'purpose' => $requestData['purpose'],
             'receipt_date' => $requestData['receipt_date'],
-            'receipt_file' => $path ?? null,
+            // 'receipt_file' => $path ?? null,
             'payment_receiver_id' => $requestData['payment_to'],
 
             // field to update later
             // 'gst_amount' => $hasGst ? ($requestData['amount'] * $gstTax / 100) : 0,
             'gst_amount' => $hasGst ? $requestData['gst_value'] : 0,
             'gst_percent' => $gstTax,
-            'status' => ApprovalStatus::PENDING_APPROVAL,
+            // 'status' => ApprovalStatus::PENDING_APPROVAL,
         ];
 
-        // check user roles, if created by user with higer role, then dont need approval for lower role
-        $userPrivilage = $user->privileges->first()->approval_role_id ?? null;
-        if ($userPrivilage) {
-            $data['approval_status'] = $userPrivilage; // adjust the approval_status here on created
-        }
+        // store at public folder
+        if ($request->hasFile('receipt')) {
+            $file = $request->file('receipt');
 
-        if ($userPrivilage == ApprovalRoles::L3_APPROVAL_MEMBERS) {
-            $data['status'] = ApprovalStatus::APPROVED;
+            // Generate a unique name for the file to avoid conflicts
+            $filename = uniqid() . '.' . $file->getClientOriginalExtension();
+
+            // Store the file directly in the public folder
+            $file->move(public_path('receipts'), $filename);
+
+            // Save the file path to the database or return the filename
+            $path = 'receipts/' . $filename;
+
+            $data['receipt_file'] = $path;
         }
 
         // Update claim record
