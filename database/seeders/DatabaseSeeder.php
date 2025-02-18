@@ -123,7 +123,7 @@ class DatabaseSeeder extends Seeder
             Claim::create([
                 'created_by' => User::first()->id,
                 'payment_receiver_id' => PaymentReceiver::inRandomOrder()->first()->id,
-                'payment_type' => $this->randomPick(['reimbursement', 'external_payments']),
+                'payment_type' => $this->randomPick(['reimbursement', 'external_payment']),
                 'payment_category_id' => PaymentCategory::inRandomOrder()->first()->id,
                 'currency_id' => Currency::inRandomOrder()->first()->id,
                 'amount' => rand(1000, 10000),
