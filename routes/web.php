@@ -1,6 +1,10 @@
 <?php
 
+use App\Classes\ValueObjects\Constants\ApprovalStatus;
 use App\Http\Controllers\ProfileController;
+use App\Models\Claim;
+use App\Models\PaymentGroup;
+use App\Models\PaymentGroupChild;
 use App\Models\Variable;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -54,9 +58,36 @@ Route::get('/reports', function () {
     return Inertia::render('Reports');
 })->middleware(['auth', 'verified'])->name('reports');
 
-Route::get('/payment-groups', function () {
+Route::get('/completed-payments', function () {
     return Inertia::render('PaymentGroups');
 })->middleware(['auth', 'verified'])->name('paymentGroups');
+
+Route::get('/make-approved-payments-to-groups', function () {
+    $unGroupedClaims = Claim::whereNotIn('id', function ($query) {
+        $query->select('claim_id')->from('payment_groups_child');
+    })->where('status', ApprovalStatus::PAYMENT_COMPLETED)
+        ->get();
+
+    if (!count($unGroupedClaims)) {
+        dump('No Payments Found');
+        return;
+    }
+
+    foreach ($unGroupedClaims as $c) {
+        dump($c->id);
+        $paymentGroup = PaymentGroup::create([
+            'payment_voucher_number'       => $c->payment_voucher_number,
+            'payment_date'                 => $c->payment_date,
+            'payment_voucher_receipt_file' => $c->payment_voucher_receipt_file,
+            'payment_mode'                 => $c->payment_mode,
+        ]);
+
+        PaymentGroupChild::create([
+            'payment_group_id' => $paymentGroup->id,
+            'claim_id' => $c->id, // Associating this claim with the payment group
+        ]);
+    }
+});
 
 require __DIR__ . '/auth.php';
 require __DIR__ . '/api.php';

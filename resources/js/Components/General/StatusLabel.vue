@@ -1,5 +1,7 @@
 <template>
-	<span :class="statusClass" class="block text-center capitalize px-3 py-1 me-2 text-sm font-medium rounded">{{ name ? name :statusText }}</span>
+	<span :class="statusClass" class="block text-center capitalize px-3 py-1 me-2 text-sm font-medium rounded">
+		{{ name ? name : statusText }}
+	</span>
 </template>
 
 <script setup>
@@ -19,7 +21,22 @@ const props = defineProps({
 
 // Computed property to determine the class based on the status
 const statusClass = computed(() => {
-	switch (props.status.toLowerCase()) {
+	const status = props.status.toLowerCase()
+	const name = props.name
+
+	if (status === 'pending approval') {
+		if (name === 'Pending Approval • L1') {
+			return 'text-red-800 bg-red-100';
+		}
+		else if (name === 'Pending Approval • L2') {
+			return 'text-red-800 bg-orange-100';
+		}
+		else if (name === 'Pending Approval • L3') {
+			return 'text-red-800 bg-yellow-100';
+		}
+	}
+
+	switch (status) {
 		case 'completed':
 		case 'payment completed':
 		case 'success':
