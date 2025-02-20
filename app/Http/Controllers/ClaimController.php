@@ -566,7 +566,7 @@ class ClaimController extends Controller
             ]);
 
             // Create a PaymentGroup if not already created (for multiple claims)
-            if (count($ids) > 1 && is_null($paymentGroup)) {
+            if (is_null($paymentGroup)) {
                 $paymentGroup = PaymentGroup::create([
                     'payment_voucher_number' => $validated['paymentVoucherNumber'], // Using the first payment voucher number
                     'payment_date' => $validated['paymentDate'], // Using the same payment date

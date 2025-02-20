@@ -1,10 +1,10 @@
 <template>
 
-    <Head title="Payment Groups" />
+    <Head title="Completed Payments" />
     <AuthenticatedLayout>
         <template #header>
             <div class="flex justify-between content-center">
-                <BreadcrumbComponent :breadcrumbs="[{ title: 'Payment Groups' }]" />
+                <BreadcrumbComponent :breadcrumbs="[{ title: 'Completed Payments' }]" />
             </div>
         </template>
 
