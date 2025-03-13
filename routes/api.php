@@ -26,6 +26,7 @@ Route::prefix('api')->middleware('auth')->group(function () {
         Route::post('/store', [ClaimController::class, 'store'])->name('claims.store');
         Route::get('/{id}/fetch', [ClaimController::class, 'fetchData'])->name('claims.fetchData');
         Route::post('/{id}/approve', [ClaimController::class, 'approveClaim'])->name('claims.approveClaim');
+        Route::post('/{id}/approve', [ClaimController::class, 'cancelClaim'])->name('claims.cancelPayment');
         Route::post('/{id}/payment-completed', [ClaimController::class, 'paymentCompleted'])->name('claims.paymentCompleted');
         Route::post('payment-voucher/{id}/update', [ClaimController::class, 'updatePaymentVoucherDetails'])->name('claims.paymentCompletedUpdate');
         Route::delete('payment-voucher/{id}', [ClaimController::class, 'deletePaymentVoucherDetails'])->name('claims.deletePaymentVoucherDetails');

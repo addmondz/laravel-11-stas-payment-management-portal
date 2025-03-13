@@ -706,4 +706,17 @@ class ClaimController extends Controller
             return response()->json(['error' => 'An error occurred while deleting the claim.'], 500);
         }
     }
+
+    public function cancelClaim(Request $request, $id)
+    {
+        $claim = Claim::find($id);
+
+        if (! $claim) {
+            return response()->json(['error' => 'Claim not found.'], 404);
+        }
+
+        $claim->update(['status' => ApprovalStatus::CANCELLED]);
+
+        return response()->json(['message' => 'Claim has been cancelled.'], 200);
+    }   
 }

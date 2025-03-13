@@ -10,6 +10,9 @@
                 <div class="flex items-center justify-center">
                     <StatusLabel v-if="apiResponse" class="text-sm inline-block" :status="fetchedData.status"
                         :name="fetchedData.status_name" />
+                    <PrimaryButton v-if="fetchedData.status_id < 2 && ( [2, 3].includes(getUserApprovalPrivillage().value) || isAdmin().value )"
+                        class="bg-red-500 hover:bg-red-700 active:bg-red-700 focus:bg-red-700 font-bold ml-2 mr-2"
+                        @click="cancelPaymentConfirmation">Cancel Payment</PrimaryButton>
                     <PrimaryButton
                         v-if="fetchedData.status_id < 2 && (getUserApprovalPrivillage().value == fetchedData.next_approval_level)"
                         class="bg-violet-500 hover:bg-violet-700 active:bg-violet-700 focus:bg-violet-700 font-bold"
@@ -69,7 +72,7 @@
                             </div>
                             <p class="text-base">{{ fetchedData.payment_to_user ? (fetchedData.payment_to_user.name ??
                                 '-') : '-'
-                                }}</p>
+                            }}</p>
                         </div>
                         <div class="mb-4">
                             <div class="flex justify-between">
@@ -119,7 +122,7 @@
                             </div>
                             <p class="text-base">{{ fetchedData.currency_object.short_code }} {{
                                 formatPrice(fetchedData.amount)
-                            }}</p>
+                                }}</p>
                         </div>
                         <!-- <div class="mb-4">
                             <div class="flex justify-between">
@@ -241,7 +244,8 @@
                                 <p class="mb-1 text-sm text-gray-500">Payment Date</p>
                                 <InfoCircleOutlined class="text-gray-400" />
                             </div>
-                            <p class="text-base">{{ fetchedData.payment_date ? formatDate(fetchedData.payment_date) : '-' }}</p>
+                            <p class="text-base">{{ fetchedData.payment_date ? formatDate(fetchedData.payment_date) :
+                                '-' }}</p>
                         </div>
                         <div class="mb-4">
                             <div class="flex justify-between">
@@ -250,8 +254,9 @@
                             </div>
                             <div>
                                 <DocumentViewer :src="`/${fetchedData.payment_voucher_receipt_file}`"
-                                    alt="Receipt Image" :id="fetchedData.id" v-if="fetchedData.payment_voucher_receipt_file" />
-                                    <span v-else>-</span>
+                                    alt="Receipt Image" :id="fetchedData.id"
+                                    v-if="fetchedData.payment_voucher_receipt_file" />
+                                <span v-else>-</span>
                             </div>
                         </div>
                         <div class="mb-4">
@@ -271,7 +276,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="bg-white max-w-8xl mx-auto sm:px-6 lg:px-8 p-5 sm:p-0 mb-5">
                     <div class="px-5 py-3 border-b border-gray-300 flex justify-between items-center">
                         <div class="flex justify-between content-center w-full">
@@ -344,7 +349,7 @@ import { formatPrice, formatDate, formatString, formatDateWithTime, handleReport
 import AngleUp from '@/Components/Icons/AngleUp.vue';
 import AngleDown from '@/Components/Icons/AngleDown.vue';
 import PrimaryButton from '@/Components/General/PrimaryButton.vue';
-import { getUserApprovalPrivillage, isFinance } from '@/Composables/GlobalFuntions.vue';
+import { getUserApprovalPrivillage, isFinance, isAdmin } from '@/Composables/GlobalFuntions.vue';
 import PaymentVoucherForm from '@/Components/Form/PaymentVoucherForm.vue';
 import { Link } from '@inertiajs/vue3';
 import Swal from 'sweetalert2';
@@ -412,6 +417,47 @@ const callApiToApproveClaim = async () => {
             confirmButtonText: "OK"
         }).then(() => {
             window.location.href = route('dashboard');
+        });
+    } catch (err) {
+        Swal.fire({
+            title: "Error!",
+            text: err.response ? err.response.data.error || "There was an error while approving the payment. Please try again." : "An unexpected error occurred.",
+            icon: "error",
+            confirmButtonText: "OK"
+        });
+    }
+};
+
+const cancelPaymentConfirmation = () => {
+    Swal.fire({
+        title: "Are you sure?",
+        text: "Are you sure you want to cancel this Payment?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: 'Yes',
+        cancelButtonText: 'No',
+        allowOutsideClick: false,
+        stopKeydownPropagation: true,
+        preConfirm: () => {
+            // This ensures that the modal doesn't close until the API call is complete
+            return new Promise((resolve, reject) => {
+                callApiToCancelPayment(resolve, reject); // Call API and resolve/reject based on the response
+            });
+        }
+    });
+};
+
+const callApiToCancelPayment = async () => {
+    try {
+        const response = await axios.post(route('claims.cancelPayment', props.id));
+        fetchData();
+        Swal.fire({
+            title: "Success!",
+            text: "The payment has been successfully cancelled.",
+            icon: "success",
+            confirmButtonText: "OK"
+        }).then(() => {
+            // window.location.href = route('dashboard');
         });
     } catch (err) {
         Swal.fire({
