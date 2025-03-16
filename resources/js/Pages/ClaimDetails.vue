@@ -10,7 +10,7 @@
                 <div class="flex items-center justify-center">
                     <StatusLabel v-if="apiResponse" class="text-sm inline-block" :status="fetchedData.status"
                         :name="fetchedData.status_name" />
-                    <PrimaryButton v-if="fetchedData.status_id < 2 && ( [2, 3].includes(getUserApprovalPrivillage().value) || isAdmin().value )"
+                    <PrimaryButton v-if="fetchedData.status_id < 3 && ( [2, 3].includes(getUserApprovalPrivillage().value) || isAdmin().value )"
                         class="bg-red-500 hover:bg-red-700 active:bg-red-700 focus:bg-red-700 font-bold ml-2 mr-2"
                         @click="cancelPaymentConfirmation">Cancel Payment</PrimaryButton>
                     <PrimaryButton
