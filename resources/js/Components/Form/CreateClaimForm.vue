@@ -61,7 +61,7 @@ const fetchGST = async (page = 1) => {
 };
 
 const calGSTValue = () => {
-    form.gst_value = ((form.amount * gst.value) / 100).toFixed(2);
+    form.gst_value = (form.amount * gst.value / (100 + gst.value)).toFixed(2);
 };
 
 const openCreateClaimModal = () => {
