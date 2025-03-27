@@ -15,7 +15,7 @@ const isLoading = ref(true);
 const formIsLoading = ref(false);
 const mailIsLoading = ref(false);
 const form = useForm({
-    mail_mailer: '',
+    // mail_mailer: '',
     mail_host: '',
     mail_port: '',
     mail_username: '',
@@ -113,7 +113,7 @@ const fetchSmptConfig = async (page = 1) => {
         const { data } = await axios.get(route('email_config.get'));
 
         if (data != null) {
-            form.mail_mailer = data.data.mail_mailer;
+            // form.mail_mailer = data.data.mail_mailer;
             form.mail_host = data.data.mail_host;
             form.mail_port = data.data.mail_port;
             form.mail_username = data.data.mail_username;
@@ -142,7 +142,7 @@ onMounted(() => {
         </div>
         <div v-else>
             <div class="grid grid-cols-1 gap-4 mt-4">
-                <div>
+                <!-- <div>
                     <InputLabel for="mail_mailer" value="Mail Mailer" />
                     <select id="mail_mailer" v-model="form.mail_mailer"
                         class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
@@ -154,19 +154,11 @@ onMounted(() => {
                         <option value="ses">Amazon SES</option>
                     </select>
                     <InputError :message="form.errors.mail_mailer" class="mt-2" />
-                </div>
+                </div> -->
 
                 <div>
                     <InputLabel for="mail_host" value="Mail Host" />
-                    <select id="mail_host" v-model="form.mail_host"
-                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
-                        <option value="" disabled selected>Please select Mail Host</option>
-                        <option value="gmail">Gmail</option>
-                        <option value="outlook">Outlook</option>
-                        <option value="yahoo">Yahoo</option>
-                        <option value="zoho_mail">Zoho Mail</option>
-                        <option value="others">Others</option>
-                    </select>
+                    <TextInput id="mail_host" v-model="form.mail_host" type="text" class="mt-1 block w-full" required />
                     <InputError :message="form.errors.mail_host" class="mt-2" />
                 </div>
 
@@ -192,13 +184,8 @@ onMounted(() => {
 
                 <div>
                     <InputLabel for="mail_encryption" value="Mail Encryption" />
-                    <select id="mail_encryption" v-model="form.mail_encryption"
-                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
-                        <option value="" disabled selected>Please select Mail Encryption</option>
-                        <option value="none">None</option>
-                        <option value="tls">TLS</option>
-                        <option value="ssl">SSL</option>
-                    </select>
+                    <TextInput id="mail_encryption" v-model="form.mail_encryption" type="text"
+                        class="mt-1 block w-full" />
                     <InputError :message="form.errors.mail_encryption" class="mt-2" />
                 </div>
 

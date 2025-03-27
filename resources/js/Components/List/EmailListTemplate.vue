@@ -47,7 +47,7 @@
             <div class="flex justify-center items-center">
                 <button type="button" @click="sendMail(data.id)"
                     class="bg-white hover:bg-gray-100 text-black inline-flex items-center px-4 py-2 border border-gray-300 rounded-md font-semibold text-xs uppercase tracking-widest mr-2">
-                    {{ mailIsLoading ? 'Sending Mail' : 'Test Mail' }}
+                    {{ mailIsLoading ? 'Sending Mail' : 'Send Mail' }}
                 </button>
 
                 <button class="cursor-pointer hover:text-violet-600 transition-all">

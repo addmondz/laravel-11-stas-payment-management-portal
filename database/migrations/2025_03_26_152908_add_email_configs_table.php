@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('email_configs', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->string('mail_mailer')->nullable();
+            // $table->string('mail_mailer')->nullable();
             $table->string('mail_host')->nullable();
             $table->string('mail_port')->nullable();
             $table->string('mail_username')->nullable();

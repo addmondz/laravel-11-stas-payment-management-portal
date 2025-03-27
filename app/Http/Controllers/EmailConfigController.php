@@ -26,12 +26,12 @@ class EmailConfigController extends Controller
     {
         // Validate the incoming request
         $validated = $req->validate([
-            'mail_mailer' => 'required',
+            // 'mail_mailer' => 'required',
             'mail_host' => 'required',
             'mail_port' => 'required|max:250',
             'mail_username' => 'required|max:250',
             'mail_password' => 'required|max:250',
-            'mail_encryption' => 'required',
+            'mail_encryption' => 'nullable',
             'mail_from_address' => 'required|max:250|email',
             'mail_from_name' => 'required|max:250',
         ]);
@@ -40,12 +40,12 @@ class EmailConfigController extends Controller
 
         $data = [
             'user_id' => $user->id,
-            'mail_mailer' => $validated['mail_mailer'],
+            // 'mail_mailer' => $validated['mail_mailer'],
             'mail_host' => $validated['mail_host'],
             'mail_port' => $validated['mail_port'],
             'mail_username' => $validated['mail_username'],
             'mail_password' => $validated['mail_password'],
-            'mail_encryption' => $validated['mail_encryption'],
+            'mail_encryption' => $validated['mail_encryption'] == '' ? null : $validated['mail_encryption'],
             'mail_from_address' => $validated['mail_from_address'],
             'mail_from_name' => $validated['mail_from_name'],
         ];
