@@ -1,5 +1,0 @@
-<<<<<<<< HEAD:public/build/assets/Welcome-nQgh_85j.js
-import{_ as a}from"./AuthenticatedLayout-m1yI-08C.js";import{g as t,a as e,u as s,w as r,F as o,o as c,d as n,b as _}from"./app-DdZDFx63.js";import{_ as m}from"./BreadcrumbComponent-BTkvAd7f.js";const l={class:"flex justify-between content-center"},h={__name:"Welcome",setup(i){return(d,f)=>(c(),t(o,null,[e(s(n),{title:"Welcome"}),e(a,null,{header:r(()=>[_("div",l,[e(m,{breadcrumbs:[{title:"Dashboard"}]})])]),_:1})],64))}};export{h as default};
-========
-import{_ as a}from"./AuthenticatedLayout-DXRkPPvj.js";import{g as t,a as e,u as s,w as r,F as o,o as c,d as n,b as _}from"./app-C2z0eYgw.js";import{_ as m}from"./BreadcrumbComponent-CbZ5UdW6.js";const l={class:"flex justify-between content-center"},h={__name:"Welcome",setup(i){return(d,f)=>(c(),t(o,null,[e(s(n),{title:"Welcome"}),e(a,null,{header:r(()=>[_("div",l,[e(m,{breadcrumbs:[{title:"Dashboard"}]})])]),_:1})],64))}};export{h as default};
->>>>>>>> master:public/build/assets/Welcome-IdIVUd-_.js
