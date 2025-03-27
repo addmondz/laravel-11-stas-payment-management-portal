@@ -84,15 +84,19 @@ class EmailConfigController extends Controller
                 ], 400);
             }
 
-            Config::set('mail.mailers.smtp.host', $ec->mail_host);
-            Config::set('mail.mailers.smtp.port', $ec->mail_port);
-            Config::set('mail.mailers.smtp.encryption', $ec->mail_encryption == 'none' ? null : $ec->mail_encryption);
-            Config::set('mail.mailers.smtp.username', $ec->mail_username);
-            Config::set('mail.mailers.smtp.password', $ec->mail_password);
-            Config::set('mail.from.address', $ec->mail_from_address);
-            Config::set('mail.from.name', $ec->mail_from_name);
+            Config::set('mail.mailers.smtp_'.$user->id.'.transport', 'smtp');
+            Config::set('mail.mailers.smtp_'.$user->id.'.url', null);
+            Config::set('mail.mailers.smtp_'.$user->id.'.host', $ec->mail_host);
+            Config::set('mail.mailers.smtp_'.$user->id.'.port', $ec->mail_port);
+            Config::set('mail.mailers.smtp_'.$user->id.'.encryption', $ec->mail_encryption == 'none' ? null : $ec->mail_encryption);
+            Config::set('mail.mailers.smtp_'.$user->id.'.username', $ec->mail_username);
+            Config::set('mail.mailers.smtp_'.$user->id.'.password', $ec->mail_password);
+            Config::set('mail.mailers.smtp_'.$user->id.'.timeout', null);
+            Config::set('mail.mailers.smtp_'.$user->id.'.local_domain', 'localhost');
+            Config::set('mail.from.address_'.$user->id, $ec->mail_from_address);
+            Config::set('mail.from.name_'.$user->id, $ec->mail_from_name);
 
-            Mail::raw('Testing Mail Config BODY', function ($message) {
+            Mail::mailer('smtp_'.$user->id)->raw('Testing Mail Config BODY', function ($message) {
                 $message->subject('Testing Mail Config')
                     ->to('exian97@gmail.com');
             });
@@ -177,16 +181,20 @@ class EmailConfigController extends Controller
 
             $receivers = explode(',', $et->receiver_emails);
 
-            Config::set('mail.mailers.smtp.host', $ec->mail_host);
-            Config::set('mail.mailers.smtp.port', $ec->mail_port);
-            Config::set('mail.mailers.smtp.encryption', $ec->mail_encryption == 'none' ? null : $ec->mail_encryption);
-            Config::set('mail.mailers.smtp.username', $ec->mail_username);
-            Config::set('mail.mailers.smtp.password', $ec->mail_password);
-            Config::set('mail.from.address', $ec->mail_from_address);
-            Config::set('mail.from.name', $ec->mail_from_name);
+            Config::set('mail.mailers.smtp_'.$user->id.'.transport', 'smtp');
+            Config::set('mail.mailers.smtp_'.$user->id.'.url', null);
+            Config::set('mail.mailers.smtp_'.$user->id.'.host', $ec->mail_host);
+            Config::set('mail.mailers.smtp_'.$user->id.'.port', $ec->mail_port);
+            Config::set('mail.mailers.smtp_'.$user->id.'.encryption', $ec->mail_encryption == 'none' ? null : $ec->mail_encryption);
+            Config::set('mail.mailers.smtp_'.$user->id.'.username', $ec->mail_username);
+            Config::set('mail.mailers.smtp_'.$user->id.'.password', $ec->mail_password);
+            Config::set('mail.mailers.smtp_'.$user->id.'.timeout', null);
+            Config::set('mail.mailers.smtp_'.$user->id.'.local_domain', 'localhost');
+            Config::set('mail.from.address_'.$user->id, $ec->mail_from_address);
+            Config::set('mail.from.name_'.$user->id, $ec->mail_from_name);
 
             for ($i = 0; $i < count($receivers); $i++) {
-                Mail::raw($et->body, function ($message) use ($ec, $et) {
+                Mail::mailer('smtp_'.$user->id)->raw($et->body, function ($message) use ($ec, $et) {
                     $message->to($ec->mail_from_address)
                         ->subject($et->subject);
                 });
