@@ -3,6 +3,7 @@
 use App\Http\Controllers\ApprovalStatusController;
 use App\Http\Controllers\ClaimController;
 use App\Http\Controllers\CurrencyController;
+use App\Http\Controllers\EmailConfigController;
 use App\Http\Controllers\PaymentCategoryController;
 use App\Http\Controllers\PaymentGroupController;
 use App\Http\Controllers\PaymentReceiverController;
@@ -10,7 +11,6 @@ use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VariableController;
-use App\Models\PaymentGroup;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('api')->middleware('auth')->group(function () {
@@ -18,6 +18,15 @@ Route::prefix('api')->middleware('auth')->group(function () {
     //     Route::get('/', [ProductController::class, 'index'])->name('product.list');
     //     Route::post('/add-to-cart', [ProductController::class, 'addToCart'])->name('product.addToCart');
     // });
+
+    Route::prefix('email-config')->group(function () {
+        Route::get('/get', [EmailConfigController::class, 'get'])->name('email_config.get');
+        Route::post('/upsert', [EmailConfigController::class, 'upsert'])->name('email_config.upsert');
+        Route::get('/test', [EmailConfigController::class, 'testConfig'])->name('email_config.test');
+        Route::get('/get-templates', [EmailConfigController::class, 'getTemplates'])->name('email_config.get_templates');
+        Route::post('/upsert-template/{et?}', [EmailConfigController::class, 'upsertTemplate'])->name('email_config.upsert_template');
+        Route::get('/template-send-mail/{et}', [EmailConfigController::class, 'templateSendMail'])->name('email_config.template_send_mail');
+    });
 
     Route::prefix('claims')->group(function () {
         Route::get('/list', [ClaimController::class, 'list'])->name('claims.list');

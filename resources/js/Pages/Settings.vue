@@ -53,6 +53,15 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="space-y-4">
+                                <div class="tab-btn border-4 border-white" tab-name="emailConfig">
+                                    <div class="flex items-center">
+                                        <div class="flex-1 p-4">
+                                            <p class="font-semibold">Email Config</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div class="w-full md:w-3/4 bg-white">
                             <div class="space-y-4">
@@ -91,6 +100,15 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="space-y-4">
+                                <div class="tab-display" tab-name="emailConfig">
+                                    <div class="flex items-center">
+                                        <div class="flex-1 p-4">
+                                            <EmailConfigComponent />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -101,7 +119,7 @@
                 <NotFound />
                 <div class="flex justify-center">
                     <Link :href="route('dashboard')">
-                        <PrimaryButton class="p-4">Back To Home Page</PrimaryButton>
+                    <PrimaryButton class="p-4">Back To Home Page</PrimaryButton>
                     </Link>
                 </div>
             </div>
@@ -118,6 +136,7 @@ import PaymentCategoryComponent from '@/Components/Settings/PaymentCategoryCompo
 import GstSettingsComponent from '@/Components/Settings/GstSettingsComponent.vue';
 import BreadcrumbComponent from '@/Components/General/BreadcrumbComponent.vue';
 import TeamComponent from '@/Components/Settings/TeamComponent.vue';
+import EmailConfigComponent from '@/Components/Settings/EmailConfigComponent.vue';
 import { isAdmin } from '@/Composables/GlobalFuntions.vue';
 import NotFound from '@/Components/Icons/NotFound.vue';
 import PaymentReceverComponent from '@/Components/Settings/PaymentReceverComponent.vue';

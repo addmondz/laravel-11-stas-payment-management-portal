@@ -240,8 +240,7 @@ class ClaimController extends Controller
                 if ($isFinance) {
                     $query->where('status', ApprovalStatus::APPROVED);
                 }
-
-                if ($privilegeRoleId) {
+                else if ($privilegeRoleId) {
                     $query->orWhere('approval_status', $privilegeRoleId - 1);
                 }
             } else {

@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\PaymentGroup;
 use App\Classes\ValueObjects\Constants\ApprovalStatus;
+use App\Models\PaymentGroup;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -17,7 +17,7 @@ class PaymentGroupController extends Controller
             $perPage = $request->query('per_page', 10);
 
             // Fetch payment groups with their associated claims using pagination
-            $query = PaymentGroup::with(['claims', 'claims.createdUser']);
+            $query = PaymentGroup::orderBy('id', 'desc')->with(['claims', 'claims.createdUser']);
 
             // Apply filters
             $filters = ['id', 'payment_voucher_number'];
@@ -28,13 +28,13 @@ class PaymentGroupController extends Controller
             }
 
             // dd($request->input());
-            
+
             if (($payment_date = $request->input('payment_date')) !== null) {
                 $dates = is_array($payment_date) ? $payment_date : explode(',', $payment_date);
                 if (count($dates) === 2) {
                     $query->whereBetween('payment_date', [
                         Carbon::parse($dates[0])->startOfDay(),
-                        Carbon::parse($dates[1])->endOfDay()
+                        Carbon::parse($dates[1])->endOfDay(),
                     ]);
                 }
             }
@@ -47,8 +47,8 @@ class PaymentGroupController extends Controller
                     $currency = $claim->currencyObject;
                     $claim->currency = $currency->short_code;
                     $claim->status_id = $claim->status;
-                    $claim->status_name = ApprovalStatus::APPROVAL_STATUS_ID[$claim->status] .
-                        ($claim->status == ApprovalStatus::PENDING_APPROVAL ? ' • L' . ($claim->approval_status + 1) : '');
+                    $claim->status_name = ApprovalStatus::APPROVAL_STATUS_ID[$claim->status].
+                        ($claim->status == ApprovalStatus::PENDING_APPROVAL ? ' • L'.($claim->approval_status + 1) : '');
                     $claim->status = ApprovalStatus::APPROVAL_STATUS_ID[$claim->status];
                     $claim->payment_category_name = $claim->paymentCategory->name;
                     $claim->receipt_file = $this->getReceiptFileUrl($claim->receipt_file);
@@ -61,6 +61,7 @@ class PaymentGroupController extends Controller
                 $group->sum_claims = $group->claims->sum('amount');
 
                 $group->claimIds = implode(',', $group->claims->pluck('id')->toArray());
+
                 return $group;
             });
 
@@ -84,9 +85,8 @@ class PaymentGroupController extends Controller
         }
     }
 
-
     public function getReceiptFileUrl($url)
     {
-        return $url ? (app()->environment('production') ? 'public/' : '') . $url : null;
+        return $url ? (app()->environment('production') ? 'public/' : '').$url : null;
     }
 }
