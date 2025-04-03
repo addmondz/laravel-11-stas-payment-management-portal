@@ -27,8 +27,6 @@ class PaymentGroupController extends Controller
                 }
             }
 
-            // dd($request->input());
-
             if (($payment_date = $request->input('payment_date')) !== null) {
                 $dates = is_array($payment_date) ? $payment_date : explode(',', $payment_date);
                 if (count($dates) === 2) {
@@ -44,22 +42,25 @@ class PaymentGroupController extends Controller
             // Transform claims for each payment group
             $paymentGroups->getCollection()->transform(function ($group) {
                 $group->claims->transform(function ($claim) {
-                    $currency = $claim->currencyObject;
-                    $claim->currency = $currency->short_code;
+                    $currency = $claim->currencyObject ?? null;
+                    $claim->currency = $currency?->short_code ?? null;
                     $claim->status_id = $claim->status;
-                    $claim->status_name = ApprovalStatus::APPROVAL_STATUS_ID[$claim->status].
-                        ($claim->status == ApprovalStatus::PENDING_APPROVAL ? ' • L'.($claim->approval_status + 1) : '');
+                    $claim->status_name = ApprovalStatus::APPROVAL_STATUS_ID[$claim->status] .
+                        ($claim->status == ApprovalStatus::PENDING_APPROVAL ? ' • L' . ($claim->approval_status + 1) : '');
                     $claim->status = ApprovalStatus::APPROVAL_STATUS_ID[$claim->status];
-                    $claim->payment_category_name = $claim->paymentCategory->name;
+                    $claim->payment_category_name = optional($claim->paymentCategory)->name;
                     $claim->receipt_file = $this->getReceiptFileUrl($claim->receipt_file);
                     $claim->payment_receiver = $claim->paymentToUser;
 
                     return $claim;
                 });
 
-                $group->currency = $group->claims->first()->currencyObject->short_code;
-                $group->sum_claims = $group->claims->sum('amount');
+                $firstClaim = $group->claims->first();
+                $group->currency = $firstClaim && $firstClaim->currencyObject
+                    ? $firstClaim->currencyObject->short_code
+                    : null;
 
+                $group->sum_claims = $group->claims->sum('amount');
                 $group->claimIds = implode(',', $group->claims->pluck('id')->toArray());
 
                 return $group;
@@ -87,6 +88,6 @@ class PaymentGroupController extends Controller
 
     public function getReceiptFileUrl($url)
     {
-        return $url ? (app()->environment('production') ? 'public/' : '').$url : null;
+        return $url ? (app()->environment('production') ? 'public/' : '') . $url : null;
     }
 }
