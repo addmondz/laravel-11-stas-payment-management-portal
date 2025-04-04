@@ -25,7 +25,7 @@ class LogApiActivity
                 'action' => strtolower($method),
                 'subject' => $routeAction,
                 'description' => "Accessed {$method} {$path}",
-                'request_body' => json_encode($request->all()),
+                'request_body' => $path == 'login' ? null : json_encode($request->all()),
                 'ip_address' => $request->ip(),
                 'user_agent' => $request->header('User-Agent'),
             ]);
