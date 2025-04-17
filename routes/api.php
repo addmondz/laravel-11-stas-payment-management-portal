@@ -97,6 +97,7 @@ Route::prefix('api')->middleware('auth')->group(function () {
 
     Route::prefix('payment-grousp')->group(function () {
         Route::get('/list', [PaymentGroupController::class, 'list'])->name('paymentGroup.list');
+        Route::post('/{id}/delete', [PaymentGroupController::class, 'deletePaymentGroup'])->name('paymentGroup.delete');
     });
 
 });
