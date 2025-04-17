@@ -22,4 +22,9 @@ class PaymentGroupChild extends Model
     {
         return $this->belongsTo(PaymentGroup::class);
     }
+
+    public function claim()
+    {
+        return $this->belongsTo(Claim::class);
+    }
 }

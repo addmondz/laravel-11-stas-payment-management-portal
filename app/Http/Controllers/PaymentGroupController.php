@@ -90,4 +90,30 @@ class PaymentGroupController extends Controller
     {
         return $url ? (app()->environment('production') ? 'public/' : '') . $url : null;
     }
+
+    public function deletePaymentGroup(Request $request, $groupId)
+    {
+        $paymentGroup = PaymentGroup::find($groupId);
+
+        if (!$paymentGroup) {
+            return response()->json(['error' => 'Payment Group not found.'], 404);
+        }
+
+        foreach ($paymentGroup->paymentGroupsChild as $paymentGroupChild) {
+            $claim = $paymentGroupChild->claim;
+            $claim->update(['status' => ApprovalStatus::APPROVED]);
+
+            $claim->payment_voucher_number        = null;
+            $claim->payment_date                  = null;
+            $claim->payment_voucher_receipt_file  = null;
+            $claim->payment_mode                  = null;
+
+            $claim->statusLogs()->latest()->first()?->delete();
+        }
+
+        $paymentGroup->delete();
+
+        return response()->json(['message' => 'Payment Group has been deleted.'], 200);
+    }
+
 }
