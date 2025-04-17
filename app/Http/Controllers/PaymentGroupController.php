@@ -107,6 +107,7 @@ class PaymentGroupController extends Controller
             $claim->payment_date                  = null;
             $claim->payment_voucher_receipt_file  = null;
             $claim->payment_mode                  = null;
+            $claim->save();
 
             $claim->statusLogs()->latest()->first()?->delete();
         }
