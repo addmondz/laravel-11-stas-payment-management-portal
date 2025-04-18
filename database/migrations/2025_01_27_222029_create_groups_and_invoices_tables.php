@@ -26,7 +26,8 @@ class CreateGroupsAndInvoicesTables extends Migration
         Schema::create('payment_groups_child', function (Blueprint $table) {
             $table->id();
             $table->foreignId('payment_group_id')->constrained('payment_groups')->onDelete('cascade'); // Linking to the groups table
-            $table->integer('claim_id')->unique()->nullable(); // A claim can only belong to one group, nullable in case not assigned
+            // $table->integer('claim_id')->unique()->nullable(); // A claim can only belong to one group, nullable in case not assigned
+            $table->integer('claim_id')->nullable(); // A claim can only belong to one group, nullable in case not assigned
             $table->timestamps();
         });
     }

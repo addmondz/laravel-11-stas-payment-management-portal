@@ -83,6 +83,7 @@
                         <PaymentVoucherForm :claimId="data.claimIds" :data="data" @createComplete="handleCreateComplete"
                             :isListComponent="true" />
                         <ExportOutlined class="cursor-pointer" @click="actionClicked('export')" />
+                        <DeleteOutlined class="cursor-pointer" @click="deletePaymentGroupConfirmation" />
                         <AngleUp class="cursor-pointer" @click="clickShowDetails" v-if="showDetails" />
                         <AngleDown class="cursor-pointer" @click="clickShowDetails" v-if="!showDetails" />
                     </div>
@@ -103,7 +104,7 @@ import DocumentViewer from '@/Components/General/DocumentViewer.vue';
 import { ref } from 'vue';
 import AngleUp from '@/Components/Icons/AngleUp.vue';
 import AngleDown from '@/Components/Icons/AngleDown.vue';
-import { ExportOutlined } from '@ant-design/icons-vue';
+import { ExportOutlined, DeleteOutlined } from '@ant-design/icons-vue';
 import PrimaryButton from '@/Components/General/PrimaryButton.vue';
 import PaymentVoucherForm from '@/Components/Form/PaymentVoucherForm.vue';
 import { formatPrice, formatDate, formatString, formatDateWithTime, handleReportAction, downloadExcel, formatId } from '@/Helpers/helpers.js';
@@ -179,6 +180,46 @@ const actionClicked = async (action) => {
         Swal.fire("Error", "Failed to generate the report. Please try again.", "error");
     } finally {
         isLoading.value = false;
+    }
+};
+
+const deletePaymentGroupConfirmation = () => {
+    Swal.fire({
+        title: "Are you sure?",
+        text: "Are you sure you want to delete this payment group?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: 'Yes',
+        confirmButtonColor: '#d33',
+        cancelButtonText: 'No',
+        allowOutsideClick: false,
+        stopKeydownPropagation: true,
+        preConfirm: () => {
+            return new Promise((resolve, reject) => {
+                callApiToDeletePaymentGroup(resolve, reject);
+            });
+        }
+    });
+};
+
+const callApiToDeletePaymentGroup = async () => {
+    try {
+        const response = await axios.post(route('paymentGroup.delete', props.data.id));
+        emit('createComplete', true);
+        Swal.fire({
+            title: "Success!",
+            text: "The Payment Group has been successfully deleted.",
+            icon: "success",
+            confirmButtonText: "OK"
+        });
+    } catch (err) {
+        console.log(err);
+        Swal.fire({
+            title: "Error!",
+            text: err.response?.data?.error || "An unexpected error occurred while deleting the payment group.",
+            icon: "error",
+            confirmButtonText: "OK"
+        });
     }
 };
 </script>
