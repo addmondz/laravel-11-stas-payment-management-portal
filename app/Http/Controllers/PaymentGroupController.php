@@ -101,13 +101,14 @@ class PaymentGroupController extends Controller
 
         foreach ($paymentGroup->paymentGroupsChild as $paymentGroupChild) {
             $claim = $paymentGroupChild->claim;
-            $claim->update(['status' => ApprovalStatus::APPROVED]);
-
+            $claim->status                        = ApprovalStatus::APPROVED;
             $claim->payment_voucher_number        = null;
             $claim->payment_date                  = null;
             $claim->payment_voucher_receipt_file  = null;
             $claim->payment_mode                  = null;
             $claim->save();
+
+            $paymentGroupChild->delete();
 
             $claim->statusLogs()->latest()->first()?->delete();
         }
