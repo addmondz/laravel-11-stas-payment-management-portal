@@ -205,6 +205,7 @@ const deletePaymentGroupConfirmation = () => {
 const callApiToDeletePaymentGroup = async () => {
     try {
         const response = await axios.post(route('paymentGroup.delete', props.data.id));
+        emit('createComplete', true);
         Swal.fire({
             title: "Success!",
             text: "The Payment Group has been successfully deleted.",
