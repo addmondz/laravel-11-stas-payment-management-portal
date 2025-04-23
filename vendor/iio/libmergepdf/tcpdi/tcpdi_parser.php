@@ -708,6 +708,10 @@ class tcpdi_parser {
         $objtype = ''; // object type to be returned
         $objval = ''; // object value to be returned
         // skip initial white space chars: \x00 null (NUL), \x09 horizontal tab (HT), \x0A line feed (LF), \x0C form feed (FF), \x0D carriage return (CR), \x20 space (SP)
+        if (!isset($data[$offset])) {
+            return array('', $offset);
+        }
+
         while (strspn($data[$offset], "\x00\x09\x0a\x0c\x0d\x20") == 1) {
             $offset++;
         }
@@ -910,6 +914,9 @@ class tcpdi_parser {
         do {
             // Get dict element.
             list($key, $eloffset) = $this->getRawObject($dictoffset, $dict);
+            if (!isset($key[0])) {
+                break;
+            }
             if ($key[0] == '>>') {
                 break;
             }
